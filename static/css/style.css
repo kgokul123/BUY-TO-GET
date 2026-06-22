@@ -1,0 +1,133 @@
+/* போன் மற்றும் டேப்லெட்டில் எல்லா இமேஜ்களையும் ஒரே உயரத்திற்கு லாக் செய்யும் கோடு */
+@media (max-width: 1024px) {
+    /* 1. ஸ்லைடரின் மெயின் கண்டெய்னர் உயரத்தை பிக்சலில் லாக் செய்கிறோம் */
+    .carousel, .carousel-inner, .carousel-item {
+        height: 250px !important; /* டேப்லெட் மற்றும் போனுக்கு ஏற்ற கச்சிதமான உயரம் */
+        min-height: 250px !important;
+        background-color: #f8f9fa;
+    }
+
+    /* 2. எல்லா இமேஜ்களும் கட் ஆகாமல், அதே நேரம் ஒரே உயரத்தில் தெரிய வைக்கும் மேஜிக் */
+    .carousel-item img {
+        width: 100% !important;
+        height: 100% !important;   /* கண்டெய்னரின் 250px உயரத்தை அப்படியே எடுத்துக்கொள்ளும் */
+        object-fit: cover !important; /* இமேஜ் வெவ்வேறு சைஸ்ல இருந்தாலும் ஸ்ட்ரெட்ச் ஆகாமல் கச்சிதமாக ஃபிட் ஆகும் */
+        object-position: center !important; /* இமேஜின் நடுப்பகுதி தெளிவாகத் தெரியும் */
+    }
+}
+
+.card img{
+    width:100%;
+    height:180px;
+    object-fit:cover;
+}
+
+.carousel-item img {
+    object-fit: cover;
+    object-position: top;
+    height: 1000px;
+
+}
+.row{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.card{
+    width: 100%;
+}
+
+.card img{
+    height: 250px;
+    object-fit: cover;
+    width: 100%;
+}
+
+.old_price {
+    font-weight: bold;
+    color: #ff0000;
+}
+
+.new_price {
+    font-weight: bold;
+    background-color: #28a745;
+    color: white;
+    padding: 1px;
+    border-radius: 5px;
+}
+
+.pic-box{
+    position: relative;
+}
+
+.hot{
+    background-color: #fa5102;
+    color: white;
+    width: 50px;
+    text-align: center;
+    font-weight: bold;
+    display: inline;
+    border-radius: 5px;
+    padding: 5px;
+    position: absolute;
+    top: 0;
+    right: 20px;
+    z-index: 10;
+}
+
+.track{
+    display:flex;
+    justify-content:space-between;
+    margin-top:20px;
+    position:relative;
+}
+
+.track::before{
+    content:'';
+    position:absolute;
+    top:25px;
+    left:10%;
+    width:80%;
+    height:4px;
+    background:#ddd;
+    z-index:0;
+}
+
+.step{
+    text-align:center;
+    position:relative;
+    z-index:1;
+    flex:1;
+}
+
+.step .icon{
+    width:50px;
+    height:50px;
+    line-height:50px;
+    border-radius:50%;
+    background:#ddd;
+    display:inline-block;
+    font-size:22px;
+}
+
+.step.active .icon{
+    background:#28a745;
+    color:white;
+}
+
+.step .text{
+    display:block;
+    margin-top:8px;
+    font-size:14px;
+    font-weight:600;
+}
+
+
+.navbar-nav{
+    flex-wrap: nowrap !important;
+}
+
+.navbar-nav .nav-item{
+    white-space: nowrap;
+}
+

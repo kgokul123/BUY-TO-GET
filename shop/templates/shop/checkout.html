@@ -1,0 +1,275 @@
+{% extends 'shop/layouts/main.html' %}
+
+{% block content %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
+
+<div class="container mb-5" style="margin-top:100px; min-height: 80vh;">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+
+            <div class="card p-4 shadow-sm bg-white border-0 rounded-3">
+                <h3 class="fw-bold text-dark">Secure Checkout</h3>
+                <hr class="mb-4">
+
+                <form method="POST" id="checkout-form">
+                    {% csrf_token %}
+
+                    <div id="step-1">
+                        <div class="mb-4">
+                            <label class="fw-bold mb-2">Name</label>
+                            <input type="text" id="name" name="name" class="form-control" style="padding: 10px;" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="fw-bold mb-2">Phone Number</label>
+                            <div class="input-group">
+                                <input type="tel" id="phoneNumber" name="phone" class="form-control" style="padding: 10px;" required>
+                                <button type="button" id="btnSendOTP" class="btn btn-primary px-4">Send OTP</button>
+                            </div>
+                        </div>
+
+                        <div class="mb-4" id="otpSection" style="display: none;">
+                            <label class="fw-bold text-primary mb-2">Enter OTP</label>
+                            <div class="input-group">
+                                <input type="text" id="otpInput" class="form-control" style="padding: 10px;" maxlength="6" placeholder="Enter 6-digit code" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                                <button type="button" id="btnVerifyOTP" class="btn btn-success px-4">Verify OTP</button>
+                            </div>
+                            <div id="otpResult" class="mt-1 small fw-bold"></div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="fw-bold mb-2">Address</label>
+                            <textarea id="address" name="address" rows="4" class="form-control" style="padding: 10px;" required></textarea>
+                        </div>
+
+                        <button type="button" class="btn btn-info mt-2 text-white w-100 py-2 fw-bold" onclick="goToStep2()">Next: Payment & Availability</button>
+                    </div>
+
+
+                    <div id="step-2" style="display: none;">
+                        <div class="mb-4">
+                            <label class="fw-bold mb-2">Payment Method</label><br>
+                            <input type="radio" id="cod" name="payment_method" value="COD" checked> Cash On Delivery &nbsp;&nbsp;
+                            <input type="radio" id="upi" name="payment_method" value="UPI"> UPI Payment
+
+                            <div id="upi-fields" class="mt-3" style="display: none;">
+                                <label class="fw-bold text-secondary mb-1">UPI Transaction ID</label>
+                                <input type="text" name="upi_transaction_id" class="form-control w-100 mb-2" style="max-width: 500px; padding: 10px;" placeholder="Enter UPI Transaction ID">
+                                <p class="small text-muted"><strong>UPI ID :</strong> kalaiarasi2128@oksbi</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-4 mt-4">
+                            <label class="fw-bold mb-2">Pincode</label>
+                            <input type="text" id="pincode" name="pincode" class="form-control" style="max-width: 500px; padding: 10px;" maxlength="6" required>
+                        </div>
+
+                        <button type="button" class="btn btn-info text-white px-4" onclick="checkPincode()">
+                            Check Availability
+                        </button>
+                        
+                        <div id="result" class="mt-2"></div>
+
+                        <hr class="mt-4">
+                        <button type="button" class="btn btn-secondary mt-3 px-4" onclick="goToStep1()">Back</button>
+                        <button type="submit" id="placeOrderBtn" class="btn btn-success mt-3 float-end px-4 fw-bold" disabled>
+                            Place Order
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+
+<script>
+// ================= 2. உங்களுடைய நேரடி ஃபயர்பேஸ் கிரிடென்ஷியல்ஸ் பாஸ் ================= -->
+const firebaseConfig = {
+    apiKey: "AIzaSyCiKQMKpBPA0lK-VLyRyRd66Grt58KaJn8",
+    authDomain: "buy-to-get-65dba.firebaseapp.com",
+    projectId: "buy-to-get-65dba",
+    storageBucket: "buy-to-get-65dba.firebasestorage.app",
+    messagingSenderId: "490384854040",
+    appId: "1:490384854040:web:438a35687453c45af5476d",
+    measurementId: "G-CEKS68LWJC"
+};
+
+// ஃபயர்பேஸ் இனிஷியலைசேஷன்
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+auth.languageCode = 'ta'; // ஓடிபி எஸ்எம்எஸ் தமிழ்ல கிரிஸ்ப்பா போகும்!
+
+// குளோபல் வேரியபிள்கள்
+let isPincodeAvailable = false;
+let isOtpVerified = false;
+let confirmationResult = null; // ஃபயர்பேஸ் வெரிஃபிகேஷனை ஹோல்டு பண்ண பாஸ்
+
+// 1. ஸ்டெப் 1-ல் இருந்து ஸ்டெப் 2-க்கு மாற
+function goToStep2() {
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phoneNumber").value.trim();
+    const address = document.getElementById("address").value.trim();
+
+    if(name === "" || phone === "" || address === "") {
+        alert("Please fill in your name, phone number, and address completely.!");
+        return;
+    }
+    
+    if(!isOtpVerified) { 
+        alert("Please complete the OTP verification first, boss! Only then can you proceed to the next page.."); 
+        return; 
+    }
+
+    document.getElementById("step-1").style.display = "none";
+    document.getElementById("step-2").style.display = "block";
+}
+
+// 2. ஸ்டெப் 2-ல் இருந்து ஸ்டெப் 1-க்குத் திரும்ப வர
+function goToStep1() {
+    document.getElementById("step-2").style.display = "none";
+    document.getElementById("step-1").style.display = "block";
+}
+
+// 3. பின்கோடு செக் செய்யும் ஃபங்க்ஷன்
+function checkPincode() {
+    let pincode = document.getElementById("pincode").value;
+    let result = document.getElementById("result");
+
+    if(!pincode) { alert("Please Enter Pincode!"); return; }
+
+    fetch(`/check-pincode/?pincode=${pincode}`)
+    .then(response => response.json())
+    .then(data => {
+        if(data.available){
+            result.innerHTML = "<span class='text-success fw-bold'>✓ Delivery Available</span>";
+            isPincodeAvailable = true;
+        }else{
+            result.innerHTML = "<span class='text-danger fw-bold'>✗ Delivery Not Available</span>";
+            isPincodeAvailable = false;
+        }
+        checkFormValidity();
+    });
+}
+
+// 4. பட்டன் அன்லாக் செய்யும் லாஜிக்
+function checkFormValidity() {
+    let placeBtn = document.getElementById("placeOrderBtn");
+    if(isPincodeAvailable && isOtpVerified) {
+        placeBtn.disabled = false;
+    } else {
+        placeBtn.disabled = true;
+    }
+}
+
+// 5. ஓடிபி மற்றும் பேமெண்ட் டாங்கிள் செயல்பாடுகள்
+document.addEventListener("DOMContentLoaded", function() {
+    
+    // ---- இந்தியக் கொடி செட்டப் ----
+    const phoneInputField = document.querySelector("#phoneNumber");
+    const phoneInput = window.intlTelInput(phoneInputField, {
+        initialCountry: "in",
+        separateDialCode: true,
+        utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+    });
+
+    // ஃபயர்பேஸ் இன்விசிபிள் ரீகேப்சா செட்டப் பாஸ் (ரோபோட் இல்லை என்பதை செக் செய்ய)
+    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('btnSendOTP', {
+        'size': 'invisible'
+    });
+
+    const btnSendOTP = document.getElementById("btnSendOTP");
+    const btnVerifyOTP = document.getElementById("btnVerifyOTP");
+    const otpSection = document.getElementById("otpSection");
+    const otpResult = document.getElementById("otpResult");
+
+    // ================= 3. ஃபயர்பேஸ் மூலமாக நேரடியா OTP அனுப்புதல் =================
+    btnSendOTP.addEventListener("click", function() {
+        const phone = phoneInput.getNumber(); // நாடாக இருந்தாலும் +91 உடன் முழு எண் வரும்
+        
+        if(!phoneInput.isValidNumber()) { 
+            alert("Wrong mobile number! Please write 10 digit mobile number with valid flag."); 
+            return; 
+        }
+
+        const appVerifier = window.recaptchaVerifier;
+
+        // ஜாங்கோ views.py-க்கு மொபைல் எண்ணை மட்டும் அனுப்பி செஷனில் சேமிக்கிறோம் பாஸ்
+        fetch("/send-otp/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": document.cookie.split('csrftoken=')[1]?.split(';')[0]
+            },
+            body: JSON.stringify({ mobile_number: phone })
+        });
+
+        // கூகுள் ஃபயர்பேஸ் சர்வருக்கு நேரடியா ஆர்டர் அனுப்பி மொபைலுக்கு ஓடிபி பாய்கிறது பாஸ்!
+        auth.signInWithPhoneNumber(phone, appVerifier)
+        .then((result) => {
+            confirmationResult = result;
+            alert("The OTP has been sent successfully,.!");
+            otpSection.style.display = "block";
+        })
+        .catch((err) => {
+            alert("Unable to send OTP:" + err.message);
+            console.error(err);
+        });
+    });
+
+    // ================= 4. வந்த ஓடிபியை ஃபயர்பேஸ் சர்வரில் சரிபார்த்தல் =================
+    btnVerifyOTP.addEventListener("click", function() {
+        const otp = document.getElementById("otpInput").value;
+        if(!otp) { alert("Please type the 6-digit OTP,.!"); return; }
+
+        // ஃபயர்பேஸ் கன்பர்மேஷன் லாஜிக்
+        confirmationResult.confirm(otp)
+        .then((result) => {
+            otpResult.innerHTML = "<span class='text-success'>✓ OTP successfully verified,.!</span>";
+            isOtpVerified = true;
+            
+            // ஓடிபி ஓகே ஆனதும் ஃபீல்டுகளை லாக் செய்கிறோம்
+            btnSendOTP.disabled = true;
+            btnVerifyOTP.disabled = true;
+            document.getElementById("phoneNumber").disabled = true;
+            document.getElementById("otpInput").disabled = true;
+            
+            checkFormValidity();
+        })
+        .catch((err) => {
+            otpResult.innerHTML = "<span class='text-danger'>✗ Incorrect OTP code! Please try again..</span>";
+            isOtpVerified = false;
+            checkFormValidity();
+        });
+    });
+
+    // ---- பேமெண்ட் மெத்தட் டாங்கிள் லாஜிக் ----
+    const codRadio = document.getElementById("cod");
+    const upiRadio = document.getElementById("upi");
+    const upiFields = document.getElementById("upi-fields");
+
+    function togglePaymentFields() {
+        if (upiRadio.checked) {
+            upiFields.style.display = "block";
+        } else {
+            upiFields.style.display = "none";
+        }
+    }
+
+    codRadio.addEventListener("change", togglePaymentFields);
+    upiRadio.addEventListener("change", togglePaymentFields);
+});
+</script>
+
+<style>
+  .iti { width: 100%; }
+  .input-group .iti { flex: 1 1 auto; width: 1%; }
+</style>
+
+{% endblock content %}

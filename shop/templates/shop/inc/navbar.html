@@ -1,0 +1,108 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top auto-hide-nav">
+    <div class="container">
+
+        <a class="navbar-brand" href="{% url 'home' %}">
+            <i class="fa fa-cart-plus"></i> KALAIARASI METAL STORE
+        </a>
+
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarNavAltMarkup">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+
+            <div class="navbar-nav ms-auto">
+
+                <a class="nav-link" href="{% url 'home' %}">
+                    <i class="fa fa-home"></i> Home
+                </a>
+
+                {% if request.user.is_authenticated %}
+
+                    <a class="nav-link" href="#">
+                        <i class="fa fa-user"></i> {{ request.user }}
+                    </a>
+
+                    <a class="nav-link" href="{% url 'logout' %}">
+                        <i class="fa fa-sign-out"></i> Logout
+                    </a>
+
+                {% else %}
+
+                    <a class="nav-link" href="{% url 'login' %}">
+                        <i class="fa fa-sign-in"></i> Login
+                    </a>
+
+                    <a class="nav-link" href="{% url 'register' %}">
+                        <i class="fa fa-users"></i> Register
+                    </a>
+
+                {% endif %}
+
+                <a class="nav-link" href="{% url 'collections_list' %}">
+                    <i class="fa fa-cubes"></i> Collections
+                </a>
+
+                <a class="nav-link" href="{% url 'cart' %}">
+                    <i class="fa fa-shopping-cart"></i> Cart
+                </a>
+
+                <a class="nav-link" href="{% url 'Fav' %}">
+                    <i class="fa fa-heart"></i> Favourite
+                </a>
+
+                <a class="nav-link" href="{% url 'myorders' %}">
+                    <i class="fa fa-box"></i> My Orders
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+</nav>
+
+<style>
+    /* ஆரம்பத்தில் நேவ்பாரை ஸ்கிரீனுக்கு மேலே மறைத்து வைக்கிறோம் */
+    .auto-hide-nav {
+        transform: translateY(-100%);
+        transition: transform 0.4s ease-in-out !important;
+    }
+
+    /* 💻 PC / லேப்டாப்பில் மவுஸை ஸ்கிரீனின் டாப் பகுதிக்கு கொண்டு சென்றால் நேவ்பார் ஸ்மூத்தாக கீழே வரும் */
+    body:hover .auto-hide-nav,
+    .auto-hide-nav:hover {
+        transform: translateY(0);
+    }
+
+    /* 📱 போன் / டேப்லெட்டில் யூசர் ஸ்கிரீனை டச் செய்யும்போது காட்ட வேண்டிய கிளாஸ் */
+    .auto-hide-nav.show-on-touch {
+        transform: translateY(0);
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const nav = document.querySelector('.auto-hide-nav');
+        let touchTimeout;
+        
+        // மொபைல் ஸ்கிரீனில் எங்கு டச் பண்ணினாலும் நேவ்பார் கீழே இறங்கி வரும்
+        document.addEventListener('touchstart', function() {
+            nav.classList.add('show-on-touch');
+        });
+
+        // யூசர் டச் பண்ணி கையை எடுத்த 3 வினாடிகளுக்கு பிறகு நேவ்பார் தானாக மேலே மறைந்துவிடும்
+        document.addEventListener('touchend', function() {
+            clearTimeout(touchTimeout);
+            touchTimeout = setTimeout(function() {
+                // ஒருவேளை பூட்ஸ்டாரப் மொபைல் மெனு (Hamburger) ஓப்பனாக இருந்தால் மறைக்காது
+                const isMenuOpen = document.querySelector('#navbarNavAltMarkup').classList.contains('show');
+                if (!isMenuOpen) {
+                    nav.classList.remove('show-on-touch');
+                }
+            }, 3000); // 3000ms = 3 வினாடிகள்
+        });
+    });
+</script>

@@ -1,0 +1,69 @@
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Kalaiarasi Metal Store
+{% endblock title %}
+
+{% block content %}
+
+<section class="bg-light py-4 my-5">
+    <div class="container">
+
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">{{ category_name }}</h4>
+                <hr style="border-color:#b8bfc2;">
+
+                {% include 'shop/inc/message.html' %}
+            </div>
+        </div>
+
+        <div class="row">
+
+            {% for item in products %}
+
+            <div class="col-md-4 col-lg-3 mb-4">
+
+                <div class="card h-100 shadow-sm">
+
+                    <a href="{% url 'product_details' item.category.name item.name %}">
+                        <img src="{{ item.product_image.url }}"
+                             class="card-img-top"
+                             alt="{{ item.name }}">
+                    </a>
+
+                    <div class="card-body">
+
+                        <a href="{% url 'product_details' item.category.name item.name %}"
+                           class="text-decoration-none">
+
+                            <h5 class="card-title text-primary">
+                                {{ item.name }}
+                            </h5>
+
+                        </a>
+
+                        <p class="card-text">
+                            <span class="float-start old_price">
+                                <s>Rs.{{ item.original_price|stringformat:'d' }}</s>
+                            </span>
+
+                            <span class="float-end new_price">
+                                Rs.{{ item.selling_price|stringformat:'d' }}
+                            </span>
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+</section>
+
+{% endblock content %}

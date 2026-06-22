@@ -1,0 +1,141 @@
+{% extends 'shop/layouts/main.html' %}
+{% load static %}
+
+{% block title %}
+    New User Registration for Shopping
+{% endblock title %}
+
+{% block content %}
+
+<!-- சிஎஸ்எஸ் அனிமேஷன் மற்றும் லேஅவுட் மேஜிக் ஸ்டைல் பாஸ் -->
+<style>
+    .register-container-box {
+        position: relative;
+        overflow: hidden; /* இமேஜ் ஜூம் ஆகும்போது பாக்ஸை விட்டு வெளிய போகாமல் தடுக்க */
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 50px 0;
+    }
+
+    /* அனிமேஷன் ஆகப்போகும் பேக்ரவுண்ட் லேயர் - புது 'register.webp' இமேஜ் பாஸ் */
+    .register-animated-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        /* இமேஜ் மேலே ஒரு லைட்டான கறுப்பு நிழல் படலம் விழ வைக்கிறோம் */
+        background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url("{% static 'uploads/images/registra.png' %}") no-repeat center center;
+        background-size: cover;
+        z-index: 1;
+        /* ஜூம் அனிமேஷனை இங்கே இணைக்கிறோம் (7 செகண்ட் மெதுவாக ஜூம் ஆகும்) */
+        animation: smoothZoom 7s ease-out forwards;
+    }
+
+    /* ரிஜிஸ்டர் கார்டு இமேஜுக்கு மேலே பளிச்சென்று தெரிய z-index மாத்துறோம் பாஸ் */
+    .register-content-layer {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+    }
+
+    /* ஜூம் அனிமேஷன் லாஜிக் (100% லிருந்து 112% வரை மெதுவாக ஜூம் ஆகும்) */
+    @keyframes smoothZoom {
+        0% {
+            transform: scale(1);
+        }
+        100% {
+            transform: scale(1.12);
+        }
+    }
+</style>
+
+<!-- மெயின் அனிமேஷன் பாக்ஸ் லேயர் -->
+<div class="register-container-box">
+    
+    <!-- பேக்ரவுண்ட் இமேஜ் லேயர் (இதுதான் பேக்ஹவுண்ட்ல ஸ்மூத்தா ஜூம் ஆகும்) -->
+    <div class="login-animated-bg register-animated-bg"></div>
+    
+    <!-- முன்னாடி இருக்குற ரிஜிஸ்டர் ஃபார்ம் கன்டென்ட் லேயர் -->
+    <div class="register-content-layer">
+        <div class="container">
+            <div class="row">
+                <!-- ரிஜிஸ்டர் பாக்ஸை சென்டருக்கு கொண்டு வர col-md-5 mx-auto பயன்படுத்துகிறோம் பாஸ் -->
+                <div class="col-md-5 mx-auto">
+                    
+                    <!-- உங்க ஃபார்மை ஒரு அழகான ஒயிட் கார்டுக்குள் லாக் பண்றோம் -->
+                    <div class="card p-4 shadow-lg bg-white border-0 rounded-3">
+                        <h4 class="mb-2 fw-bold text-dark text-center">Register Page</h4>
+                        <hr style="border-color:#b8bfc2;" class="mb-4">
+                        
+                        <!-- உங்களுடைய ஒரிஜினல் மெசேஜ் சிஸ்டம் -->
+                        {% include 'shop/inc/message.html' %}
+
+                        <form method="post" action="">
+                            {% csrf_token %}
+
+                            <!-- USERNAME field -->
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-uppercase">Username</label>
+                                {{ form.username }}
+                                {% if form.errors.username %}
+                                <div class="text-danger small mt-1 fw-bold">
+                                    {{ form.errors.username }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- USER EMAIL field -->
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-uppercase">User Email</label>
+                                {{ form.email }}
+                                {% if form.errors.email %}
+                                <div class="text-danger small mt-1 fw-bold">
+                                    {{ form.errors.email }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- PASSWORD field -->
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-uppercase">Password</label>
+                                {{ form.password1 }}
+                                {% if form.errors.password1 %}
+                                <div class="text-danger small mt-1 fw-bold">
+                                    {{ form.errors.password1 }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- CONFIRM PASSWORD field -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold small text-uppercase">Confirm Password</label>
+                                {{ form.password2 }}
+                                {% if form.errors.password2 %}
+                                <div class="text-danger small mt-1 fw-bold">
+                                    {{ form.errors.password2 }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <button type="submit" class="btn btn-success w-100 py-2 fw-bold text-uppercase">
+                                Register
+                            </button>
+
+                        </form>
+                        
+                        <div class="text-center mt-3">
+                            <p class="small mb-0 text-muted">Already user? <a href="{% url 'login' %}" class="text-primary fw-bold text-decoration-none">LOGIN NOW</a></p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock content %}

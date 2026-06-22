@@ -1,0 +1,93 @@
+{% extends 'shop/layouts/main.html' %}
+{% load static %}
+
+{% block title %}
+    login for shopping
+{% endblock title %}
+
+{% block content %}
+
+<style>
+    .login-container-box {
+        position: relative;
+        overflow: hidden; /* இமேஜ் ஜூம் ஆகும்போது பாக்ஸை விட்டு வெளிய போகாமல் தடுக்க */
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 0;
+    }
+
+    /* அனிமேஷன் ஆகப்போகும் பேக்ரவுண்ட் லேயர் */
+    .login-animated-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        /* இமேஜ் மேலே ஒரு லைட்டான கறுப்பு நிழல் படலம் விழ வைக்கிறோம், மேலும் புது இமேஜ் 'login.jpg' ஐ இணைத்துள்ளோம் பாஸ் */
+        background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url("{% static 'uploads/images/logina.png' %}") no-repeat center center;
+        background-size: cover;
+        z-index: 1;
+        /* ஜூம் அனிமேஷனை இங்கே இணைக்கிறோம் (7 செகண்ட் மெதுவாக ஜூம் ஆகும்) */
+        animation: smoothZoom 7s ease-out forwards;
+    }
+
+    /* லாகின் கார்டு இமேஜுக்கு மேலே பளிச்சென்று தெரிய z-index மாத்துறோம் பாஸ் */
+    .login-content-layer {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+    }
+
+    /* ஜூம் அனிமேஷன் லாஜிக் (100% லிருந்து 112% வரை மெதுவாக ஜூம் ஆகும்) */
+    @keyframes smoothZoom {
+        0% {
+            transform: scale(1);
+        }
+        100% {
+            transform: scale(1.12);
+        }
+    }
+</style>
+
+<div class="login-container-box">
+    
+    <div class="login-animated-bg"></div>
+    
+    <div class="login-content-layer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-5 mx-auto">
+                    
+                    <div class="card p-4 shadow-lg bg-white border-0 rounded-3">
+                        <h4 class="mb-2 fw-bold text-dark text-center">User Login</h4>
+                        <hr style="border-color:#b8bfc2;" class="mb-4">
+                        
+                        {% include 'shop/inc/message.html' %}
+
+                        <form method="post" action="">
+                            {% csrf_token %}
+                            
+                            <div class="mb-4">
+                                <label for="Username" class="form-label fw-bold small">User name</label>
+                                <input type="text" name="username" id="Username" class="form-control" style="padding: 10px;" placeholder="Enter User Name" required>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="password" class="form-label fw-bold small">Password</label>
+                                <input type="password" name="password" id="password" class="form-control" style="padding: 10px;" placeholder="Password" required>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold text-uppercase">LOGIN</button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock content %}
