@@ -1,15 +1,11 @@
-<!-- 💻 1. PC / லேப்டாப் வியூவிற்கான டாப் நேவ்பார் (மொபைலில் 'd-none d-lg-block' மூலம் இதை ஹைட் செய்கிறோம்) -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top d-none d-lg-block">
     <div class="container">
-
         <a class="navbar-brand" href="{% url 'home' %}">
-            <i class="fa fa-cart-plus"></i> KALAIARASI METAL STORE
+            <i class="fa fa-shopping-cart"></i> KALAIARASI METAL STORE
         </a>
-
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav ms-auto">
                 <a class="nav-link" href="{% url 'home' %}"><i class="fa fa-home"></i> Home</a>
-
                 {% if request.user.is_authenticated %}
                     <a class="nav-link" href="#"><i class="fa fa-user"></i> {{ request.user }}</a>
                     <a class="nav-link" href="{% url 'logout' %}"><i class="fa fa-sign-out"></i> Logout</a>
@@ -17,39 +13,46 @@
                     <a class="nav-link" href="{% url 'login' %}"><i class="fa fa-sign-in"></i> Login</a>
                     <a class="nav-link" href="{% url 'register' %}"><i class="fa fa-users"></i> Register</a>
                 {% endif %}
-
                 <a class="nav-link" href="{% url 'collections_list' %}"><i class="fa fa-cubes"></i> Collections</a>
                 <a class="nav-link" href="{% url 'cart' %}"><i class="fa fa-shopping-cart"></i> Cart</a>
                 <a class="nav-link" href="{% url 'Fav' %}"><i class="fa fa-heart"></i> Favourite</a>
                 <a class="nav-link" href="{% url 'myorders' %}"><i class="fa fa-box"></i> My Orders</a>
             </div>
         </div>
-
     </div>
 </nav>
 
-<!-- 📱 2. மொபைல் வியூவிற்கான அமேசான் ஸ்டைல் பாட்டம் நேவிகேஷன் பார் (பெரிய திரைகளில் 'd-lg-none' மூலம் ஹைட் ஆகும்) -->
+<nav class="navbar navbar-dark bg-dark fixed-top mobile-top-nav d-block d-lg-none">
+    <div class="container text-center">
+        <a class="navbar-brand m-0 style-brand" href="{% url 'home' %}">
+            <i class="fa fa-shopping-cart"></i> KALAIARASI METAL STORE
+        </a>
+    </div>
+</nav>
+
 <div class="bottom-nav d-block d-lg-none">
     <a href="{% url 'home' %}" class="nav-item">
         <i class="fa fa-home"></i>
         <span>Home</span>
     </a>
     <a href="{% url 'collections_list' %}" class="nav-item">
-        <i class="fa fa-cubes"></i>
+        <i class="fa fa-th-large"></i>
         <span>Collections</span>
     </a>
     <a href="{% url 'cart' %}" class="nav-item">
         <i class="fa fa-shopping-cart"></i>
         <span>Cart</span>
     </a>
-    <!-- 🎯 மெனு பட்டன் - இதை கிளிக் பண்ணா மத்த லிங்க்ஸ் (Profile, Orders, Logout) கீழ இருந்து மேல வரும் -->
+    <a href="{% url 'Fav' %}" class="nav-item">
+        <i class="fa fa-heart"></i>
+        <span>Fav</span>
+    </a>
     <a href="#" class="nav-item" id="mobileMenuBtn">
         <i class="fa fa-bars"></i>
         <span>Menu</span>
     </a>
 </div>
 
-<!-- 📱 3. மொபைல் மெனுவை கிளிக் செய்யும் போது வரும் மாடர்ன் ஸ்லைடு பாப்-அப் (Bottom Sheet) -->
 <div class="mobile-sidebar" id="mobileSidebar">
     <div class="sidebar-header">
         <h5 style="color: #333; font-weight: bold; margin: 0;">KALAIARASI METAL STORE</h5>
@@ -58,19 +61,41 @@
     <div class="sidebar-body">
         {% if request.user.is_authenticated %}
             <div class="user-greet" style="padding: 12px 5px; font-weight: bold; color: #007bff;"><i class="fa fa-user"></i> Hi, {{ request.user }}</div>
-            <a href="{% url 'myorders' %}"><i class="fa fa-box"></i> My Orders</a>
-            <a href="{% url 'Fav' %}"><i class="fa fa-heart"></i> Favourite</a>
+            <a href="{% url 'myorders' %}"><i class="fa fa-shopping-bag"></i> My Orders</a>
             <a href="{% url 'logout' %}" class="text-danger"><i class="fa fa-sign-out"></i> Logout</a>
         {% else %}
-            <a href="{% url 'login' %}"><i class="fa fa-sign-in"></i> Login</a>
-            <a href="{% url 'register' %}"><i class="fa fa-users"></i> Register</a>
+            <a href="{% url 'login' %}"><i class="fa fa-sign-in"></i> Login / Sign In</a>
+            <a href="{% url 'register' %}"><i class="fa fa-user-plus"></i> Register / Create Account</a>
         {% endif %}
     </div>
 </div>
 
-<!-- 🎯 4. பாட்டம் நேவ்பாரை கச்சிதமாக மாற்றும் சிஎஸ்எஸ் ஸ்டைல் -->
 <style>
-    /* மொபைல் பாட்டம் பார் செட்டப் */
+    /* 📱 மொபைல் டாப் நேவ்பார் ஆரம்பத்தில் மேலே (-100%) மறைத்து வைக்கப்படுகிறது பாஸ் */
+    .mobile-top-nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 55px;
+        z-index: 9999;
+        transform: translateY(-100%);
+        transition: transform 0.4s ease-in-out !important;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    /* 🎯 டச் செய்யும்போது டாப் பார் கீழே இறங்கி வர இந்த கிளாஸ் பயன்படும் */
+    .mobile-top-nav.show-on-touch {
+        transform: translateY(0);
+    }
+
+    .style-brand {
+        font-size: 16px !important;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+    }
+
+    /* பாட்டம் பார் செட்டப் */
     .bottom-nav {
         position: fixed;
         bottom: 0;
@@ -79,7 +104,7 @@
         height: 60px;
         background-color: #ffffff !important;
         border-top: 1px solid #e0e0e0;
-        display: flex;
+        display: flex !important;
         justify-content: space-around;
         align-items: center;
         z-index: 9999;
@@ -87,31 +112,31 @@
     }
 
     .nav-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
         color: #333333 !important;
         text-decoration: none !important;
-        font-size: 12px;
-        width: 25%;
+        font-size: 11px;
+        width: 20%;
         height: 100%;
-        transition: color 0.2s;
     }
 
     .nav-item i {
-        font-size: 20px;
+        font-size: 18px !important;
         margin-bottom: 2px;
+        display: inline-block !important;
     }
 
     .nav-item:hover, .nav-item:focus {
-        color: #007bff !important; /* கிளிக் பண்ணும்போது நீல கலரா மாறும் பாஸ் */
+        color: #007bff !important;
     }
 
-    /* மொபைல் ஸ்லைடு மெனு (Bottom Sheet) ஸ்டைல் */
+    /* ஸ்லைடு மெனு ஸ்டைல் */
     .mobile-sidebar {
         position: fixed;
-        bottom: -100%; /* ஆரம்பத்தில் அடியில் மறைந்திருக்கும் */
+        bottom: -100%;
         left: 0;
         right: 0;
         background-color: #ffffff;
@@ -124,7 +149,7 @@
     }
 
     .mobile-sidebar.open {
-        bottom: 0; /* மெனுவை கிளிக் பண்ணும்போது அமேசான் மாதிரி கீழ இருந்து மேல வரும் */
+        bottom: 0;
     }
 
     .sidebar-header {
@@ -138,7 +163,7 @@
 
     .sidebar-body a {
         display: block;
-        padding: 12px 5px;
+        padding: 14px 5px;
         color: #333 !important;
         text-decoration: none !important;
         font-size: 15px;
@@ -151,26 +176,43 @@
     }
 </style>
 
-<!-- 🎯 5. மொபைல் மெனு பட்டன் வேலை செய்வதற்கான ஜாவாஸ்கிரிப்ட் -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        const mobileTopNav = document.querySelector('.mobile-top-nav');
+        let touchTimeout;
+
+        // 📱 மொபைல் ஸ்கிரீன்ல எப்போ டச் பண்ணினாலும் டாப் பார் ஸ்மூத்தா கீழே இறங்கி வரும்
+        document.addEventListener('touchstart', function() {
+            if(mobileTopNav) {
+                mobileTopNav.classList.add('show-on-touch');
+            }
+        });
+
+        // 📱 டச் பண்ணி கையை எடுத்த 3 வினாடிகளுக்கு அப்புறம் டாப் பார் ஆட்டோமேட்டிக்கா மேல போய் மறைஞ்சிடும் (Hide ஆகிடும்)
+        document.addEventListener('touchend', function() {
+            if(mobileTopNav) {
+                clearTimeout(touchTimeout);
+                touchTimeout = setTimeout(function() {
+                    mobileTopNav.classList.remove('show-on-touch');
+                }, 3000); // 3000ms = 3 செகண்ட்ஸ் பாஸ்
+            }
+        });
+
+        // பாட்டம் மெனு ஓப்பன்/குளோஸ் செய்ய
         const menuBtn = document.getElementById('mobileMenuBtn');
         const sidebar = document.getElementById('mobileSidebar');
         const closeBtn = document.getElementById('closeSidebarBtn');
 
         if(menuBtn && sidebar && closeBtn) {
-            // மெனு கிளிக் செய்யும் போது பாப்-அப் ஓப்பனாக
             menuBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 sidebar.classList.add('open');
             });
 
-            // க்ளோஸ் பட்டன் கிளிக் செய்யும்போது
             closeBtn.addEventListener('click', function() {
                 sidebar.classList.remove('open');
             });
 
-            // வெளிப்பகுதியில் டச் செய்தாலும் மெனு க்ளோஸ் ஆக
             document.addEventListener('touchstart', function(e) {
                 if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
                     sidebar.classList.remove('open');

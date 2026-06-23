@@ -1,12 +1,13 @@
 {% extends 'shop/layouts/main.html' %}
+{% load static %}
 
 {% block title %}
-KALAIARASI METAL STORE
+{{ products }} | KALAIARASI METAL STORE
 {% endblock title %}
 
 {% block content %}
 
-<!-- International Telephone Input CSS (இந்திய கொடி பாக்ஸிற்கான ஸ்டைல்) -->
+<!-- International Telephone Input CSS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
 
 <section class="bg-light py-4 my-5" style="min-height:600px;">
@@ -23,9 +24,7 @@ KALAIARASI METAL STORE
                             <a href="{% url 'home' %}">Home</a>
                         </li>
                         <li class="breadcrumb-item">
-                            <a href="{% url 'collections_list' %}">
-                                Collections
-                            </a>
+                            <a href="{% url 'collections_list' %}">Collections</a>
                         </li>
                         <li class="breadcrumb-item active">
                             {{ products }}
@@ -45,10 +44,13 @@ KALAIARASI METAL STORE
                 <div class="hot">Hot</div>
                 {% endif %}
 
+                <!-- 🎯 மெயின் இமேஜ் மேஜிக்: கிளிக் செய்தால் ஓப்பன் ஆக 'onclick="openFullImageView()"' மற்றும் மவுஸ் வைத்தால் ஜூம் ஐகான் வர 'cursor: zoom-in' சேர்க்கப்பட்டுள்ளது பாஸ் -->
                 <img id="main-image"
                      src="{{ products.product_image.url }}"
-                     class="img-fluid border rounded"
-                     alt="{{ products }}">
+                     class="img-fluid border rounded shadow-sm"
+                     style="cursor: zoom-in; width: 100%; max-height: 450px; object-fit: contain;"
+                     alt="{{ products }}"
+                     onclick="openFullImageView()">
 
                 <div class="mt-3 d-flex flex-wrap gap-2">
 
@@ -56,7 +58,7 @@ KALAIARASI METAL STORE
                          width="80"
                          height="80"
                          class="border rounded"
-                         style="cursor:pointer;"
+                         style="cursor:pointer; object-fit: cover;"
                          onclick="changeImage(this)">
 
                     {% for img in products.gallery.all %}
@@ -64,7 +66,7 @@ KALAIARASI METAL STORE
                          width="80"
                          height="80"
                          class="border rounded"
-                         style="cursor:pointer;"
+                         style="cursor:pointer; object-fit: cover;"
                          onclick="changeImage(this)">
                     {% endfor %}
 
@@ -234,24 +236,116 @@ KALAIARASI METAL STORE
     </div>
 </section>
 
+<!-- ======================================================================= -->
+<!-- 🌐 1. பிளிப்கார்ட் ஸ்டைல் ஃபுல்-ஸ்கிரீன் இமேஜ் வியூவர் லேஅவுட் (HTML + CSS) -->
+<!-- ======================================================================= -->
+<div id="fullImageModal" class="full-img-overlay" onclick="closeFullImageView()">
+    <!-- க்ளோஸ் பட்டன் (X) -->
+    <span class="close-full-img">&times;</span>
+    
+    <!-- ஜூம் செய்யக்கூடிய இமேஜ் கன்டெய்னர் -->
+    <div class="full-img-container" onclick="event.stopPropagation()">
+        <img id="imgViewer" src="{{ products.product_image.url }}" alt="Full View">
+    </div>
+</div>
+
+<style>
+    /* ஃபுல்-ஸ்கிரீன் பளீச் வெள்ளை பேக்ரவுண்ட் ஓவர்லே */
+    .full-img-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.98); 
+        z-index: 99999;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* க்ளோஸ் பட்டன் ஸ்டைல் */
+    .close-full-img {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        font-size: 35px;
+        font-weight: 300;
+        color: #333;
+        cursor: pointer;
+        z-index: 100000;
+    }
+
+    /* மொபைல் ஜூம் மற்றும் ஸ்க்ரோல் செய்ய உதவும் பகுதி பாஸ் */
+    .full-img-container {
+        max-width: 95%;
+        max-height: 90%;
+        overflow: auto; 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .full-img-container img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        transition: transform 0.3s ease;
+        cursor: zoom-in;
+    }
+    
+    /* கம்ப்யூட்டரில் டபுள் கிளிக் அல்லது நார்மல் கிளிக் பண்ணும்போது 2 மடங்கு ஜூம் ஆக இந்த கிளாஸ் பயன்படும் பாஸ் */
+    .img-zoomed {
+        transform: scale(2);
+        cursor: zoom-out !important;
+    }
+</style>
+
 <!-- International Telephone Input JS Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
 
 <script>
-
+// கேலரி இமேஜ் மாறும்போது ஜூம் வியூவர் இமேஜையும் மாற்றுகிறோம் பாஸ்!
 function changeImage(element){
     document.getElementById("main-image").src = element.src;
+    document.getElementById("imgViewer").src = element.src; 
+}
+
+// 🎯 ஜூம் ஓப்பன் மற்றும் க்ளோஸ் செய்யும் ஜாவாஸ்கிரிப்ட் லாஜிக்
+function openFullImageView() {
+    // இமேஜ் பெருசாகும் போது மொபைல் பாட்டம் பாரை தற்காலிகமாக ஹைட் பண்றோம் பாஸ்
+    const bottomNav = document.querySelector('.bottom-nav');
+    if (bottomNav) bottomNav.style.display = 'none';
+    
+    document.getElementById("fullImageModal").style.display = "flex";
+}
+
+function closeFullImageView() {
+    // மூடும்போது மொபைல் பாட்டம் பார் மீண்டும் தெரியும்
+    const bottomNav = document.querySelector('.bottom-nav');
+    if (bottomNav) bottomNav.style.display = 'flex';
+    
+    const img = document.getElementById("imgViewer");
+    img.classList.remove("img-zoomed"); 
+    document.getElementById("fullImageModal").style.display = "none";
 }
 
 document.addEventListener("DOMContentLoaded", function(){
 
+    // கிளிக் செய்யும் போது டொகிள் ஜூம் ஆக
+    const imgViewer = document.getElementById("imgViewer");
+    if(imgViewer) {
+        imgViewer.addEventListener("click", function() {
+            this.classList.toggle("img-zoomed");
+        });
+    }
+
     // --- இந்தியக் கொடி செட்டப் ஆரம்பம் ---
-    // செக்-அவுட் அல்லது லாகின் பக்கத்தில் 'id="phone"' உள்ள இன்புட் பாக்ஸ் இருந்தால் மட்டும் இது இயங்கும்
     const phoneInputField = document.querySelector("#phone");
     if (phoneInputField) {
         window.phoneInput = window.intlTelInput(phoneInputField, {
-            initialCountry: "in", // டீஃபால்ட்டா இந்தியா கொடி வரும்
-            separateDialCode: true, // +91 குறியீட்டை தனியாகக் காட்டும்
+            initialCountry: "in",
+            separateDialCode: true,
             utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
         });
     }
@@ -267,7 +361,6 @@ document.addEventListener("DOMContentLoaded", function(){
     if(btnPlus){
         btnPlus.addEventListener("click", function(){
             let qty = parseInt(txtQty.value) || 1;
-
             if(qty < 10){
                 txtQty.value = qty + 1;
             }
@@ -277,7 +370,7 @@ document.addEventListener("DOMContentLoaded", function(){
     if(btnMinus){
         btnMinus.addEventListener("click", function(){
             let qty = parseInt(txtQty.value) || 1;
-
+            if(qty > 10) qty = 10;
             if(qty > 1){
                 txtQty.value = qty - 1;
             }
@@ -286,11 +379,8 @@ document.addEventListener("DOMContentLoaded", function(){
 
     if(btncart){
         btncart.addEventListener("click", function(){
-
             let qty = parseInt(txtQty.value) || 0;
-
             if(qty > 0){
-
                 let postObj = {
                     product_qty: qty,
                     pid: pid.value
@@ -319,17 +409,14 @@ document.addEventListener("DOMContentLoaded", function(){
                         alert(data.status);
                     }
                 });
-
             }else{
                 alert("Please Enter Quantity");
             }
-
         });
     }
 
     if(btnFav){
         btnFav.addEventListener("click", function(){
-
             fetch("/Fav/",{
                 method:"POST",
                 headers:{
@@ -354,16 +441,12 @@ document.addEventListener("DOMContentLoaded", function(){
                     alert(data.status);
                 }
             });
-
         });
     }
-
 });
-
 </script>
 
 <style>
-  /* கொடி இன்புட் பாக்ஸ் அழகாக பூட்ஸ்ட்ராப் டிசைனுடன் பொருந்த */
   .iti { width: 100%; }
 </style>
 
