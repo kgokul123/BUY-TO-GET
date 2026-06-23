@@ -24,6 +24,7 @@
 
                     <tbody>
                         {% if cart %}
+                            
                             {% for item in cart %}
                             <tr>
                                 <td>
@@ -75,4 +76,19 @@
 
                         {% else %}
                             <tr>
-                                <td colspan="
+                                <td colspan="6" class="text-center py-4">
+                                    <i class="fa fa-shopping-basket fa-2x text-muted mb-2 d-block"></i>
+                                    Your Cart is Empty
+                                </td>
+                            </tr>
+                        {% endif %}
+                        
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
