@@ -3,16 +3,15 @@
 
 {% block content %}
 
-<!-- 🎯 மொபைல் பாட்டம் பாரில் கார்டு கன்டென்ட் மறைந்துவிடாமல் இருக்க 'mb-5' மற்றும் 'pb-5' சேர்க்கப்பட்டுள்ளது பாஸ் -->
 <div class="container mb-5 pb-5" style="margin-top:70px;">
     <div class="row">
         <div class="col-md-12">
             <h3 class="fw-bold text-dark">Cart Items</h3>
             <hr>
 
-            <!-- 🎯 மெயின் ஃபிக்ஸ்: 'table-responsive' மற்றும் பார்டர்களை நீக்கி மொபைலில் கச்சிதமாக அடங்க வைத்துள்ளோம் -->
-            <div class="table-responsive border-0">
-                <table class="table table-striped table-bordered align-middle m-0">
+            {% if cart %}
+            <div class="custom-cart-wrapper">
+                <table class="table table-striped table-bordered align-middle m-0 custom-cart-table">
                     <thead class="table-dark">
                         <tr>
                             <th>Image</th>
@@ -25,73 +24,103 @@
                     </thead>
 
                     <tbody>
-                        {% if cart %}
-                            {% for item in cart %}
-                            <tr>
-                                <td>
-                                    <img src="{{ item.product.product_image.url }}"
-                                         height="70"
-                                         width="70"
-                                         style="object-fit: cover; border-radius: 6px;"
-                                         alt="{{ item.product.name }}">
-                                </td>
+                        {% for item in cart %}
+                        <tr>
+                            <td class="text-center cart-img-td">
+                                <img src="{{ item.product.product_image.url }}"
+                                     class="img-fluid rounded shadow-sm"
+                                     style="max-width: 65px; height: 65px; object-fit: cover;"
+                                     alt="{{ item.product.name }}">
+                            </td>
 
-                                <td class="text-wrap fw-bold" style="min-width: 130px; font-size: 14px;">
-                                    {{ item.product.name }}
-                                </td>
+                            <td class="fw-bold text-wrap text-dark" style="font-size: 13px; line-height: 1.3;">
+                                {{ item.product.name }}
+                            </td>
 
-                                <td style="white-space: nowrap;">₹ {{ item.product.selling_price }}</td>
+                            <td class="text-nowrap" style="font-size: 13px;">₹{{ item.product.selling_price }}</td>
 
-                                <td>{{ item.product_qty }}</td>
+                            <td class="text-center" style="font-size: 14px;">{{ item.product_qty }}</td>
 
-                                <td class="fw-bold" style="white-space: nowrap;">₹ {{ item.total_cost }}</td>
+                            <td class="fw-bold text-nowrap text-dark" style="font-size: 13px;">₹{{ item.total_cost }}</td>
 
-                                <td>
-                                    <a href="{% url 'remove_cart' item.id %}"
-                                       class="btn btn-danger btn-sm px-2 py-1"
-                                       onclick="return confirm('Are you sure to Remove?')">
-                                        <i class="fa fa-trash"></i> <span class="d-none d-sm-inline">Remove</span>
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endfor %}
+                            <td class="text-center">
+                                <a href="{% url 'remove_cart' item.id %}"
+                                   class="btn btn-danger btn-sm p-1 px-2"
+                                   style="font-size: 12px; border-radius: 4px;"
+                                   onclick="return confirm('Are you sure to Remove?')">
+                                    <i class="fa fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
 
-                            <tr class="table-light">
-                                <td colspan="4" class="text-end">
-                                    <strong>Total Amount:</strong>
-                                </td>
-                                <td colspan="2">
-                                    <strong class="text-success fs-5">₹ {{ total_price }}</strong>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td colspan="6" class="p-3 border-0">
-                                    <!-- 🎯 பட்டன் ஃபிக்ஸ்: மொபைலில் முழு அகலமாகவும் (w-100), பிசியில் வலது ஓரத்திலும் கச்சிதமாக இருக்கும் பாஸ் -->
-                                    <div class="d-flex justify-content-md-end mt-2">
-                                        <a href="{% url 'checkout' %}"
-                                           class="btn btn-success btn-lg w-100 w-md-auto shadow-sm py-2 px-4" 
-                                           style="font-weight: 600; font-size: 16px; border-radius: 6px;">
-                                            Proceed To Checkout <i class="fa fa-arrow-right ms-2"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-
-                        {% else %}
-                            <tr>
-                                <td colspan="6" class="text-center py-5">
-                                    <i class="fa fa-shopping-basket fa-3x text-muted mb-3 d-block"></i>
-                                    <span class="fs-5 text-muted">Your Cart is Empty</span>
-                                </td>
-                            </tr>
-                        {% endif %}
+                        <tr class="table-light fw-bold">
+                            <td colspan="4" class="text-end text-secondary" style="font-size: 14px;">Total Amount:</td>
+                            <td colspan="2" class="text-success fs-5">₹{{ total_price }}</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
 
+            <div class="d-flex justify-content-md-end mt-4">
+                <a href="{% url 'checkout' %}"
+                   class="btn btn-success btn-lg w-100 w-md-auto shadow-sm py-2 px-4 d-flex align-items-center justify-content-center" 
+                   style="font-weight: 600; font-size: 16px; border-radius: 6px; background-color: #198754;">
+                    Proceed To Checkout <i class="fa fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fa fa-shopping-basket fa-3x text-muted mb-3 d-block"></i>
+                <span class="fs-5 text-muted fw-semibold">Your Cart is Empty</span>
+            </div>
+            {% endif %}
+
         </div>
     </div>
 </div>
+
+<style>
+    .custom-cart-wrapper {
+        width: 100% !important;
+        overflow-x: hidden !important; /* சைடு ஸ்க்ரோல் பாரை முற்றிலும் நீக்குகிறது பாஸ் */
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        background-color: #fff;
+    }
+
+    .custom-cart-table {
+        width: 100% !important;
+        table-layout: fixed !important; /* டேபிளை ஸ்கிரீன் அளவுக்குள் கட்டாயப்படுத்தி லாக் செய்கிறது பாஸ் */
+    }
+
+    /* 🎯 ஒவ்வொரு காலமிற்கும் மொபைல் திரைக்கு ஏற்ப கச்சிதமான அகலத்தை பிரிக்கிறோம் பாஸ் */
+    .custom-cart-table th:nth-child(1), .custom-cart-table td:nth-child(1) { width: 18%; } /* Image */
+    .custom-cart-table th:nth-child(2), .custom-cart-table td:nth-child(2) { width: 32%; } /* Product Name */
+    .custom-cart-table th:nth-child(3), .custom-cart-table td:nth-child(3) { width: 15%; } /* Unit */
+    .custom-cart-table th:nth-child(4), .custom-cart-table td:nth-child(4) { width: 10%; } /* Qty */
+    .custom-cart-table th:nth-child(5), .custom-cart-table td:nth-child(5) { width: 15%; } /* Amount */
+    .custom-cart-table th:nth-child(6), .custom-cart-table td:nth-child(6) { width: 10%; } /* Remove */
+
+    .custom-cart-table th {
+        font-size: 12px !important;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        text-align: center;
+        padding: 10px 5px !important;
+    }
+
+    .custom-cart-table td {
+        padding: 8px 4px !important;
+    }
+
+    /* டேப்லெட் மற்றும் பெரிய திரைகளில் எழுத்துக்களை சற்றே பெரிதாக்கிக் கொள்கிறோம் பாஸ் */
+    @media (min-width: 768px) {
+        .custom-cart-table th { font-size: 14px !important; padding: 12px !important; }
+        .custom-cart-table td { padding: 12px !important; }
+        .custom-cart-table th:nth-child(2), .custom-cart-table td:nth-child(2) { width: 40%; }
+    }
+</style>
 
 {% endblock content %}

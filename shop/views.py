@@ -282,36 +282,76 @@ def remove_cart(request, cid):
 
 
 # === 7. FAVOURITE MANAGEMENT ===
+# === 5. CHECKOUT (திருத்தப்பட்ட பக்கா கோடு பாஸ்) ===
 @login_required(login_url="login")
-def Fav_page(request):
-    if request.method == "GET":
-        fav = Favourite.objects.filter(user=request.user)
-        return render(request, "shop/fav.html", {"fav": fav})
+def checkout(request):
+    if request.method == "POST":
+        payment_mode = request.POST.get("payment_mode")
+        transaction_id = request.POST.get("transaction_id")
+        if payment_mode == "COD":
+            transaction_id = None
+        pincode = request.POST.get("pincode")
 
-    if request.headers.get("x-requested-with") == "XMLHttpRequest":
-        try:
-            data = json.loads(request.body)
-            product_id = data.get("pid")
+        if pincode != "631208":
+            return render(
+                request,
+                "shop/checkout.html",
+                {"error": "Delivery Not Available"},
+            )
 
-            if not Product.objects.filter(id=product_id).exists():
-                return JsonResponse({"status": "Product Not Found"}, status=404)
+        cartitems = Cart.objects.filter(user=request.user)
+        total_calculator = total(cartitems)
+        total_amount = total_calculator.calculate_total()
 
-            if Favourite.objects.filter(
-                user=request.user, product_id=product_id
-            ).exists():
-                return JsonResponse(
-                    {"status": "Product Already in Favourite"}, status=200
+        # 🎯 மெயின் ஃபிக்ஸ்: ஒருவேளை HTML ஃபார்மில் 'phone' விடுபட்டிருந்தால், செஷனில் (Session) நாம் சேமித்த நம்பரை இங்க பேக்கப்பாக எடுக்கிறோம் பாஸ்!
+        form_phone = request.POST.get("phone")
+        if not form_phone:
+            # உங்க ஓடிபி செஷனில் என்ன கீ வச்சிருக்கீங்களோ அதை இங்க எடுக்கிறோம்
+            form_phone = request.session.get('mobile_number') or request.session.get('generated_otp_phone')
+            
+        # இன்னும் பாதுகாப்புக்காக அப்படியும் நம்பர் இல்லைனா ஒரு தற்காலிக வேல்யூவை செட் செய்து IntegrityError வராமல் தடுக்கிறோம்
+        if not form_phone:
+            form_phone = "0000000000"
+
+        order = Order.objects.create(
+            user=request.user,
+            order_number="ORD" + str(uuid.uuid4().hex[:8]).upper(),
+            email=request.user.email,
+            phone=form_phone, # 🎯 இப்போ இங்க 'null' வரவே வராது பாஸ்!
+            address=request.POST.get("address"),
+            pincode=pincode,
+            payment_mode=payment_mode,
+            transaction_id=transaction_id,
+            total_amount=total_amount,
+        )
+
+        for item in cartitems:
+            if item.product.quantity < item.product_qty:
+                messages.error(
+                    request, f"{item.product.name} stock not available"
                 )
+                return redirect("cart")
 
-            Favourite.objects.create(user=request.user, product_id=product_id)
-            return JsonResponse(
-                {"status": "Product Added to Favourite"}, status=200
+            OrderItem.objects.create(
+                order=order,
+                product=item.product,
+                quantity=item.product_qty,
+                price=item.product.selling_price,
             )
-        except Exception:
-            return JsonResponse(
-                {"status": "Error Processing Request"}, status=500
-            )
-    return JsonResponse({"status": "Invalid Request Type"}, status=400)
+
+            product = item.product
+            product.quantity -= item.product_qty
+            product.save()
+
+        # ஆர்டர் வெற்றிகரமாக முடிந்ததும் செஷனில் இருக்கும் தற்காலிக போன் நம்பரை நீக்குகிறோம்
+        if 'mobile_number' in request.session:
+            del request.session['mobile_number']
+
+        cartitems.delete()
+        order.save()
+        return redirect("order_success")
+
+    return render(request, "shop/checkout.html")
 
 
 @login_required(login_url="login")

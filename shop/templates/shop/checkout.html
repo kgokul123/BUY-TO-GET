@@ -91,15 +91,19 @@
 
 <script>
 // ================= 2. உங்களுடைய நேரடி ஃபயர்பேஸ் கிரிடென்ஷியல்ஸ் பாஸ் ================= -->
+// 🎯 உங்க புதிய ப்ராஜெக்ட்டின் பக்கா பில்லிங்-இல்லாத ஃப்ரீ கீகள் பாஸ்!
 const firebaseConfig = {
-    apiKey: "AIzaSyCiKQMKpBPA0lK-VLyRyRd66GrT58KaJn8",
-    authDomain: "buy-to-get-65dba.firebaseapp.com",
-    projectId: "buy-to-get-65dba",
-    storageBucket: "buy-to-get-65dba.firebasestorage.app",
-    messagingSenderId: "490384854040",
-    appId: "1:490384854040:web:438a35687453c45af5476d",
-    measurementId: "G-CEKS68LWJC"
+  apiKey: "AIzaSyAaJcsLI3xw9kBGNF9xuTXoyml7V03lCWQ",
+  authDomain: "buy-to-get-42138.firebaseapp.com",
+  projectId: "buy-to-get-42138",
+  storageBucket: "buy-to-get-42138.firebasestorage.app",
+  messagingSenderId: "493428415809",
+  appId: "1:493428415809:web:eec43f15b36c0ced77d5c0",
+  measurementId: "G-4ZWW157N5E"
 };
+
+// ஒருவேளை நீங்கள் மாடுலர் SDK பயன்படுத்தினால் கீழே உள்ளவாறு இருக்கும்:
+// const app = initializeApp(firebaseConfig);
 
 // ஃபயர்பேஸ் இனிஷியலைசேஷன்
 firebase.initializeApp(firebaseConfig);
@@ -179,10 +183,13 @@ document.addEventListener("DOMContentLoaded", function() {
         utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
     });
 
-    // ஃபயர்பேஸ் இன்விசிபிள் ரீகேப்சா செட்டப் பாஸ் (ரோபோட் இல்லை என்பதை செக் செய்ய)
-    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('btnSendOTP', {
-        'size': 'invisible'
-    });
+ // 🎯 'size': 'invisible' கொடுப்பதால் கஸ்டமர்களுக்கு எந்த இமேஜ் பாக்ஸும் வராது பாஸ்!
+       window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+      'size': 'invisible',
+      'callback': (response) => {
+       // ஓடிபி அனுப்பும் ஃபங்க்ஷன்
+      }
+     });
 
     const btnSendOTP = document.getElementById("btnSendOTP");
     const btnVerifyOTP = document.getElementById("btnVerifyOTP");
