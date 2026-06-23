@@ -1,4 +1,4 @@
-<!-- 💻 1. PC / லேப்டாப் வியூவிற்கான டாப் நேவ்பார் (பிசியில் எப்போதும் போல நிலையாக மேலேயே தெரியும் பாஸ்) -->
+<!-- 💻 1. PC / லேப்டாப் வியூவிற்கான டாப் நேவ்பார் (பிசி/லேப்டாப்பில் எப்போதும் போல நிலையாக மேலேயே தெரியும் பாஸ்) -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top d-none d-lg-block">
     <div class="container">
         <a class="navbar-brand" href="{% url 'home' %}">
@@ -23,17 +23,16 @@
     </div>
 </nav>
 
-<!-- 📱 2. மொபைல் வியூவிற்கான டாப் ஹெட்டர் (ஆரம்பத்தில் முற்றிலும் மறைந்திருக்கும், டச் பண்ணும்போது மட்டும் கீழே வரும்!) -->
+<!-- 📱 2. மொபைல் & டேப்லெட் வியூவிற்கான டாப் ஹெட்டர் (ஆரம்பத்தில் முற்றிலும் மறைந்திருக்கும்) -->
 <nav class="navbar navbar-dark bg-dark fixed-top mobile-top-nav d-block d-lg-none">
     <div class="container text-center">
-        <!-- 🎯 வேறு எதுவுமே இல்லாமல் வெறும் 'KALAIARASI METAL STORE' டைட்டில் மட்டும் காட்டும் செட்டப் பாஸ் -->
         <span class="navbar-brand m-0 style-brand text-white w-100 d-block text-center">
             <i class="fa fa-shopping-cart"></i> KALAIARASI METAL STORE
         </span>
     </div>
 </nav>
 
-<!-- 📱 3. மொபைல் வியூவிற்கான பாட்டம் நேவிகேஷன் பார் -->
+<!-- 📱 3. மொபைல் & டேப்லெட் வியூவிற்கான பாட்டம் நேவிகேஷன் பார் -->
 <div class="bottom-nav d-flex d-md-none">
     <a href="{% url 'home' %}" class="nav-item">
         <i class="fa fa-home"></i>
@@ -57,7 +56,7 @@
     </a>
 </div>
 
-<!-- 📱 4. மொபைல் மெனுவை கிளிக் செய்யும் போது வரும் பாப்-அப் (Bottom Sheet) -->
+<!-- 📱 4. மொபைல் மெனு பாப்-அப் (Bottom Sheet) -->
 <div class="mobile-sidebar" id="mobileSidebar">
     <div class="sidebar-header">
         <h5 style="color: #333; font-weight: bold; margin: 0;">KALAIARASI METAL STORE</h5>
@@ -75,23 +74,22 @@
     </div>
 </div>
 
-<!-- 🎯 5. மொபைல் டாப் பாரை டச் பண்ணும்போது மட்டும் காட்டும் சிஎஸ்எஸ் ஸ்டைல் -->
+<!-- 🎯 5. சிஎஸ்எஸ் (CSS) - பிசியில் எந்த மாற்றமும் வராமல் தடுக்கும் லாஜிக் -->
 <style>
-    /* 📱 மொபைல் டாப் நேவ்பார் ஆரம்பத்தில் மேலே (-100%) மறைத்து வைக்கப்படுகிறது பாஸ் */
+    /* மொபைல் டாப் நேவ்பார் செட்டப் */
     .mobile-top-nav {
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
         height: 55px;
-        background-color: #212529 !important; /* கறுப்பு பேக்ரவுண்ட் */
+        background-color: #212529 !important;
         z-index: 9999;
         transform: translateY(-100%);
-        transition: transform 0.4s ease-in-out !important;
+        transition: transform 0.3s ease-in-out !important;
         box-shadow: 0 2px 10px rgba(0,0,0,0.2);
     }
 
-    /* 🎯 டச் செய்யும்போது டாப் பார் கீழே இறங்கி வர இந்த கிளாஸ் பயன்படும் */
     .mobile-top-nav.show-on-touch {
         transform: translateY(0);
     }
@@ -102,7 +100,7 @@
         letter-spacing: 0.5px;
     }
 
-    /* பாட்டம் பார் செட்டப் (போன்களில் மட்டும் தெரியும்) */
+    /* மொபைல் பாட்டம் பார் செட்டப் */
     .bottom-nav {
         position: fixed;
         bottom: 0;
@@ -118,7 +116,7 @@
         box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
     }
 
-    /* பிசி / லேப்டாப் மற்றும் டேப்லெட் திரைகளில் பாட்டம் பார் தெரியாமல் இருக்கக் கட்டாயப்படுத்துகிறோம் பாஸ் */
+    /* 💻 🎯 பிசி/லேப்டாப் திரைகளில் பாட்டம் பார் தெரியாமல் இருக்க லாக் */
     @media (min-width: 768px) {
         .bottom-nav {
             display: none !important;
@@ -190,28 +188,36 @@
     }
 </style>
 
-<!-- 🎯 6. டச் மேஜிக் வேலை செய்வதற்கான ஜாவாஸ்கிரிப்ட் லாஜிக் பாஸ் -->
+<!-- 🎯 6. ஜாவாஸ்கிரிப்ட் லாஜிக் - நிஜ மொபைல்/டேப்லெட்டை மட்டும் கண்டறியும் செட்டப் பாஸ் -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const mobileTopNav = document.querySelector('.mobile-top-nav');
-        let touchTimeout;
+        let activityTimeout;
 
-        // 📱 மொபைல் ஸ்கிரீன்ல எப்போ டச் பண்ணினாலும் டாப் பார் ஸ்மூத்தா கீழே இறங்கி வரும்
-        document.addEventListener('touchstart', function() {
-            if(mobileTopNav) {
+        // 🎯 மெயின் செக்யூரிட்டி: பயனர் நிஜமாகவே மொபைல் அல்லது டேப்லெட் சாதனம் வழியாக வருகிறாரா என்பதை உறுதி செய்கிறோம் பாஸ்
+        const isMobileOrTab = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        function showHeader() {
+            // பயனர் மொபைல்/டேப்லெட்-ல் இருந்தால் மட்டுமே இந்த ஆட்டோ-ஹைடு மற்றும் டச் லாஜிக் வேலை செய்யும் பாஸ்!
+            if(isMobileOrTab && mobileTopNav) {
                 mobileTopNav.classList.add('show-on-touch');
-            }
-        });
-
-        // 📱 டச் பண்ணி கையை எடுத்த 3 வினாடிகளுக்கு அப்புறம் டாப் பார் ஆட்டோமேட்டிக்கா மேல போய் மறைஞ்சிடும்
-        document.addEventListener('touchend', function() {
-            if(mobileTopNav) {
-                clearTimeout(touchTimeout);
-                touchTimeout = setTimeout(function() {
+                
+                clearTimeout(activityTimeout);
+                activityTimeout = setTimeout(function() {
                     mobileTopNav.classList.remove('show-on-touch');
-                }, 3000); // 3000ms = 3 செகண்ட்ஸ் பாஸ்
+                }, 3000); // 3 செகண்டில் ஆட்டோ-ஹைடு ஆகும்
             }
-        });
+        }
+
+        // மொபைல் மற்றும் டேப்லெட் டச் ஈவென்ட்கள்
+        document.addEventListener('touchstart', showHeader);
+        document.addEventListener('touchend', showHeader);
+        document.addEventListener('scroll', showHeader);
+
+        // கம்ப்யூட்டர் பிரௌசரில் சாதாரணமாக இருந்தால் மொபைல் ஹெட்டரை எப்போதும் முழுமையாக மறைத்து வைக்கிறோம் பாஸ்!
+        if (!isMobileOrTab && mobileTopNav) {
+            mobileTopNav.style.display = 'none';
+        }
 
         // பாட்டம் மெனு ஓப்பன்/குளோஸ் செய்ய
         const menuBtn = document.getElementById('mobileMenuBtn');
