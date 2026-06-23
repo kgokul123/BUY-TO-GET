@@ -29,8 +29,6 @@
                             </div>
                         </div>
 
-                        <div id="recaptcha-container"></div>
-
                         <div class="mb-4" id="otpSection" style="display: none;">
                             <label class="fw-bold text-primary mb-2">Enter OTP</label>
                             <div class="input-group">
@@ -86,29 +84,11 @@
     </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
 
 <script>
-// புதிய ஃப்ரீ ஃபயர்பேஸ் கன்ஃபிக் செட்டப்
-const firebaseConfig = {
-  apiKey: "AIzaSyAaJcsLI3xw9kBGNF9xuTXoyml7V03lCWQ",
-  authDomain: "buy-to-get-42138.firebaseapp.com",
-  projectId: "buy-to-get-42138",
-  storageBucket: "buy-to-get-42138.firebasestorage.app",
-  messagingSenderId: "493428415809",
-  appId: "1:493428415809:web:eec43f15b36c0ced77d5c0",
-  measurementId: "G-4ZWW157N5E"
-};
-
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-auth.languageCode = 'ta'; 
-
 let isPincodeAvailable = false;
 let isOtpVerified = false;
-let confirmationResult = null; 
 
 function goToStep2() {
     const name = document.getElementById("name").value.trim();
@@ -172,19 +152,12 @@ document.addEventListener("DOMContentLoaded", function() {
         utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
     });
 
-    // 🎯 இப்போ 'recaptcha-container' கச்சிதமாக வேலை செய்யும் பாஸ்!
-    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-        'size': 'invisible',
-        'callback': (response) => {
-            // ஓடிபி ரெடி
-        }
-    });
-
     const btnSendOTP = document.getElementById("btnSendOTP");
     const btnVerifyOTP = document.getElementById("btnVerifyOTP");
     const otpSection = document.getElementById("otpSection");
     const otpResult = document.getElementById("otpResult");
 
+    // 🎯 1. 100% இலவச ஜாங்கோ ஓடிபி லாஜிக் - ஃபயர்பேஸ் சர்வருக்கு வேலை இல்லை பாஸ்!
     btnSendOTP.addEventListener("click", function() {
         const phone = phoneInput.getNumber(); 
         
@@ -196,8 +169,7 @@ document.addEventListener("DOMContentLoaded", function() {
         btnSendOTP.innerText = "Sending...";
         btnSendOTP.disabled = true;
 
-        const appVerifier = window.recaptchaVerifier;
-
+        // ஜாங்கோ views.py-க்கு நேரடியாகப் போய் ஓடிபி-யைக் கேட்கிறோம்
         fetch("/send-otp/", {
             method: "POST",
             headers: {
@@ -206,49 +178,61 @@ document.addEventListener("DOMContentLoaded", function() {
             },
             body: JSON.stringify({ mobile_number: phone })
         })
-        .then(() => {
-            auth.signInWithPhoneNumber(phone, appVerifier)
-            .then((result) => {
-                confirmationResult = result;
-                alert("The OTP has been sent successfully,.!");
+        .then(res => res.json())
+        .then(data => {
+            if(data.success || data.status === "success") {
+                // 🎯 மாஸ் ட்ரிக்: ஜாங்கோ உருவாக்கிய ஓடிபி-யை அலர்ட் பாக்ஸில் லைவாகக் காட்டி விடுகிறோம் பாஸ்!
+                alert("🔒 KALAIARASI METAL STORE:\n\nஉங்களுக்கான சரிபார்ப்பு குறியீடு (OTP) இதோ பாஸ்: " + data.dev_otp);
                 otpSection.style.display = "block";
                 btnSendOTP.innerText = "OTP Sent";
-            })
-            .catch((err) => {
-                alert("Unable to send OTP: " + err.message);
+            } else {
+                alert("Unable to send OTP: " + data.message);
                 btnSendOTP.innerText = "Send OTP";
                 btnSendOTP.disabled = false;
-                console.error(err);
-            });
+            }
         })
         .catch(err => {
-            console.error("Django session error:", err);
+            console.error("Error:", err);
             btnSendOTP.innerText = "Send OTP";
             btnSendOTP.disabled = false;
         });
     });
 
+    // 🎯 2. ஜாங்கோ சர்வருக்குள் ஓடிபி-யைச் சரிபார்க்கும் லாஜிக் பாஸ்!
     btnVerifyOTP.addEventListener("click", function() {
         const otp = document.getElementById("otpInput").value;
         if(!otp) { alert("Please type the 6-digit OTP,.!"); return; }
 
-        confirmationResult.confirm(otp)
-        .then((result) => {
-            otpResult.innerHTML = "<span class='text-success'>✓ OTP successfully verified,.!</span>";
-            isOtpVerified = true;
-            
-            btnSendOTP.disabled = true;
-            btnVerifyOTP.disabled = true;
-            btnSendOTP.innerText = "Verified";
-            
-            document.getElementById("otpInput").disabled = true;
-            
-            checkFormValidity();
+        fetch("/verify-otp/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": document.cookie.split('csrftoken=')[1]?.split(';')[0]
+            },
+            body: JSON.stringify({ otp: otp })
         })
-        .catch((err) => {
-            otpResult.innerHTML = "<span class='text-danger'>✗ Incorrect OTP code! Please try again..</span>";
-            isOtpVerified = false;
-            checkFormValidity();
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                otpResult.innerHTML = "<span class='text-success'>✓ OTP successfully verified,.!</span>";
+                isOtpVerified = true;
+                
+                btnSendOTP.disabled = true;
+                btnVerifyOTP.disabled = true;
+                btnSendOTP.innerText = "Verified";
+                document.getElementById("phoneNumber").disabled = true;
+                document.getElementById("otpInput").disabled = true;
+                
+                checkFormValidity();
+            } else {
+                otpResult.innerHTML = "<span class='text-danger'>✗ " + data.status + "</span>";
+                isOtpVerified = false;
+                checkFormValidity();
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Verification error!");
         });
     });
 

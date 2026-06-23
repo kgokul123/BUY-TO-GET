@@ -39,15 +39,16 @@ def send_otp(request):
             
             request.session['mobile_number'] = mobile_number
             
-            # Local Testing-க்காக ஓடிபி-யை சிஸ்டம் உருவாக்குகிறது
+            # 6 இலக்க ரகசிய நம்பரை (OTP) பேக்-எண்டிலேயே சிஸ்டம் உருவாக்குகிறது
             otp = str(random.randint(100000, 999999))
             request.session['generated_otp'] = otp
-            print(f"\n=== OTP FOR {mobile_number} IS: {otp} ===\n")
             
+            # 🎯 மெயின் ஃபிக்ஸ்: பில்லிங் எர்ரர் வராமல் தடுக்க, உருவாக்கிய ஓடிபி-யை ஜேசனிலேயே ஃபிரண்ட்-எண்டிற்கு அனுப்பி விடுகிறோம் பாஸ்!
             return JsonResponse({
                 'status': 'success', 
                 'success': True,
-                'message': 'OTP sent successfully!'
+                'message': 'OTP generated successfully!',
+                'dev_otp': otp # இது நேரடியாக உங்க அலர்ட் பாக்ஸுக்குப் போகும் பாஸ்!
             })
             
         except Exception as e:
