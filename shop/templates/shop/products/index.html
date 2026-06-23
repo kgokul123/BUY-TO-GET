@@ -22,33 +22,32 @@ Kalaiarasi Metal Store
 
             {% for item in products %}
 
-            <div class="col-md-4 col-lg-3 mb-4">
+            <div class="col-6 col-md-4 col-lg-3 mb-4 px-2">
 
-                <div class="card h-100 shadow-sm">
+                <div class="card h-100 shadow-sm" style="border-radius: 8px; overflow: hidden;">
 
                     <a href="{% url 'product_details' item.category.name item.name %}">
                         <img src="{{ item.product_image.url }}"
                              class="card-img-top"
+                             style="width: 100% !important; height: 180px !important; object-fit: cover !important; object-position: center !important;"
                              alt="{{ item.name }}">
                     </a>
 
-                    <div class="card-body">
+                    <div class="card-body p-2 d-flex flex-column justify-content-between">
 
                         <a href="{% url 'product_details' item.category.name item.name %}"
                            class="text-decoration-none">
-
-                            <h5 class="card-title text-primary">
+                            <h5 class="card-title text-primary text-truncate" style="font-size: 15px; font-weight: 600; margin-bottom: 8px;">
                                 {{ item.name }}
                             </h5>
-
                         </a>
 
-                        <p class="card-text">
-                            <span class="float-start old_price">
+                        <p class="card-text d-flex justify-content-between align-items-center m-0" style="font-size: 13px;">
+                            <span class="old_price" style="color: #dc3545;">
                                 <s>Rs.{{ item.original_price|stringformat:'d' }}</s>
                             </span>
 
-                            <span class="float-end new_price">
+                            <span class="new_price text-success" style="font-weight: bold;">
                                 Rs.{{ item.selling_price|stringformat:'d' }}
                             </span>
                         </p>
