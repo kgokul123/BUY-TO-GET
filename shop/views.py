@@ -35,26 +35,24 @@ def send_otp(request):
             mobile_number = data.get('mobile_number') or data.get('phone')
             
             if not mobile_number:
-                return JsonResponse({'status': 'error', 'message': 'Mobile number required!'}, status=400)
+                return JsonResponse({'success': False, 'message': 'Mobile number required!'}, status=400)
             
             request.session['mobile_number'] = mobile_number
             
-            # 6 இலக்க ரகசிய நம்பரை (OTP) பேக்-எண்டிலேயே சிஸ்டம் உருவாக்குகிறது
+            # 6 இலக்க ஓடிபி நம்பரை பேக்-எண்டிலேயே செக்யூரா உருவாக்குகிறது
             otp = str(random.randint(100000, 999999))
             request.session['generated_otp'] = otp
             
-            # 🎯 மெயின் ஃபிக்ஸ்: பில்லிங் எர்ரர் வராமல் தடுக்க, உருவாக்கிய ஓடிபி-யை ஜேசனிலேயே ஃபிரண்ட்-எண்டிற்கு அனுப்பி விடுகிறோம் பாஸ்!
             return JsonResponse({
-                'status': 'success', 
                 'success': True,
-                'message': 'OTP generated successfully!',
-                'dev_otp': otp # இது நேரடியாக உங்க அலர்ட் பாக்ஸுக்குப் போகும் பாஸ்!
+                'status': 'success',
+                'dev_otp': otp # இது ஜாவாஸ்கிரிப்ட் மூலம் வாட்ஸ்அப் லிங்கிற்குள் உட்காரும் பாஸ்!
             })
             
         except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+            return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
-    return JsonResponse({'status': 'error', 'message': 'Invalid Request'}, status=400)
+    return JsonResponse({'success': False, 'message': 'Invalid Request'}, status=400)
 
 
 def verify_otp(request):

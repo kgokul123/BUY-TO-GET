@@ -12,7 +12,7 @@
                 <h3 class="fw-bold text-dark">Secure Checkout</h3>
                 <hr class="mb-4">
 
-                <form method="POST" id="checkout-form" onsubmit="document.getElementById('phoneNumber').disabled = false;">
+                <form method="POST" id="checkout-form">
                     {% csrf_token %}
 
                     <div id="step-1">
@@ -27,6 +27,7 @@
                                 <input type="tel" id="phoneNumber" name="phone" class="form-control" style="padding: 10px;" required>
                                 <button type="button" id="btnSendOTP" class="btn btn-primary px-4">Send OTP</button>
                             </div>
+                            <small class="text-muted mt-1 d-block">💡 பட்டனை அமுக்கியவுடன் வாட்ஸ்அப்பில் வரும் மெசேஜை செண்ட் செய்யவும் பாஸ்!</small>
                         </div>
 
                         <div class="mb-4" id="otpSection" style="display: none;">
@@ -96,12 +97,12 @@ function goToStep2() {
     const address = document.getElementById("address").value.trim();
 
     if(name === "" || phone === "" || address === "") {
-        alert("Please fill in your name, phone number, and address completely.!");
+        alert("Please fill in your name, phone number, and address completely!");
         return;
     }
     
     if(!isOtpVerified) { 
-        alert("Please complete the OTP verification first, boss! Only then can you proceed to the next page.."); 
+        alert("Please complete the OTP verification first, boss!"); 
         return; 
     }
 
@@ -157,7 +158,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const otpSection = document.getElementById("otpSection");
     const otpResult = document.getElementById("otpResult");
 
-    // 🎯 1. 100% இலவச ஜாங்கோ ஓடிபி லாஜிக் - ஃபயர்பேஸ் சர்வருக்கு வேலை இல்லை பாஸ்!
+    // 🎯 1. வாட்ஸ்அப் ஓடிபி ரீடைரக்ஷன் லாஜிக் பாஸ்
     btnSendOTP.addEventListener("click", function() {
         const phone = phoneInput.getNumber(); 
         
@@ -166,10 +167,8 @@ document.addEventListener("DOMContentLoaded", function() {
             return; 
         }
 
-        btnSendOTP.innerText = "Sending...";
-        btnSendOTP.disabled = true;
+        btnSendOTP.innerText = "Redirecting...";
 
-        // ஜாங்கோ views.py-க்கு நேரடியாகப் போய் ஓடிபி-யைக் கேட்கிறோம்
         fetch("/send-otp/", {
             method: "POST",
             headers: {
@@ -180,28 +179,32 @@ document.addEventListener("DOMContentLoaded", function() {
         })
         .then(res => res.json())
         .then(data => {
-            if(data.success || data.status === "success") {
-                // 🎯 மாஸ் ட்ரிக்: ஜாங்கோ உருவாக்கிய ஓடிபி-யை அலர்ட் பாக்ஸில் லைவாகக் காட்டி விடுகிறோம் பாஸ்!
-                alert("🔒 KALAIARASI METAL STORE:\n\nஉங்களுக்கான சரிபார்ப்பு குறியீடு (OTP) இதோ பாஸ்: " + data.dev_otp);
+            if(data.success) {
+                // 🎯 மாஸ் ட்ரிக்: கஸ்டமரை ஓடிபியுடன் வாட்ஸ்அப்பிற்கு அனுப்புகிறோம் பாஸ்!
+                // ⚠️ (கீழே இருக்கும் 919786542128-க்கு பதிலாக உங்க கடையோட ஒரிஜினல் வாட்ஸ்அப் நம்பரை மாத்திக்கலாம் பாஸ்)
+                const shopWhatsApp = "919786542128"; 
+                const msg = encodeURIComponent("Hi KALAIARASI METAL STORE, My Secure Checkout OTP code is: " + data.dev_otp);
+                
+                // வாட்ஸ்அப் சாட் பாக்ஸை ஓபன் செய்கிறது
+                window.open(`https://wa.me/${shopWhatsApp}?text=${msg}`, '_blank');
+
                 otpSection.style.display = "block";
-                btnSendOTP.innerText = "OTP Sent";
+                btnSendOTP.innerText = "Resend OTP";
             } else {
-                alert("Unable to send OTP: " + data.message);
+                alert("Error: " + data.message);
                 btnSendOTP.innerText = "Send OTP";
-                btnSendOTP.disabled = false;
             }
         })
         .catch(err => {
             console.error("Error:", err);
             btnSendOTP.innerText = "Send OTP";
-            btnSendOTP.disabled = false;
         });
     });
 
-    // 🎯 2. ஜாங்கோ சர்வருக்குள் ஓடிபி-யைச் சரிபார்க்கும் லாஜிக் பாஸ்!
+    // 🎯 2. ஓடிபி சரிபார்க்கும் லாஜிக் பாஸ்
     btnVerifyOTP.addEventListener("click", function() {
         const otp = document.getElementById("otpInput").value;
-        if(!otp) { alert("Please type the 6-digit OTP,.!"); return; }
+        if(!otp) { alert("Please type the 6-digit OTP!"); return; }
 
         fetch("/verify-otp/", {
             method: "POST",
@@ -214,13 +217,11 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(res => res.json())
         .then(data => {
             if(data.success) {
-                otpResult.innerHTML = "<span class='text-success'>✓ OTP successfully verified,.!</span>";
+                otpResult.innerHTML = "<span class='text-success'>✓ OTP successfully verified!</span>";
                 isOtpVerified = true;
                 
                 btnSendOTP.disabled = true;
                 btnVerifyOTP.disabled = true;
-                btnSendOTP.innerText = "Verified";
-                document.getElementById("phoneNumber").disabled = true;
                 document.getElementById("otpInput").disabled = true;
                 
                 checkFormValidity();
