@@ -3,88 +3,76 @@
 
 {% block content %}
 
-<div class="container" style="margin-top:70px;">
+<div class="container mb-5 pb-4" style="margin-top:70px;">
     <div class="row">
         <div class="col-md-12">
             <h3>Cart Items</h3>
             <hr>
 
-            <table class="table table-striped table-bordered">
-                <thead>
-                    <tr>
-                        <th>Image</th>
-                        <th>Product Name</th>
-                        <th>Unit</th>
-                        <th>Quantity</th>
-                        <th>Amount</th>
-                        <th>Remove</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                    {% if cart %}
-
-                        {% for item in cart %}
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered align-middle">
+                    <thead>
                         <tr>
-                            <td>
-                                <img src="{{ item.product.product_image.url }}"
-                                     height="75"
-                                     width="75"
-                                     alt="{{ item.product.name }}">
-                            </td>
-
-                      <td>{{ item.product.name }}</td>
-
-                            <td>₹ {{ item.product.selling_price }}</td>
-
-                            <td>{{ item.product_qty }}</td>
-
-                            <td>₹ {{ item.total_cost }}</td>
-
-                            <td>
-                                <a href="{% url 'remove_cart' item.id %}"
-                                   class="btn btn-danger btn-sm"
-                                   onclick="return confirm('Are you sure to Remove?')">
-                                    <i class="fa fa-trash"></i> Remove
-                                </a>
-                            </td>
+                            <th>Image</th>
+                            <th>Product Name</th>
+                            <th>Unit</th>
+                            <th>Quantity</th>
+                            <th>Amount</th>
+                            <th>Remove</th>
                         </tr>
-                        {% endfor %}
+                    </thead>
 
-                        <tr>
-                            <td colspan="4" class="text-end">
-                                <strong>Total</strong>
-                            </td>
-                            <td colspan="2">
-                                <strong>₹ {{ total_price }}</strong>
-                            </td>
-                        </tr>
+                    <tbody>
+                        {% if cart %}
+                            {% for item in cart %}
+                            <tr>
+                                <td>
+                                    <img src="{{ item.product.product_image.url }}"
+                                         height="75"
+                                         width="75"
+                                         style="object-fit: cover; border-radius: 4px;"
+                                         alt="{{ item.product.name }}">
+                                </td>
 
-                        <tr>
-                            <td colspan="6" class="text-end">
-                                <a href="{% url 'checkout' %}"
-                                   class="btn btn-success">
-                                    Proceed To Checkout
-                                </a>
-                            </td>
-                        </tr>
+                                <td class="text-wrap" style="min-width: 120px;">{{ item.product.name }}</td>
 
-                    {% else %}
+                                <td>₹ {{ item.product.selling_price }}</td>
 
-                        <tr>
-                            <td colspan="6" class="text-center">
-                                Your Cart is Empty
-                            </td>
-                        </tr>
+                                <td>{{ item.product_qty }}</td>
 
-                       {% endif %}
+                                <td>₹ {{ item.total_cost }}</td>
 
-                </tbody>
-            </table>
+                                <td>
+                                    <a href="{% url 'remove_cart' item.id %}"
+                                       class="btn btn-danger btn-sm"
+                                       onclick="return confirm('Are you sure to Remove?')">
+                                        <i class="fa fa-trash"></i> <span class="d-none d-sm-inline">Remove</span>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
 
-        </div>
-    </div>
-</div>
+                            <tr>
+                                <td colspan="4" class="text-end">
+                                    <strong>Total</strong>
+                                </td>
+                                <td colspan="2">
+                                    <strong>₹ {{ total_price }}</strong>
+                                </td>
+                            </tr>
 
-{% endblock content %}
+                            <tr>
+                                <td colspan="6" class="p-3">
+                                    <div class="d-flex justify-content-md-end">
+                                        <a href="{% url 'checkout' %}"
+                                           class="btn btn-success btn-lg w-100 w-md-auto shadow-sm" 
+                                           style="font-weight: 600;">
+                                            Proceed To Checkout <i class="fa fa-arrow-right ms-2"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+
+                        {% else %}
+                            <tr>
+                                <td colspan="

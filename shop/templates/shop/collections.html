@@ -53,27 +53,32 @@ Collections for shop
 
             {% for item in catagory %}
 
-            <div class="col-md-4 col-lg-3">
-                <div class="card my-3 h-100">
+            <!-- 🎯 மெயின் மேஜிக்: 'col-6' கொடுப்பதால் மொபைலில் ஒரு லைனுக்கு 2 கேட்டகிரியா மாறும்.
+                 'col-md-4' மற்றும் 'col-lg-3' இருப்பதால் PC-ல் பழையபடியே 4 கார்டுகள் அப்படியே இருக்கும் பாஸ்! -->
+            <div class="col-6 col-md-4 col-lg-3 mb-3 px-2">
+                <div class="card my-2 h-100 shadow-sm" style="border-radius: 8px; overflow: hidden;">
 
                     <a href="{% url 'collections_view' item.name %}">
+                        <!-- 🎯 மொபைலில் 2 கார்டுகள் பக்கத்துல பக்கத்துல வரும்போது இமேஜ் நசுங்காமல் இருக்க பக்கா ஸ்டைல் -->
                         <img src="{{ item.image.url }}"
                              class="card-img-top"
+                             style="width: 100% !important; height: 160px !important; object-fit: cover !important; object-position: center !important;"
                              alt="{{ item.name }}">
                     </a>
 
-                    <div class="card-body">
+                    <!-- கார்டு பாடி-ல் மொபைலுக்காக பேடிங் மற்றும் டெக்ஸ்ட் அளவுகள் அட்ஜஸ்ட் செய்யப்பட்டுள்ளது -->
+                    <div class="card-body p-2 d-flex flex-column justify-content-between">
 
                         <a href="{% url 'collections_view' item.name %}"
                            class="text-decoration-none">
-
-                            <h5 class="card-title text-primary">
+                            <!-- கேட்டகிரி பெயர் ரொம்ப நீளமாக இருந்தால் கார்டு உடையாமல் இருக்க 'text-truncate' -->
+                            <h5 class="card-title text-primary text-truncate" style="font-size: 14px; font-weight: 600; margin-bottom: 5px;">
                                 {{ item.name }}
                             </h5>
-
                         </a>
 
-                        <p class="card-text">
+                        <!-- டிஸ்கிரிப்ஷன் மொபைலில் கார்டை பெருசாக்காமல் இருக்க 2 லைன்களோடு சுருக்கப்பட்டுள்ளது -->
+                        <p class="card-text text-muted" style="font-size: 12px; display: -webkit-box; line-clamp: 2; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin: 0;">
                             {{ item.description }}
                         </p>
 
