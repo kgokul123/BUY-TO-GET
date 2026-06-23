@@ -303,13 +303,10 @@ def checkout(request):
         total_calculator = total(cartitems)
         total_amount = total_calculator.calculate_total()
 
-        # 🎯 மெயின் ஃபிக்ஸ்: ஒருவேளை HTML ஃபார்மில் 'phone' விடுபட்டிருந்தால், செஷனில் (Session) நாம் சேமித்த நம்பரை இங்க பேக்கப்பாக எடுக்கிறோம் பாஸ்!
         form_phone = request.POST.get("phone")
         if not form_phone:
-            # உங்க ஓடிபி செஷனில் என்ன கீ வச்சிருக்கீங்களோ அதை இங்க எடுக்கிறோம்
-            form_phone = request.session.get('mobile_number') or request.session.get('generated_otp_phone')
+            form_phone = request.session.get('mobile_number')
             
-        # இன்னும் பாதுகாப்புக்காக அப்படியும் நம்பர் இல்லைனா ஒரு தற்காலிக வேல்யூவை செட் செய்து IntegrityError வராமல் தடுக்கிறோம்
         if not form_phone:
             form_phone = "0000000000"
 
@@ -317,7 +314,7 @@ def checkout(request):
             user=request.user,
             order_number="ORD" + str(uuid.uuid4().hex[:8]).upper(),
             email=request.user.email,
-            phone=form_phone, # 🎯 இப்போ இங்க 'null' வரவே வராது பாஸ்!
+            phone=form_phone,
             address=request.POST.get("address"),
             pincode=pincode,
             payment_mode=payment_mode,
@@ -343,7 +340,6 @@ def checkout(request):
             product.quantity -= item.product_qty
             product.save()
 
-        # ஆர்டர் வெற்றிகரமாக முடிந்ததும் செஷனில் இருக்கும் தற்காலிக போன் நம்பரை நீக்குகிறோம்
         if 'mobile_number' in request.session:
             del request.session['mobile_number']
 
