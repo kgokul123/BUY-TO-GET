@@ -1,3 +1,4 @@
+<!-- 💻 1. PC / லேப்டாப் வியூவிற்கான டாப் நேவ்பார் (பிசி/லேப்டாப்பில் எப்போதும் போல நிலையாக மேலேயே தெரியும் பாஸ்) -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top d-none d-lg-block">
     <div class="container">
         <a class="navbar-brand" href="{% url 'home' %}">
@@ -22,6 +23,7 @@
     </div>
 </nav>
 
+<!-- 📱 2. மொபைல் & டேப்லெட் வியூவிற்கான டாப் ஹெட்டர் (ஆரம்பத்தில் மறைந்திருக்கும், டச் பண்ணினால் மட்டும் கீழே இறங்கி வரும் பாஸ்) -->
 <nav class="navbar navbar-dark bg-dark fixed-top mobile-top-nav d-block d-lg-none p-0">
     <div class="w-100 d-flex justify-content-center align-items-center" style="height: 55px; background-color: #212529 !important;">
         <span class="text-white style-brand m-0">
@@ -30,6 +32,7 @@
     </div>
 </nav>
 
+<!-- 📱 3. மொபைல் & டேப்லெட் வியூவிற்கான பாட்டம் நேவிகேஷன் பார் -->
 <div class="bottom-nav d-flex d-lg-none">
     <a href="{% url 'home' %}" class="nav-item">
         <i class="fa fa-home"></i>
@@ -53,6 +56,7 @@
     </a>
 </div>
 
+<!-- 📱 4. மொபைல் & டேப்லெட் மெனு பாப்-அப் (Bottom Sheet) -->
 <div class="mobile-sidebar" id="mobileSidebar">
     <div class="sidebar-header">
         <h5 style="color: #333; font-weight: bold; margin: 0;">KALAIARASI METAL STORE</h5>
@@ -70,6 +74,7 @@
     </div>
 </div>
 
+<!-- 🎯 5. சிஎஸ்எஸ் (CSS) - டச் லாஜிக்கிற்காக அனிமேஷன் செட் செய்யப்பட்டுள்ளது பாஸ் -->
 <style>
     /* மொபைல் & டேப்லெட் டாப் நேவ்பார் செட்டப் */
     .mobile-top-nav {
@@ -79,17 +84,17 @@
         right: 0;
         height: 55px;
         z-index: 9999;
-        transform: translateY(-100%);
+        transform: translateY(-100%); /* 🎯 ஆரம்பத்தில் ஸ்கிரீனுக்கு மேலே மறைந்திருக்கும் பாஸ் */
         transition: transform 0.3s ease-in-out !important;
         box-shadow: 0 3px 10px rgba(0,0,0,0.3);
         border: none !important;
     }
 
+    /* 🎯 டச் அல்லது ஸ்க்ரோல் செய்யும்போது இந்த கிளாஸ் மூலமாக கீழே இறங்கி வரும் */
     .mobile-top-nav.show-on-touch {
-        transform: translateY(0);
+        transform: translateY(0) !important;
     }
 
-    /* 🎯 டைட்டில் லுக்: உங்க இமேஜ்ஜில் இருப்பது போலவே அச்சுப்பிசகாமல் சென்டராகவும், சரியான அளவில் இருக்கும் பாஸ் */
     .style-brand {
         font-size: 15px !important;
         font-weight: 500;
@@ -187,29 +192,35 @@
     }
 </style>
 
+<!-- 🎯 6. ஜாவாஸ்கிரிப்ட் லாஜிக் - டச் மற்றும் ஸ்க்ரோலை கறாராகக் கண்காணிக்கும் செட்டப் பாஸ் -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const mobileTopNav = document.querySelector('.mobile-top-nav');
         let activityTimeout;
 
+        // மொபைல் மற்றும் டேப்லெட் திரைகளைக் கண்டறியும் லாக்
         const isMobileOrTab = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 992;
 
         function showHeader() {
             if(isMobileOrTab && mobileTopNav) {
+                // 🎯 டச் பண்ணினாலோ அல்லது ஸ்க்ரோல் பண்ணினாலோ உடனே டாப் பாரைக் காண்பிக்கும் பாஸ்!
                 mobileTopNav.classList.add('show-on-touch');
                 
+                // பழைய டைமரை கிளியர் செய்துவிட்டு புதிய 3 செகண்ட் டைமரைத் தொடங்குகிறது
                 clearTimeout(activityTimeout);
                 activityTimeout = setTimeout(function() {
                     mobileTopNav.classList.remove('show-on-touch');
-                }, 3000); 
+                }, 3000); // 3 செகண்டில் தானாக மேலே மறைந்துவிடும்
             }
         }
 
-        // மொபைல் மற்றும் டேப்லெட் டச் & ஸ்க்ரோல் ஈவென்ட்கள்
-        document.addEventListener('touchstart', showHeader);
-        document.addEventListener('touchend', showHeader);
-        document.addEventListener('scroll', showHeader);
+        // 🎯 மொபைல் மற்றும் டேப்லெட்டின் அனைத்து டச் மற்றும் ஸ்க்ரோல் அசைவுகளையும் இதனுடன் இணைக்கிறோம் பாஸ்!
+        document.addEventListener('touchstart', showHeader, {passive: true});
+        document.addEventListener('touchmove', showHeader, {passive: true});
+        document.addEventListener('touchend', showHeader, {passive: true});
+        document.addEventListener('scroll', showHeader, {passive: true});
 
+        // கம்ப்யூட்டர் பெரிய திரைகளில் மொபைல் நேவ்பாரை முற்றிலும் முடக்குகிறோம்
         if (!isMobileOrTab && mobileTopNav) {
             mobileTopNav.style.display = 'none';
         }
@@ -233,7 +244,7 @@
                 if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
                     sidebar.classList.remove('open');
                 }
-            });
+            }, {passive: true});
         }
     });
 </script>
