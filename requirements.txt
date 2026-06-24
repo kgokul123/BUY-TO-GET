@@ -5,6 +5,7 @@ charset-normalizer==3.4.7
 click==8.4.1
 colorama==0.4.6
 Django==5.0.4
+django-jazzmin==3.0.1
 twilio==9.0.4
 python-dotenv==1.0.1
 cloudinary==1.40.0
@@ -31,3 +32,4 @@ urllib3==2.7.0
 Werkzeug==3.1.8
 wikipedia==1.4.0
 whitenoise==6.6.0
+jazzmin
