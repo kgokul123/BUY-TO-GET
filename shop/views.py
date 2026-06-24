@@ -54,7 +54,7 @@ def send_verification_whatsapp(request):
             
             # 🎯 கஸ்டமரோட வாட்ஸ்அப்புக்கு அனுப்ப வேண்டிய 1 நிமிட செக்யூர் லிங்க்
             # (நீங்க Vercel லைவ் லிங்க் வச்சிருந்தா 127.0.0.1 இடத்துல டொமைன் பேரை மாத்திக்கலாம் பாஸ்)
-            click_link = f"http://127.0.0.1:8000/verify-click/?phone={mobile_number}&token={token}"
+            click_link = f"https://buy-to-get.vercel.app/verify-click/?phone={mobile_number}&token={token}"
             
             whatsapp_message = (
                 f"வணக்கம் {name} பாஸ்! 🙏\n\n"
