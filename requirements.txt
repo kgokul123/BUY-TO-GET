@@ -25,6 +25,7 @@ PyRect==0.2.0
 PyScreeze==1.0.1
 pytweening==1.2.0
 pywhatkit==5.4
+psycopg2-binary==2.9.9
 requests==2.34.2
 soupsieve==2.8.4
 typing_extensions==4.15.0
