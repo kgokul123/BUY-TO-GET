@@ -1,3 +1,4 @@
 django
 twilio
 python-dotenv
+cloudinary
