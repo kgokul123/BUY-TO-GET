@@ -12,7 +12,8 @@
                 <h3 class="fw-bold text-dark">Secure Checkout</h3>
                 <hr class="mb-4">
 
-                <form method="POST" id="checkout-form">
+                <!-- படிவம் சப்மிட் ஆகும்போது லாக் ஆன இன்புட்களையும் எடுக்க ஏதுவாக onsubmit சேர்த்துள்ளோம் -->
+                <form method="POST" id="checkout-form" onsubmit="enableFieldsBeforeSubmit()">
                     {% csrf_token %}
 
                     <div id="step-1">
@@ -25,18 +26,15 @@
                             <label class="fw-bold mb-2">Phone Number</label>
                             <div class="input-group">
                                 <input type="tel" id="phoneNumber" name="phone" class="form-control" style="padding: 10px;" required>
-                                <button type="button" id="btnSendOTP" class="btn btn-primary px-4">Send OTP</button>
+                                <button type="button" id="btnVerifyDetails" class="btn btn-primary px-4" onclick="showConfirmPopup()">Verify Details</button>
                             </div>
-                            <small class="text-muted mt-1 d-block">💡 பட்டனை அமுக்கியவுடன் வாட்ஸ்அப்பில் வரும் மெசேஜை செண்ட் செய்யவும் பாஸ்!</small>
+                            <small class="text-muted mt-1 d-block">💡 வாட்ஸ்அப் மூலம் சரிபார்ப்பு லிங்க் அனுப்ப பட்டனை அமுக்கவும் பாஸ்!</small>
                         </div>
 
-                        <div class="mb-4" id="otpSection" style="display: none;">
-                            <label class="fw-bold text-primary mb-2">Enter OTP</label>
-                            <div class="input-group">
-                                <input type="text" id="otpInput" class="form-control" style="padding: 10px;" maxlength="6" placeholder="Enter 6-digit code" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-                                <button type="button" id="btnVerifyOTP" class="btn btn-success px-4">Verify OTP</button>
-                            </div>
-                            <div id="otpResult" class="mt-1 small fw-bold"></div>
+                        <!-- சரிபார்ப்பு நிலை மற்றும் கவுண்ட்டவுன் டைமரை காட்டும் பகுதி -->
+                        <div class="mb-4" id="verificationStatusSection" style="display: none;">
+                            <div id="verificationResult" class="alert alert-warning fw-bold py-2 mb-2"></div>
+                            <div id="timerDisplay" class="text-danger fw-bold small" style="display: none;"></div>
                         </div>
 
                         <div class="mb-4">
@@ -85,27 +83,201 @@
     </div>
 </div>
 
+<!-- கன்பர்மேஷன் பாப்அப் மாடல் -->
+<div class="modal fade" id="confirmModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true" style="margin-top: 150px;">
+  <div class="modal-dialog">
+    <div class="modal-content border-0 shadow-lg rounded-3">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title fw-bold" id="confirmModalLabel">⚠️ SEND VERIFICATION LINK?</h5>
+      </div>
+      <div class="modal-body p-4 fs-5">
+        <p>உங்களுடைய இந்த வாட்ஸ்அப் எண்ணிற்கு சரிபார்ப்பு லிங்க் அனுப்பலாமா?</p>
+        <hr>
+        <div class="mb-2"><strong>Name:</strong> <span id="popName" class="text-primary fw-bold"></span></div>
+        <div class="mb-2"><strong>WhatsApp No:</strong> <span id="popPhone" class="text-primary fw-bold"></span></div>
+      </div>
+      <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-danger px-4 fw-bold" onclick="cancelDetails()">Cancel (தவறு)</button>
+        <button type="button" class="btn btn-success px-4 fw-bold" id="confirmSendBtn" onclick="sendWhatsAppLink()">Send Link (அனுப்பு)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
 let isPincodeAvailable = false;
-let isOtpVerified = false;
+let isDetailsConfirmed = false; 
+let countdownInterval;
 
-function goToStep2() {
+let phoneInput;
+document.addEventListener("DOMContentLoaded", function() {
+    const phoneInputField = document.querySelector("#phoneNumber");
+    phoneInput = window.intlTelInput(phoneInputField, {
+        initialCountry: "in",
+        separateDialCode: true,
+        utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+    });
+
+    const codRadio = document.getElementById("cod");
+    const upiRadio = document.getElementById("upi");
+    const upiFields = document.getElementById("upi-fields");
+
+    function togglePaymentFields() {
+        if (upiRadio.checked) {
+            upiFields.style.display = "block";
+            document.querySelector("input[name='transaction_id']").required = true;
+        } else {
+            upiFields.style.display = "none";
+            document.querySelector("input[name='transaction_id']").required = false;
+        }
+    }
+
+    codRadio.addEventListener("change", togglePaymentFields);
+    upiRadio.addEventListener("change", togglePaymentFields);
+});
+
+function showConfirmPopup() {
     const name = document.getElementById("name").value.trim();
-    const phone = document.getElementById("phoneNumber").value.trim();
+    const phone = phoneInput.getNumber(); 
     const address = document.getElementById("address").value.trim();
 
-    if(name === "" || phone === "" || address === "") {
-        alert("Please fill in your name, phone number, and address completely!");
+    if(name === "" || document.getElementById("phoneNumber").value.trim() === "" || address === "") {
+        alert("Please fill Name, Phone Number, and Address first, boss!");
         return;
     }
-    
-    if(!isOtpVerified) { 
-        alert("Please complete the OTP verification first, boss!"); 
+
+    if(!phoneInput.isValidNumber()) { 
+        alert("Wrong mobile number! Please write 10 digit mobile number with valid flag."); 
         return; 
     }
 
+    document.getElementById("popName").innerText = name;
+    document.getElementById("popPhone").innerText = phone;
+
+    var myModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    myModal.show();
+}
+
+// 🎯 வாட்ஸ்அப் லிங்க் அனுப்பும் முக்கிய ஃபங்க்ஷன் பாஸ்!
+function sendWhatsAppLink() {
+    const phone = phoneInput.getNumber();
+    const name = document.getElementById("name").value.trim();
+    const confirmBtn = document.getElementById("confirmSendBtn");
+    
+    confirmBtn.disabled = true;
+    confirmBtn.innerText = "Sending...";
+
+    // ⚠️ Django Views-க்கு சிக்னல் அனுப்புகிறோம் (இது வியூஸ் வழியாக உங்க வீட்டு பிசி சர்வருக்குப் போகும்)
+    fetch("/send-verification-whatsapp/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+            "mobile_number": phone,
+            "name": name
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // பாப்அப்பை மூடுகிறோம்
+        var myModalEl = document.getElementById('confirmModal');
+        var modal = bootstrap.Modal.getInstance(myModalEl);
+        modal.hide();
+        
+        confirmBtn.disabled = false;
+        confirmBtn.innerText = "Send Link (அனுப்பு)";
+
+        if(data.success) {
+            // லோக்கல் சர்வரில் இருந்து சிக்னல் கிடைத்ததும் கஸ்டமருக்கு ஸ்டேட்டஸை காட்டுகிறோம்
+            document.getElementById("verificationStatusSection").style.display = "block";
+            const statusBox = document.getElementById("verificationResult");
+            statusBox.className = "alert alert-warning fw-bold py-2 mb-2";
+            statusBox.innerHTML = "💬 உங்க வாட்ஸ்அப் எண்ணிற்கு சரிபார்ப்பு லிங்க் அனுப்பப்பட்டுள்ளது. 1 நிமிடத்திற்குள் கிளிக் செய்யவும்!";
+            
+            // ⏳ 1 நிமிட டைமரை துவக்குகிறோம் பாஸ்
+            startOneMinuteTimer();
+        } else {
+            alert("Error sending WhatsApp message: " + data.message);
+        }
+    })
+    .catch(error => {
+        alert("Connection Error! உங்க வீட்டு பிசி சர்வர் ஆன்ல இருக்கான்னு பாருங்க பாஸ்.");
+        confirmBtn.disabled = false;
+        confirmBtn.innerText = "Send Link (அனுப்பு)";
+    });
+}
+
+// ⏳ 60 செகண்ட் கவுண்ட்டவுன் டைமர்
+function startOneMinuteTimer() {
+    let timeLeft = 60;
+    const timerDisplay = document.getElementById("timerDisplay");
+    timerDisplay.style.display = "block";
+    
+    // பழைய டைமர் ஏதும் ஓடிக்கொண்டிருந்தால் கிளியர் செய்கிறோம்
+    clearInterval(countdownInterval);
+
+    countdownInterval = setInterval(function() {
+        if(timeLeft <= 0) {
+            clearInterval(countdownInterval);
+            timerDisplay.innerHTML = "❌ நேரம் முடிவடைந்தது! லிங்க் எக்ஸ்பையர் ஆகிவிட்டது. மீண்டும் முயற்சிக்கவும்.";
+            document.getElementById("verificationResult").innerHTML = "❌ சரிபார்ப்பு தோல்வி.";
+            document.getElementById("verificationResult").className = "alert alert-danger fw-bold py-2 mb-2";
+        } else {
+            timerDisplay.innerHTML = `⏱️ மீதமுள்ள நேரம்: ${timeLeft} வினாடிகள்...`;
+            
+            // 🎯 டெஸ்டிங்கிற்காக அல்லது கஸ்டமர் லிங்க்கை கிளிக் செய்தாரா என்பதை பேக்ஹெண்ட் செக் செய்யும் பகுதி
+            // (இதற்கான Views செட்டப்பை அடுத்ததாக நாம் செய்யலாம் பாஸ், கஸ்டமர் லிங்க் கிளிக் செய்ததும் 'isDetailsConfirmed' true ஆகிடும்)
+            checkIfLinkClickedBackend();
+        }
+        timeLeft -= 1;
+    }, 1000);
+}
+
+// 🎯 லிங்க் கிளிக் செய்யப்பட்டதா என்று பேக்ஹெண்டில் செக் செய்யும் ஃபங்க்ஷன்
+function checkIfLinkClickedBackend() {
+    const phone = phoneInput.getNumber();
+    
+    fetch(`/check-verification-status/?mobile_number=${phone}`)
+    .then(response => response.json())
+    .then(data => {
+        if(data.verified) {
+            clearInterval(countdownInterval);
+            isDetailsConfirmed = true;
+            
+            document.getElementById("timerDisplay").style.display = "none";
+            const statusBox = document.getElementById("verificationResult");
+            statusBox.className = "alert alert-success fw-bold py-2 mb-2";
+            statusBox.innerHTML = "✓ விபரங்கள் வெற்றிகரமாக வாட்ஸ்அப் மூலம் உறுதிசெய்யப்பட்டது பாஸ்!";
+            
+            // இன்புட்களை லாக் செய்கிறோம்
+            document.getElementById("name").disabled = true;
+            document.getElementById("phoneNumber").disabled = true;
+            document.getElementById("address").disabled = true;
+            document.getElementById("btnVerifyDetails").disabled = true;
+
+            checkFormValidity();
+        }
+    });
+}
+
+function cancelDetails() {
+    isDetailsConfirmed = false;
+    var myModalEl = document.getElementById('confirmModal');
+    var modal = bootstrap.Modal.getInstance(myModalEl);
+    modal.hide();
+    alert("விபரங்களை மாற்றிக்கொள்ளலாம் பாஸ்!");
+}
+
+function goToStep2() {
+    if(!isDetailsConfirmed) { 
+        alert("Please Verify and Confirm your details via WhatsApp first, boss!"); 
+        return; 
+    }
     document.getElementById("step-1").style.display = "none";
     document.getElementById("step-2").style.display = "block";
 }
@@ -137,123 +309,19 @@ function checkPincode() {
 
 function checkFormValidity() {
     let placeBtn = document.getElementById("placeOrderBtn");
-    if(isPincodeAvailable && isOtpVerified) {
+    if(isPincodeAvailable && isDetailsConfirmed) {
         placeBtn.disabled = false;
     } else {
         placeBtn.disabled = true;
     }
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-    
-    const phoneInputField = document.querySelector("#phoneNumber");
-    const phoneInput = window.intlTelInput(phoneInputField, {
-        initialCountry: "in",
-        separateDialCode: true,
-        utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
-    });
-
-    const btnSendOTP = document.getElementById("btnSendOTP");
-    const btnVerifyOTP = document.getElementById("btnVerifyOTP");
-    const otpSection = document.getElementById("otpSection");
-    const otpResult = document.getElementById("otpResult");
-
-    // 🎯 1. வாட்ஸ்அப் ஓடிபி ரீடைரக்ஷன் லாஜிக் பாஸ்
-    btnSendOTP.addEventListener("click", function() {
-        const phone = phoneInput.getNumber(); 
-        
-        if(!phoneInput.isValidNumber()) { 
-            alert("Wrong mobile number! Please write 10 digit mobile number with valid flag."); 
-            return; 
-        }
-
-        btnSendOTP.innerText = "Redirecting...";
-
-        fetch("/send-otp/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": document.cookie.split('csrftoken=')[1]?.split(';')[0]
-            },
-            body: JSON.stringify({ mobile_number: phone })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if(data.success) {
-                // 🎯 மாஸ் ட்ரிக்: கஸ்டமரை ஓடிபியுடன் வாட்ஸ்அப்பிற்கு அனுப்புகிறோம் பாஸ்!
-                // ⚠️ (கீழே இருக்கும் 919786542128-க்கு பதிலாக உங்க கடையோட ஒரிஜினல் வாட்ஸ்அப் நம்பரை மாத்திக்கலாம் பாஸ்)
-                const shopWhatsApp = "919080553772"; 
-                const msg = encodeURIComponent("Hi KALAIARASI METAL STORE, My Secure Checkout OTP code is: " + data.dev_otp);
-                
-                // வாட்ஸ்அப் சாட் பாக்ஸை ஓபன் செய்கிறது
-                window.open(`https://wa.me/${shopWhatsApp}?text=${msg}`, '_blank');
-
-                otpSection.style.display = "block";
-                btnSendOTP.innerText = "Resend OTP";
-            } else {
-                alert("Error: " + data.message);
-                btnSendOTP.innerText = "Send OTP";
-            }
-        })
-        .catch(err => {
-            console.error("Error:", err);
-            btnSendOTP.innerText = "Send OTP";
-        });
-    });
-
-    // 🎯 2. ஓடிபி சரிபார்க்கும் லாஜிக் பாஸ்
-    btnVerifyOTP.addEventListener("click", function() {
-        const otp = document.getElementById("otpInput").value;
-        if(!otp) { alert("Please type the 6-digit OTP!"); return; }
-
-        fetch("/verify-otp/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": document.cookie.split('csrftoken=')[1]?.split(';')[0]
-            },
-            body: JSON.stringify({ otp: otp })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if(data.success) {
-                otpResult.innerHTML = "<span class='text-success'>✓ OTP successfully verified!</span>";
-                isOtpVerified = true;
-                
-                btnSendOTP.disabled = true;
-                btnVerifyOTP.disabled = true;
-                document.getElementById("otpInput").disabled = true;
-                
-                checkFormValidity();
-            } else {
-                otpResult.innerHTML = "<span class='text-danger'>✗ " + data.status + "</span>";
-                isOtpVerified = false;
-                checkFormValidity();
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Verification error!");
-        });
-    });
-
-    const codRadio = document.getElementById("cod");
-    const upiRadio = document.getElementById("upi");
-    const upiFields = document.getElementById("upi-fields");
-
-    function togglePaymentFields() {
-        if (upiRadio.checked) {
-            upiFields.style.display = "block";
-            document.querySelector("input[name='transaction_id']").required = true;
-        } else {
-            upiFields.style.display = "none";
-            document.querySelector("input[name='transaction_id']").required = false;
-        }
-    }
-
-    codRadio.addEventListener("change", togglePaymentFields);
-    upiRadio.addEventListener("change", togglePaymentFields);
-});
+// படிவம் சப்மிட் ஆகுவதற்கு முன் லாக் செய்யபட்ட இன்புட்டுகளை அன்லாக் செய்ய வேண்டும் (இல்லையெனில் Django-வுக்கு டேட்டா போகாது)
+function enableFieldsBeforeSubmit() {
+    document.getElementById("name").disabled = false;
+    document.getElementById("phoneNumber").disabled = false;
+    document.getElementById("address").disabled = false;
+}
 </script>
 
 <style>

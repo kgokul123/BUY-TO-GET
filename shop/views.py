@@ -1,6 +1,7 @@
 import json
 import random
 import uuid
+import requests
 from abc import ABC, abstractmethod
 from datetime import timedelta
 
@@ -11,6 +12,9 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+from django.core.management import call_command
+
 from .form import CustomUserForm
 from .models import (
     Cart,
@@ -22,46 +26,112 @@ from .models import (
     Product,
     Review,
 )
-from django.core.management import call_command
-from django.views.decorators.csrf import csrf_exempt
-from twilio.rest import Client
 
-# === 1. OTP MANAGEMENT (CLEANED & DUPLICATES REMOVED) ===
+# ⚠️ வாட்ஸ்அப் வெரிஃபிகேஷன் நிலையை தற்காலிகமாகச் சேமிக்க உலகளாவிய டிக்ஸ்னரி பாஸ்
+VERIFICATION_STORE = {}
+
+# === 1. WHATSAPP VERIFICATION SYSTEM ===
+
+@csrf_exempt
+def send_verification_whatsapp(request):
+    if request.method == "POST":
+        try:
+            body = json.loads(request.body)
+            mobile_number = body.get('mobile_number')
+            name = body.get('name')
+            
+            if not mobile_number:
+                return JsonResponse({"success": False, "message": "Mobile number is required boss!"})
+            
+            # 🎯 கஸ்டமருக்கு ஒரு தனித்துவமான வெரிஃபிகேஷன் டோக்கன் உருவாக்குறோம்
+            token = str(random.randint(100000, 999999))
+            
+            # 🎯 இந்த நம்பர் இன்னும் வெரிஃபை ஆகலன்னு ஸ்டோர் பண்ணி வைக்கிறோம்
+            VERIFICATION_STORE[mobile_number] = {
+                "verified": False,
+                "token": token
+            }
+            
+            # 🎯 கஸ்டமரோட வாட்ஸ்அப்புக்கு அனுப்ப வேண்டிய 1 நிமிட செக்யூர் லிங்க்
+            # (நீங்க Vercel லைவ் லிங்க் வச்சிருந்தா 127.0.0.1 இடத்துல டொமைன் பேரை மாத்திக்கலாம் பாஸ்)
+            click_link = f"http://127.0.0.1:8000/verify-click/?phone={mobile_number}&token={token}"
+            
+            whatsapp_message = (
+                f"வணக்கம் {name} பாஸ்! 🙏\n\n"
+                f"உங்களுடைய KALAIARASI METAL STORE ஆர்டர் விபரங்களை உறுதி செய்ய கீழே உள்ள லிங்கை 1 நிமிடத்திற்குள் கிளிக் செய்யவும்:\n👉 {click_link}"
+            )
+            
+            # 🚀 உங்க Ngrok முகவரி வழியா உங்க வீட்டு பைதான் சர்வருக்கு டேட்டாவை அனுப்புறோம்!
+            ngrok_url = "https://ludicrous-slighting-negligent.ngrok-free.dev/send-whatsapp"
+            payload = {
+                "number": mobile_number,
+                "message": whatsapp_message
+            }
+            
+            # வீட்டு சர்வருக்கு சிக்னல் போகிறது
+            response = requests.post(ngrok_url, json=payload, timeout=20)
+            
+            if response.status_code == 200:
+                return JsonResponse({"success": True})
+            else:
+                return JsonResponse({"success": False, "message": "Failed to trigger home server"})
+                
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)})
+            
+    return JsonResponse({"success": False, "message": "Invalid Method"})
+
+
+# 🎯 கஸ்டமர் வாட்ஸ்அப்ல இருக்குற லிங்க்கை கிளிக் பண்ணா இந்த ஃபங்க்ஷன் ரன் ஆகும் பாஸ்!
+def verify_click(request):
+    phone = request.GET.get('phone')
+    token = request.GET.get('token')
+    
+    if phone in VERIFICATION_STORE and VERIFICATION_STORE[phone]['token'] == token:
+        VERIFICATION_STORE[phone]['verified'] = True  # வெற்றிகரமாக உறுதி செய்யப்பட்டது!
+        return HttpResponse(
+            "<h2 style='color: green; text-align: center; margin-top: 50px; font-family: sans-serif;'>"
+            "✓ விபரங்கள் வெற்றிகரமாக வாட்ஸ்அப் மூலம் உறுதிசெய்யப்பட்டது பாஸ்! <br>இப்போ நீங்க வெப்சைட் போய் Place Order அமுக்கலாம்.</h2>"
+        )
+    
+    return HttpResponse("<h2 style='color: red; text-align: center; margin-top: 50px;'>❌ செல்லாத அல்லது காலாவதியான லிங்க் பாஸ்!</h2>")
+
+
+# 🎯 HTML பக்கத்தில் இருக்குற ஜாவாஸ்கிரிப்ட் டைமர் வந்து செக் செய்யும் இடம்
+def check_verification_status(request):
+    phone = request.GET.get('mobile_number')
+    if phone in VERIFICATION_STORE and VERIFICATION_STORE[phone]['verified']:
+        return JsonResponse({"verified": True})
+    return JsonResponse({"verified": False})
 
 
 @csrf_exempt
-def send_whatsapp_free_otp(request):
-    if request.method == 'POST':
-        user_mobile = request.POST.get('+919080553772') # உதாரணம்: +919876543210
-        
-        if not user_mobile:
-            return JsonResponse({'status': 'error', 'message': 'மொபைல் எண் தேவை!'})
-
-        # 6 டிஜிட் ஃப்ரீ OTP உருவாக்குறோம்
-        otp = str(random.randint(100000, 999999))
-        request.session['generated_otp'] = otp
-
+def send_otp(request):
+    if request.method == "POST":
         try:
-            message = f"உங்களுடைய ஸ்டீல் & ஃபர்னிச்சர் லாக்-இன் OTP: {otp}"
-
-            # pywhatkit மூலமா உடனே மெசேஜ் அனுப்புறோம்
-            # இது பிரௌசரை ஓப்பன் பண்ணி, 15 செகண்ட் வெயிட் பண்ணி, மெசேஜ் அனுப்பிட்டு டேபை க்ளோஸ் பண்ணும்
-            kit.sendwhatmsg_instantly(
-                phone_no=user_mobile, 
-                message=message, 
-                wait_time=15, 
-                tab_close=True
-            )
-
-            return JsonResponse({'status': 'success', 'message': 'OTP வாட்ஸ்அப்பில் அனுப்பப்பட்டது!'})
-
+            data = json.loads(request.body)
+            mobile_number = data.get('mobile_number') or data.get('phone')
+            
+            if not mobile_number:
+                return JsonResponse({'success': False, 'message': 'Mobile number required!'}, status=400)
+            
+            request.session['mobile_number'] = mobile_number
+            otp = str(random.randint(100000, 999999))
+            request.session['generated_otp'] = otp
+            
+            return JsonResponse({
+                'success': True,
+                'status': 'success',
+                'dev_otp': otp
+            })
         except Exception as e:
-            return JsonResponse({'status': 'error', 'message': f'மெசேஜ் அனுப்ப முடியவில்லை: {str(e)}'})
+            return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
-    return JsonResponse({'status': 'error', 'message': 'Invalid Request'})
+    return JsonResponse({'success': False, 'message': 'Invalid Request'}, status=400)
 
 
 # === 2. UTILITIES & MIGRATIONS ===
+
 def run_online_migration(request):
     try:
         call_command('migrate', interactive=False)
@@ -77,6 +147,7 @@ def check_pincode(request):
 
 
 # === 3. HOME & PRODUCTS ===
+
 def home(request):
     products = Product.objects.filter(trending=1)
     return render(request, "shop/index.html", {"products": products})
@@ -98,36 +169,10 @@ def Product_details(request, cname, pname):
     if not products:
         products = Product.objects.filter(category__name__icontains=clean_cname, status=0).first()
         
-    if products:@csrf_exempt
-def send_otp(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            mobile_number = data.get('mobile_number') or data.get('phone')
-            
-            if not mobile_number:
-                return JsonResponse({'success': False, 'message': 'Mobile number required!'}, status=400)
-            
-            request.session['mobile_number'] = mobile_number
-            
-            # 6 இலக்க ஓடிபி நம்பரை பேக்-எண்டிலேயே செக்யூரா உருவாக்குகிறது
-            otp = str(random.randint(100000, 999999))
-            request.session['generated_otp'] = otp
-            
-            return JsonResponse({
-                'success': True,
-                'status': 'success',
-                'dev_otp': otp # இது ஜாவாஸ்கிரிப்ட் மூலம் வாட்ஸ்அப் லிங்கிற்குள் உட்காரும் பாஸ்!
-            })
-            
-        except Exception as e:
-            return JsonResponse({'success': False, 'message': str(e)}, status=500)
-
-    return JsonResponse({'success': False, 'message': 'Invalid Request'}, status=400)
-
+    if products:
         try:
             reviews = Review.objects.filter(product=products).order_by("-created_at")
-        except:
+        exceptException:
             reviews = []
         context = {"products": products, "reviews": reviews}
         return render(request, "shop/products/product_details.html", context)
@@ -161,6 +206,7 @@ def collectionsview(request, name):
 
 
 # === 4. CART & FAVOURITES ===
+
 @login_required(login_url="login")
 def Cart_page(request):
     cart = Cart.objects.filter(user=request.user)
@@ -217,7 +263,7 @@ def Fav_page(request):
             if Favourite.objects.filter(user=request.user, product_id=product_id).exists():
                 return JsonResponse({"status": "Product Already in Favourite"}, status=200)
 
-            Favourite.objects.create(user=request.user, product_id=product_id)
+            &nbsp;Favourite.objects.create(user=request.user, product_id=product_id)
             return JsonResponse({"status": "Product Added to Favourite"}, status=200)
         except Exception:
             return JsonResponse({"status": "Error Processing Request"}, status=500)
@@ -231,7 +277,8 @@ def remove_fav(request, fid):
     return redirect("Fav")
 
 
-# === 5. CHECKOUT & ORDERS (100% SAFE FROM CRASH) ===
+# === 5. CHECKOUT & ORDERS ===
+
 @login_required(login_url="login")
 def checkout(request):
     if request.method == "POST":
@@ -324,6 +371,7 @@ def orderdetails(request, oid):
 
 
 # === 6. REVIEWS & AUTHENTICATION ===
+
 @login_required(login_url="login")
 def add_review(request, product_id):
     if request.method == "POST":
@@ -376,7 +424,8 @@ def register(request):
     return render(request, "shop/register.html", {"form": form})
 
 
-# === 7. CALCULATION CLASSES (NAME CHANGED TO AVOID DJANGO CRASH) ===
+# === 7. CALCULATION CLASSES ===
+
 class TotalBase(ABC):
     @abstractmethod
     def calculate_subtotal(self):
