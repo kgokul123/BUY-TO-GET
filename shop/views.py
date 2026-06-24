@@ -27,51 +27,38 @@ from django.views.decorators.csrf import csrf_exempt
 from twilio.rest import Client
 
 # === 1. OTP MANAGEMENT (CLEANED & DUPLICATES REMOVED) ===
+
+
 @csrf_exempt
-def send_otp(request):
-    if request.method == "POST":
+def send_whatsapp_free_otp(request):
+    if request.method == 'POST':
+        user_mobile = request.POST.get('+919080553772') # உதாரணம்: +919876543210
+        
+        if not user_mobile:
+            return JsonResponse({'status': 'error', 'message': 'மொபைல் எண் தேவை!'})
+
+        # 6 டிஜிட் ஃப்ரீ OTP உருவாக்குறோம்
+        otp = str(random.randint(100000, 999999))
+        request.session['generated_otp'] = otp
+
         try:
-            data = json.loads(request.body)
-            mobile_number = data.get('mobile_number') or data.get('phone')
-            
-            if not mobile_number:
-                return JsonResponse({'success': False, 'message': 'Mobile number required!'}, status=400)
-            
-            request.session['mobile_number'] = mobile_number
-            
-            # 6 இலக்க ஓடிபி நம்பரை பேக்-எண்டிலேயே செக்யூரா உருவாக்குகிறது
-            otp = str(random.randint(100000, 999999))
-            request.session['generated_otp'] = otp
-            
-            return JsonResponse({
-                'success': True,
-                'status': 'success',
-                'dev_otp': otp # இது ஜாவாஸ்கிரிப்ட் மூலம் வாட்ஸ்அப் லிங்கிற்குள் உட்காரும் பாஸ்!
-            })
-            
+            message = f"உங்களுடைய ஸ்டீல் & ஃபர்னிச்சர் லாக்-இன் OTP: {otp}"
+
+            # pywhatkit மூலமா உடனே மெசேஜ் அனுப்புறோம்
+            # இது பிரௌசரை ஓப்பன் பண்ணி, 15 செகண்ட் வெயிட் பண்ணி, மெசேஜ் அனுப்பிட்டு டேபை க்ளோஸ் பண்ணும்
+            kit.sendwhatmsg_instantly(
+                phone_no=user_mobile, 
+                message=message, 
+                wait_time=15, 
+                tab_close=True
+            )
+
+            return JsonResponse({'status': 'success', 'message': 'OTP வாட்ஸ்அப்பில் அனுப்பப்பட்டது!'})
+
         except Exception as e:
-            return JsonResponse({'success': False, 'message': str(e)}, status=500)
+            return JsonResponse({'status': 'error', 'message': f'மெசேஜ் அனுப்ப முடியவில்லை: {str(e)}'})
 
-    return JsonResponse({'success': False, 'message': 'Invalid Request'}, status=400)
-
-
-def verify_otp(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            user_otp = data.get("otp")
-            saved_otp = request.session.get('generated_otp')
-            
-            if saved_otp and str(user_otp) == str(saved_otp):
-                if 'generated_otp' in request.session:
-                    del request.session['generated_otp'] 
-                return JsonResponse({"success": True, "status": "OTP VERIFY SUCCESSFUL!"})
-            else:
-                return JsonResponse({"success": False, "status": "WRONG OTP PLEASE VERIFY AGAIN."})
-        except Exception as e:
-            return JsonResponse({"success": False, "status": str(e)}, status=500)
-            
-    return JsonResponse({"success": False, "status": "Invalid Request"})
+    return JsonResponse({'status': 'error', 'message': 'Invalid Request'})
 
 
 # === 2. UTILITIES & MIGRATIONS ===
@@ -111,7 +98,33 @@ def Product_details(request, cname, pname):
     if not products:
         products = Product.objects.filter(category__name__icontains=clean_cname, status=0).first()
         
-    if products:
+    if products:@csrf_exempt
+def send_otp(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            mobile_number = data.get('mobile_number') or data.get('phone')
+            
+            if not mobile_number:
+                return JsonResponse({'success': False, 'message': 'Mobile number required!'}, status=400)
+            
+            request.session['mobile_number'] = mobile_number
+            
+            # 6 இலக்க ஓடிபி நம்பரை பேக்-எண்டிலேயே செக்யூரா உருவாக்குகிறது
+            otp = str(random.randint(100000, 999999))
+            request.session['generated_otp'] = otp
+            
+            return JsonResponse({
+                'success': True,
+                'status': 'success',
+                'dev_otp': otp # இது ஜாவாஸ்கிரிப்ட் மூலம் வாட்ஸ்அப் லிங்கிற்குள் உட்காரும் பாஸ்!
+            })
+            
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+    return JsonResponse({'success': False, 'message': 'Invalid Request'}, status=400)
+
         try:
             reviews = Review.objects.filter(product=products).order_by("-created_at")
         except:
