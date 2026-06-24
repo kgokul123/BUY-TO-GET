@@ -169,16 +169,16 @@ def Product_details(request, cname, pname):
     if not products:
         products = Product.objects.filter(category__name__icontains=clean_cname, status=0).first()
         
+    # 🎯 இங்கிருந்து தான் பாஸ் அலைன்மென்ட் மிக முக்கியம்!
     if products:
         try:
-            reviews = Review.objects.filter(product=products).order_by("-created_at")
-        exceptException:
-            reviews = []
-        context = {"products": products, "reviews": reviews}
-        return render(request, "shop/products/product_details.html", context)
-    else:
-        messages.error(request, "No Such Product Found")
-        return redirect("collections_list")
+            products = Product.objects.all()
+            reviews = Review.objects.all()
+        except Exception as e:
+            print(e)
+
+    context = {"products": products, "reviews": reviews}
+    return render(request, 'shop/index.html', context)
 
 
 def collections(request):
@@ -263,7 +263,7 @@ def Fav_page(request):
             if Favourite.objects.filter(user=request.user, product_id=product_id).exists():
                 return JsonResponse({"status": "Product Already in Favourite"}, status=200)
 
-            &nbsp;Favourite.objects.create(user=request.user, product_id=product_id)
+            Favourite.objects.create(user=request.user, product_id=product_id)
             return JsonResponse({"status": "Product Added to Favourite"}, status=200)
         except Exception:
             return JsonResponse({"status": "Error Processing Request"}, status=500)
