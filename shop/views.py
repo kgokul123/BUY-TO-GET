@@ -164,20 +164,29 @@ def Product_details(request, cname, pname):
     clean_cname = unquote(cname).strip()
     clean_pname = unquote(pname).strip()
     
-    products = Product.objects.filter(name__icontains=clean_pname, status=0).first()
-    if not products:
-        products = Product.objects.filter(category__name__icontains=clean_cname, status=0).first()
+    # 💡 1. டேட்டாபேஸ்ல இருந்து குறிப்பிட்ட அந்த ஒரு ப்ராடக்ட்டை மட்டும் எடுக்கிறோம் பாஸ்!
+    single_product = Product.objects.filter(name__icontains=clean_pname, status=0).first()
+    
+    # 💡 2. ஒருவேளை பெயர்ல கிடைக்கலனா, கலெக்ஷன் பெயரை வச்சு தேடுறோம்
+    if not single_product:
+        single_product = Product.objects.filter(category__name__icontains=clean_cname, status=0).first()
         
-    # 🎯 இங்கிருந்து தான் பாஸ் அலைன்மென்ட் மிக முக்கியம்!
-    if products:
+    reviews = []
+    # 💡 3. ப்ராடக்ட் கிடைச்சதும், அதோட ரிவியூக்களை மட்டும் தனியா ஃபில்டர் பண்றோம் பாஸ்
+    if single_product:
         try:
-            products = Product.objects.all()
-            reviews = Review.objects.all()
+            reviews = Review.objects.filter(product=single_product)
         except Exception as e:
             print(e)
 
-    context = {"products": products, "reviews": reviews}
-    return render(request, 'shop/index.html', context)
+    # 🎯 [மரண மாஸ் பிக்ஸ்]: HTML-ல் தேடுற மாதிரி "products" கீ-யையும், 
+    # கரெக்ட்டான சப்-ஃபோல்டர் பாத்தையும் (shop/products/product_details.html) இங்க வச்சுட்டோம் பாஸ்!
+    context = {
+        "products": single_product, 
+        "reviews": reviews
+    }
+    return render(request, 'shop/products/product_details.html', context)
+  
 
 
 def collections(request):
@@ -214,6 +223,7 @@ def Cart_page(request):
     return render(request, "shop/cart.html", context)
 
 
+@login_required(login_url="login")
 def add_to_cart(request):
     if request.headers.get("x-requested-with") == "XMLHttpRequest":
         if request.user.is_authenticated:

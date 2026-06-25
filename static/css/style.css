@@ -16,6 +16,41 @@
     }
 }
 
+
+/* 🎯 பச்சை பாக்ஸிற்குள் இருக்கும் எழுத்தை பக்கா வெள்ளை நிறமாக மாற்றும் மேஜிக் பாஸ்! */
+.bg-success, 
+.badge.bg-success,
+[class*="bg-success"] {
+    color: #ffffff !important; /* பக்கா வெள்ளை நிறம் */
+}
+
+/* ஒருவேளை உங்க தனி கிளாஸ் வேலை செய்யணும்னா இதையும் சேர்த்துக்கோங்க */
+.product-selling-price {
+    background-color: #198754 !important;
+    color: #ffffff !important; /* பக்கா வெள்ளை நிறம் */
+    font-weight: 600 !important;
+}
+
+
+
+/* 🎯 ப்ராடக்ட் டீடைல்ஸ் பக்கத்தில் இருக்கும் செல்லிங் பிரைஸுக்கான ஸ்டைல் */
+.product-selling-price {
+    background-color: #198754 !important; /* ஃபர்ஸ்ட் இமேஜ்ல இருக்குற அதே பிரகாசமான பச்சை நிறம் */
+    color: #ffffff !important;            /* பக்கா வெள்ளை நிற எழுத்துக்கள் */
+    padding: 6px 12px !important;
+    border-radius: 6px !important;
+    display: inline-block !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+
+/* 🎯 ஒரிஜினல் பிரைஸுக்கான ஸ்டைல் - வெள்ளை நிறத்தில் தெரிய */
+.product-original-price {
+    color: #ffffff !important;            /* வெள்ளை நிறம் */
+    font-size: 14px !important;
+    opacity: 0.8 !important;              /* லைட்டாக மங்கலாக தெரிய */
+}
+
 .card img{
     width:100%;
     height:180px;

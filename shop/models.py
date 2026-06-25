@@ -55,6 +55,7 @@ class Product(models.Model):
     trending = models.BooleanField(default=False, help_text="0-Default, 1-Trending")
     created_at = models.DateTimeField(auto_now_add=True)
     weight = models.CharField(max_length=50, blank=True, null=True)
+    delivery_charge = models.IntegerField(default=0, help_text="அட்மின் என்டர் செய்யும் டெலிவரி தொகை (0 கொடுத்தால் Free Delivery)")
 
     def __str__(self):
         return self.name
