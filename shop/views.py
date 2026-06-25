@@ -62,6 +62,7 @@ def send_verification_whatsapp(request):
             )
             
             # 🚀 உங்க Ngrok முகவரி வழியா உங்க வீட்டு பைதான் சர்வருக்கு டேட்டாவை அனுப்புறோம்!
+            # 🚀 இனிமேல் இந்த லிங்க் மாறவே மாறாது பாஸ்!
             ngrok_url = "https://ludicrous-slighting-negligent.ngrok-free.dev/send-whatsapp"
             payload = {
                 "number": mobile_number,
