@@ -33,42 +33,39 @@ OTP_STORE = {}
 def send_verification_whatsapp(request):
     if request.method == "POST":
         try:
-            import json
-            import requests
-            body = json.loads(request.body)
-            mobile_number = body.get('mobile_number', '')
-            name = body.get('name', '')
-
-            if not mobile_number:
-                return JsonResponse({"success": False, "message": "Mobile number is required boss!"})
-
-            # 🔢 6 இலக்க OTP-யை உருவாக்குகிறோம்!
-            otp = str(random.randint(100000, 999999))
+            data = json.loads(request.body)
+            mobile_number = data.get('mobile_number')
+            name = data.get('name')
             
-            # நம்பரைச் சுத்தப்படுத்தி ஸ்டோர் செய்கிறோம்
-            clean_number = "".join([c for c in mobile_number if c.isdigit()])
-            OTP_STORE[clean_number] = otp
-
-            # வாட்ஸ்அப் மெசேஜ் டெம்ப்ளேட்
-            whatsapp_message = (
-                f"வணக்கம் {name} பாஸ்! 🙏\n\n"
-                f"உங்களுடைய KALAIARASI METAL STORE ஆர்டர் விபரங்களை உறுதி செய்ய உங்களுக்கான OTP எண் இதோ:\n"
-                f"🔢 *{otp}*\n\n"
-                f"இந்த எண்ணை வெப்சைட்டில் உள்ளிட்டு ஆர்டரை முடிக்கவும் பாஸ்!"
-            )
-
-            # உங்க வீட்டு பைதான் சர்வருக்கு சிக்னல் அனுப்புகிறோம்
+            # 6 இலக்க OTP உருவாக்கம்
+            otp = str(random.randint(100000, 999999))
+            OTP_STORE[mobile_number] = otp
+            
+            # உங்க மாஸான Ngrok லிங்க் பாஸ்
             ngrok_url = "https://ludicrous-slighting-negligent.ngrok-free.dev/send-whatsapp"
+            
             payload = {
                 "number": mobile_number,
-                "message": whatsapp_message
+                "message": f"வணக்கம் {name}, உங்களது காளையரசி மெட்டல் ஸ்டோர் லாகின் OTP எண்: {otp}. இது 1 நிமிடத்திற்கு மட்டுமே செல்லுபடியாகும் பாஸ்!"
             }
             
-            requests.post(ngrok_url, json=payload, timeout=20)
-            return JsonResponse({"success": True, "message": "OTP sent to WhatsApp boss!"})
-
+            # 💡 இங்க தான் ட்ரிக்: டைம் அவுட்டை 25 செகண்டா மாத்தியிருக்கோம்
+            try:
+                response = requests.post(ngrok_url, json=payload, timeout=25)
+                # லோக்கல் சர்வர் சிக்னல் வாங்கிடுச்சுனாலே நமக்கு சக்சஸ் தான் பாஸ்!
+                if response.status_code == 200:
+                    return JsonResponse({'success': True, 'message': 'OTP sent successfully boss!'})
+                else:
+                    return JsonResponse({'success': False, 'message': 'Local server replied with error.'})
+            except requests.exceptions.Timeout:
+                # ஒருவேளை லோக்கல் சர்வர் பதில் சொல்ல லேட் ஆனாலும், மெசேஜ் சென்ட் ஆகியிருக்கும். 
+                # அதனால் வெப்சைட்டை க்ளோஸ் பண்ணாம ஓடிபி பாக்ஸை ஓப்பன் பண்ண வைக்கிறோம் பாஸ்!
+                return JsonResponse({'success': True, 'message': 'Timeout but OTP initiated.'})
+                
         except Exception as e:
-            return JsonResponse({"success": False, "message": str(e)})
+            return JsonResponse({'success': False, 'message': str(e)})
+            
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
 
 @csrf_exempt
 def verify_otp(request):
