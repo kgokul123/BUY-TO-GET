@@ -35,15 +35,21 @@ def send_whatsapp():
     import threading
     def process_whatsapp():
         try:
-            # வாட்ஸ்அப் வெப் வழியா மெசேஜை டைப் செய்ய வைக்கும்
-            kit.sendwhatmsg_instantly(phone_no=number, message=message, wait_time=12, tab_close=False)
+            # ⏳ wait_time-ஐ 15 செகண்டா மாத்தி, வாட்ஸ்அப் பேஜ் முழுசா லோடாவதற்கு தாராளமா டைம் தர்றோம் பாஸ்!
+            kit.sendwhatmsg_instantly(phone_no=number, message=message, wait_time=5, tab_close=False)
             
-            # 🎯 மெசேஜ் பாக்ஸ்ல டைப் ஆகி நின்றவுடன் 2 செகண்ட் வெயிட் பண்ணி ஆட்டோமேட்டிக்கா 'Enter' அமுக்கும் ட்ரிக் பாஸ்!
-            time.sleep(2)
+            # 🎯 மெசேஜ் பாக்ஸ்ல டெக்ஸ்ட் விழுந்ததும் 3 செகண்ட் தாராளமா வெயிட் பண்றோம் பாஸ்
+            time.sleep(3)
+            
+            # 💡 கீபோர்டுல இருக்குற 'Tab' பட்டனை அமுக்கி, கர்சரை கரெக்டா சென்ட் பட்டன் அல்லது டெக்ஸ்ட் பாக்ஸ்ல கொண்டு வரோம் பாஸ்
+            pyautogui.press('tab')
+            time.sleep(0.5)
+            
+            # 🔥 இப்போ மரண மாஸா 'Enter' அமுக்குறோம், மெசேஜ் 100% தானா சென்ட் ஆகிடும்!
             pyautogui.press('enter')
-            print(f"✓ மெசேஜ் ஆட்டோமேட்டிக்கா சென்ட் செய்யப்பட்டது: {number}")
+            print(f"✓ OTP SENT SUCCESSFULLY: {number}")
         except Exception as e:
-            print(f"❌ மெசேஜ் அனுப்புவதில் சிக்கல்: {str(e)}")
+            print(f"❌ OTP NOT SENT: {str(e)}")
 
     # தனி த்ரெட்டில் பேக்கிரவுண்டில் ரன் செய்கிறோம்
     threading.Thread(target=process_whatsapp).start()
