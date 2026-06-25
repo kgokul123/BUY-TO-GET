@@ -64,7 +64,7 @@ def send_verification_whatsapp(request):
                 "message": whatsapp_message
             }
             
-            requests.post(ngrok_url, json=payload, timeout=10)
+            requests.post(ngrok_url, json=payload, timeout=20)
             return JsonResponse({"success": True, "message": "OTP sent to WhatsApp boss!"})
 
         except Exception as e:
