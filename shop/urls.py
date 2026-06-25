@@ -21,7 +21,6 @@ urlpatterns=[
     path('add-to-cart/', views.add_to_cart, name="addtocart"), 
     path('deletecart/<int:cid>/', views.remove_cart, name='remove_cart'),
     path('checkout/', views.checkout, name='checkout'), # ஒரு முறை மட்டும் போதும்
-    path('orderdetails/<int:oid>/', views.orderdetails, name='orderdetails'
     path('myorders/', views.myorders, name='myorders'),
     path('check-pincode/', views.check_pincode, name='check_pincode'),
     path('order-success/', views.order_success, name='order_success'), 
