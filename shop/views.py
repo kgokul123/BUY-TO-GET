@@ -88,6 +88,10 @@ def verify_click(request):
     phone = request.GET.get('phone')
     token = request.GET.get('token')
     
+    # 💡 வாட்ஸ்அப் லிங்க்ல வர்ற பிளஸ் (+), ஸ்பேஸ் அல்லது %2B குறியீடுகளைச் சுத்தப்படுத்துகிறோம் பாஸ்!
+    if phone:
+        phone = phone.replace(' ', '').replace('+', '').replace('%2B', '')
+    
     if phone in VERIFICATION_STORE and VERIFICATION_STORE[phone]['token'] == token:
         VERIFICATION_STORE[phone]['verified'] = True  # வெற்றிகரமாக உறுதி செய்யப்பட்டது!
         return HttpResponse(
