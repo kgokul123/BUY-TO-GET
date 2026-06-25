@@ -83,23 +83,39 @@ def send_verification_whatsapp(request):
     return JsonResponse({"success": False, "message": "Invalid Method"})
 
 
-# 🎯 கஸ்டமர் வாட்ஸ்அப்ல இருக்குற லிங்க்கை கிளிக் பண்ணா இந்த ஃபங்க்ஷன் ரன் ஆகும் பாஸ்!
+
+import re  # இந்த வரி டாப்ல இல்லைனா இருக்கட்டும் பாஸ், இல்லைனாலும் பரவால
+
 def verify_click(request):
-    phone = request.GET.get('phone')
-    token = request.GET.get('token')
+    raw_phone = request.GET.get('phone', '')
+    token = request.GET.get('token', '')
     
-    # 💡 வாட்ஸ்அப் லிங்க்ல வர்ற பிளஸ் (+), ஸ்பேஸ் அல்லது %2B குறியீடுகளைச் சுத்தப்படுத்துகிறோம் பாஸ்!
-    if phone:
-        phone = phone.replace(' ', '').replace('+', '').replace('%2B', '')
+    # 💡 போன் நம்பரில் இருக்கும் எண்கள் (0-9) தவிர மற்ற அனைத்து குறியீடுகளையும் (Spcae, +, %2B) சுத்தமாக நீக்குகிறோம் பாஸ்!
+    phone = "".join(re.findall(r'\d+', raw_phone))
     
-    if phone in VERIFICATION_STORE and VERIFICATION_STORE[phone]['token'] == token:
-        VERIFICATION_STORE[phone]['verified'] = True  # வெற்றிகரமாக உறுதி செய்யப்பட்டது!
+    # ஒருவேளை நம்பர் 91-ல் ஆரம்பித்தால், லோக்கல் ஸ்டோரோடு ஒப்பிட 91-ஐ நீக்கியும் செக் செய்கிறோம்
+    phone_no_country = phone[2:] if phone.startswith('91') else phone
+    
+    # மெமரியில் இருக்கும் எண்களையும் சுத்தப்படுத்துகிறோம்
+    matched_key = None
+    for key in VERIFICATION_STORE.keys():
+        clean_key = "".join(re.findall(r'\d+', key))
+        if clean_key == phone or clean_key == phone_no_country or clean_key.endswith(phone_no_country):
+            matched_key = key
+            break
+
+    if matched_key and VERIFICATION_STORE[matched_key]['token'] == token:
+        VERIFICATION_STORE[matched_key]['verified'] = True
         return HttpResponse(
             "<h2 style='color: green; text-align: center; margin-top: 50px; font-family: sans-serif;'>"
             "✓ விபரங்கள் வெற்றிகரமாக வாட்ஸ்அப் மூலம் உறுதிசெய்யப்பட்டது பாஸ்! <br>இப்போ நீங்க வெப்சைட் போய் Place Order அமுக்கலாம்.</h2>"
         )
     
-    return HttpResponse("<h2 style='color: red; text-align: center; margin-top: 50px;'>❌ செல்லாத அல்லது காலாவதியான லிங்க் பாஸ்!</h2>")
+    return HttpResponse(
+        "<h2 style='color: red; text-align: center; margin-top: 50px; font-family: sans-serif;'>"
+        "❌ செல்லாத அல்லது காலாவதியான லிங்க் பாஸ்! <br><span style='color: gray; font-size: 14px;'>உதவி: வெப்சைட்டில் மீண்டும் ஒருமுறை 'Verify Details' கிளிக் செய்து புதிய லிங்க்கை ட்ரை பண்ணுங்க.</span></h2>"
+    )
+
 
 
 # 🎯 HTML பக்கத்தில் இருக்குற ஜாவாஸ்கிரிப்ட் டைமர் வந்து செக் செய்யும் இடம்
