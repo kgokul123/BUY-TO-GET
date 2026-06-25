@@ -28,28 +28,31 @@ app = Flask(__name__)
 def process_whatsapp_background(number, message):
     try:
         print(f"🔄 வாட்ஸ்அப் வெப் ஓப்பன் ஆகிறது... எண்: {number}")
-        # ⏳ 15 செகண்ட் தாராளமாக வெயிட் செய்து மெசேஜை டைப் செய்ய வைக்கிறோம்
+        # ⏳ 15 செகண்ட் வெயிட் செய்து மெசேஜை டைப் செய்ய வைக்கிறோம்
         kit.sendwhatmsg_instantly(phone_no=number, message=message, wait_time=15, tab_close=False)
         
         # 🎯 மெசேஜ் பாக்ஸ்ல டெக்ஸ்ட் விழுந்ததும் 3 செகண்ட் வெயிட் பண்றோம்
         time.sleep(3)
         
+        # 🔥 [மரண மாஸ் ட்ரிக்]: மெசேஜ் பாக்ஸை கன்பார்மா ஆக்டிவேட் பண்ண 
+        # ஸ்கிரீனின் நடுப்பகுதியில் ஒரு கிளிக்கை தட்டிவிட்டு 'Enter' அமுக்குகிறோம்!
         try:
-            # வாட்ஸ்அப் வெப் சென்ட் பட்டனின் இடத்தை (Focus) உறுதி செய்ய 2 முறை Tab அமுக்குகிறோம்
-            pyautogui.press('tab')
-            time.sleep(0.5)
-            pyautogui.press('tab')
-            time.sleep(0.5)
-            
-            # இப்போ கன்பார்மா என்டர் தட்டுகிறோம்!
-            pyautogui.press('enter')
-            print(f"✓ OTP SENT SUCCESSFULLY VIA FOCUS: {number}")
-        except Exception as click_error:
-            # ஒருவேளை அப்படியும் டிராஃப்டா நின்றால், ஸ்கிரீனின் நடுப்பகுதியை கிளிக் செய்து என்டர் தட்டுகிறோம்
+            print("🎯 விண்டோவை போக்கஸ் செய்ய கிளிக் செய்யப்படுகிறது...")
             pyautogui.click(x=pyautogui.size().width // 2, y=pyautogui.size().height // 2)
+            time.sleep(1)
+            
+            # இப்போ நேரடியாக 'Enter' தட்டுகிறோம்!
+            pyautogui.press('enter')
+            print(f"✓ OTP SENT SUCCESSFULLY VIA DIRECT ENTER: {number}")
+            
+        except Exception as click_error:
+            # பேக்கப் பிளான்: ஒருவேளை மாறவில்லை என்றால், பழைய டேப் முறையை ட்ரை செய்கிறோம்
+            pyautogui.press('tab')
+            time.sleep(0.5)
+            pyautogui.press('tab')
             time.sleep(0.5)
             pyautogui.press('enter')
-            print(f"✓ OTP SENT VIA CLICK BACKUP: {number}")
+            print(f"✓ OTP SENT VIA TAB BACKUP: {number}")
 
     except Exception as e:
         print(f"❌ OTP NOT SENT IN BACKGROUND: {str(e)}")
