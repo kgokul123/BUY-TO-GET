@@ -57,9 +57,23 @@
                             <label class="fw-bold mb-2">Payment Method</label><br>
                             <input type="radio" id="cod" name="payment_mode" value="COD" checked> Cash On Delivery &nbsp;&nbsp;
                             <input type="radio" id="upi" name="payment_mode" value="UPI"> UPI Payment
-
+                            <!-- 🎯 [டிஸ்கிளைமர் மேஜிக் பாஸ்]: OTP முடிஞ்சதும் ஆட்டோமேட்டிக்கா ஷோ ஆகும்! -->
+                            <div id="upi_disclaimer_box" class="alert alert-warning mt-4 p-3 shadow-sm" style="display: none; border-left: 5px solid #ffc107; background-color: #2c2f33; color: #fff;">
+                              <h5 class="text-warning fw-bold mb-2"><i class="fas fa-exclamation-triangle"></i> மிக முக்கிய அறிவிப்பு (Disclaimer) பாஸ்!</h5>
+                    <p class="mb-2" style="font-size: 14px; line-height: 1.6;">
+                   நீங்க <strong>UPI Payment</strong> சூஸ் பண்ணுனா, மேலே இருக்குற கியூஆர் கோடை ஸ்கேன் செஞ்சு பேமெண்ட் பண்ணிடுங்க பாஸ். 
+                 </p>
+                     <p class="mb-0 text-info fw-bold" style="font-size: 14px;">
+                        ⚠️ பேமெண்ட் முடிஞ்சதும் உங்க GPay/PhonePe-ல் வர்ற <span class="text-danger bg-light px-1 rounded fw-bold">12-digit UPI Transaction ID (Ref No)</span>-ஐ மறக்காம கீழே இருக்குற கட்டத்துல டைப் பண்ணிட்டு "Place Order" பட்டனை அமுக்குங்க தலைவா! அப்பதான் உங்க ஆர்டர் எங்க சிஸ்டம்ல பதிவாகும்!
+                           </p>
+                        </div>
                             <div id="upi-fields" class="mt-3" style="display: none;">
                                 <label class="fw-bold text-secondary mb-1">UPI Transaction ID</label>
+                                <div class="text-center my-3 border p-2 bg-white rounded" style="max-width: 200px; margin: 0 auto;">
+                                 <p class="small text-dark mb-1 fw-bold" style="font-size: 12px;">Scan via GPay / PhonePe</p>
+                                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ upi_url|urlencode }}" 
+                                  alt="UPI QR Code" class="img-fluid" style="width: 160px; height: 160px;">
+                                </div>
                                 <input type="text" name="transaction_id" class="form-control w-100 mb-2" style="max-width: 500px; padding: 10px;" placeholder="Enter UPI Transaction ID">
                                 <p class="small text-muted"><strong>UPI ID :</strong> kalaiarasi2128@oksbi</p>
                             </div>
@@ -130,19 +144,63 @@ document.addEventListener("DOMContentLoaded", function() {
     const codRadio = document.getElementById("cod");
     const upiRadio = document.getElementById("upi");
     const upiFields = document.getElementById("upi-fields");
+    const disclaimerBox = document.getElementById("upi_disclaimer_box");
 
+    // 🎯 [பக்கா ரேடியோ பட்டன் லாஜிக் பாஸ்]: UPI-க்கு மட்டும் டிஸ்கிளைமர் காட்டும், COD-க்கு காட்டாது!
     function togglePaymentFields() {
-        if (upiRadio.checked) {
-            upiFields.style.display = "block";
-            document.querySelector("input[name='transaction_id']").required = true;
-        } else {
-            upiFields.style.display = "none";
-            document.querySelector("input[name='transaction_id']").required = false;
+        if (upiRadio && upiRadio.checked) {
+            if (upiFields) upiFields.style.display = "block";
+            
+            // ஓடிபி வெரிஃபிகேஷன் ஏற்கனவே முடிந்திருந்தால் மட்டும் UPI கிளிக் செய்யும்போது டிஸ்கிளைமரை காட்டு பாஸ்!
+            if (disclaimerBox && isDetailsConfirmed) {
+                disclaimerBox.style.display = "block";
+            }
+            
+            const txInput = document.querySelector("input[name='transaction_id']");
+            if (txInput) txInput.required = true;
+        } 
+        else {
+            if (upiFields) upiFields.style.display = "none";
+            
+            // COD கிளிக் பண்ணினா டிஸ்கிளைமரை முழுசா மறைச்சிடு பாஸ்!
+            if (disclaimerBox) disclaimerBox.style.display = "none";
+            
+            const txInput = document.querySelector("input[name='transaction_id']");
+            if (txInput) txInput.required = false;
         }
     }
 
-    codRadio.addEventListener("change", togglePaymentFields);
-    upiRadio.addEventListener("change", togglePaymentFields);
+    if (codRadio) codRadio.addEventListener("change", togglePaymentFields);
+    if (upiRadio) upiRadio.addEventListener("change", togglePaymentFields);
+
+    // பக்கம் லோடு ஆகும்போதே ஒருமுறை ரன் செய்கிறோம் பாஸ்
+    togglePaymentFields();
+
+    // 🎯 [மரண மாஸ் செக் பாயிண்ட் பாஸ்]: UPI தேர்ந்தெடுத்துட்டு 12 டிஜிட் ஐடி போடலைனா சப்மிட் ஆகாது!
+    const formElement = document.querySelector("form");
+    if (formElement) {
+        formElement.addEventListener("submit", function(e) {
+            if (upiRadio && upiRadio.checked) {
+                const txInput = document.querySelector("input[name='transaction_id']");
+                
+                if (!txInput || txInput.value.trim() === "") {
+                    e.preventDefault(); // ❌ சப்மிட் ஆகவிடாமல் தடுத்தாச்சு பாஸ்!
+                    alert("Please enter your 12-digit UPI Transaction ID first, boss!");
+                    txInput.focus();
+                    return false;
+                }
+                
+                if (txInput.value.trim().length < 12) {
+                    e.preventDefault(); // ❌ 12 டிஜிட்க்குக் கம்மியா இருந்தாலும் லாக் பாஸ்!
+                    alert("Wrong Transaction ID! UPI Ref No must be at least 12 digits long.");
+                    txInput.focus();
+                    return false;
+                }
+            }
+            // சப்மிட் ஆகும்போது டிஸேபிள் ஃபீல்டுகளை எனேபிள் செய்ய மறக்கக்கூடாது பாஸ்
+            enableFieldsBeforeSubmit();
+        });
+    }
 });
 
 function showConfirmPopup() {
@@ -175,8 +233,6 @@ function sendWhatsAppLink() {
     confirmBtn.disabled = true;
     confirmBtn.innerText = "Sending OTP...";
 
-    // 🎯 ⚠️ கவனிக்கவும் பாஸ்: இங்க எந்தவிதமான window.open() அல்லது whatsapp.com லிங்கும் இருக்கக் கூடாது!
-    // வெறும் fetch ரிக்வஸ்ட் மட்டும்தான் இருக்கணும். அப்போதுதான் வாட்ஸ்அப் ஆப் ஆட்டோமேட்டிக்கா ஓப்பன் ஆகாது.
     fetch("/send-verification-whatsapp/", {
         method: "POST",
         headers: {
@@ -192,13 +248,12 @@ function sendWhatsAppLink() {
     .then(data => {
         var myModalEl = document.getElementById('confirmModal');
         var modal = bootstrap.Modal.getInstance(myModalEl);
-        modal.hide(); // பாப்-அப் மாடலை மட்டும் மூடுகிறோம்
+        modal.hide(); 
         
         confirmBtn.disabled = false;
         confirmBtn.innerText = "Send OTP (அனுப்பு)";
 
         if(data.success) {
-            // வெப்சைட் பக்கத்திலேயே ஓடிபி பாக்ஸை ஓப்பன் செய்கிறோம் பாஸ்!
             document.getElementById("otpSection").style.display = "block";
             document.getElementById("otpInput").disabled = false;
             document.getElementById("btnSubmitOtp").disabled = false;
@@ -209,7 +264,6 @@ function sendWhatsAppLink() {
             statusBox.className = "alert alert-warning fw-bold py-2 mb-2";
             statusBox.innerHTML = "💬 SUCESSFULLY SEND 6 DIGIT OTP IN YOUR WHATSAPP !";
             
-            // ⏳ டைமரை ஸ்டார்ட் பண்றோம்
             startOneMinuteOTPTimer();
         } else {
             alert("Error sending WhatsApp OTP: " + data.message);
@@ -222,18 +276,17 @@ function sendWhatsAppLink() {
     });
 }
 
-// ⏳ 60 செகண்ட் கவுண்ட்டவுன் டைமர் ஃபங்க்ஷன் பாஸ்!
 function startOneMinuteOTPTimer() {
     let timeLeft = 120;
     const timerDisplay = document.getElementById("timerDisplay");
     
-    clearInterval(countdownInterval); // பழைய டைமர் இருந்தா ரீசெட் பண்றோம்
+    clearInterval(countdownInterval); 
 
     countdownInterval = setInterval(function() {
         if(timeLeft <= 0) {
             clearInterval(countdownInterval);
             timerDisplay.innerHTML = "❌ TIME OUT! . PLEASE CLICK 'Verify Details' ";
-            document.getElementById("otpInput").disabled = true; // ஓடிபி பாக்ஸை லாக் பண்றோம்
+            document.getElementById("otpInput").disabled = true; 
             document.getElementById("btnSubmitOtp").disabled = true;
             document.getElementById("verificationResult").innerHTML = "❌ WRONG OTP.";
             document.getElementById("verificationResult").className = "alert alert-danger fw-bold py-2 mb-2";
@@ -251,7 +304,7 @@ function verifyOTPFromWhatsApp() {
     const submitOtpBtn = document.getElementById("btnSubmitOtp");
 
     if (otpValue === "" || otpValue.length < 6) {
-        alert("Please type the correct 6-digit OTP, boss.!");
+        alert("Please type the correct 6-digit OTP!");
         return;
     }
 
@@ -275,7 +328,7 @@ function verifyOTPFromWhatsApp() {
         submitOtpBtn.innerText = "Submit OTP";
 
         if(data.success) {
-            clearInterval(countdownInterval); // ஓடிபி மேட்ச் ஆனதும் டைமரை ஸ்டாப் பண்றோம் பாஸ்!
+            clearInterval(countdownInterval); 
             isDetailsConfirmed = true;
             errorAlert.style.display = "none";
             
@@ -289,6 +342,13 @@ function verifyOTPFromWhatsApp() {
             document.getElementById("phoneNumber").disabled = true;
             document.getElementById("address").disabled = true;
             document.getElementById("btnVerifyDetails").disabled = true;
+
+            // 🎯 [பக்கா கண்டிஷன் பாஸ்]: OTP வெரிஃபை ஆகும்போது கஸ்டமர் 'upi' ரேடியோ பட்டனை கிளிக் செய்திருந்தால் மட்டுமே டிஸ்கிளைமர் காட்டும்!
+            const upiRadio = document.getElementById("upi");
+            const disclaimerBox = document.getElementById("upi_disclaimer_box");
+            if(upiRadio && upiRadio.checked && disclaimerBox) {
+                disclaimerBox.style.display = "block";
+            }
 
             checkFormValidity();
         } else {

@@ -44,7 +44,6 @@
                 <div class="hot">Hot</div>
                 {% endif %}
 
-                <!-- 🎯 மெயின் இமேஜ் மேஜிக்: கிளிக் செய்தால் ஓப்பன் ஆக 'onclick="openFullImageView()"' மற்றும் மவுஸ் வைத்தால் ஜூம் ஐகான் வர 'cursor: zoom-in' சேர்க்கப்பட்டுள்ளது பாஸ் -->
                 <img id="main-image"
                      src="{{ products.product_image.url }}"
                      class="img-fluid border rounded shadow-sm"
@@ -84,15 +83,19 @@
                     {{ products.vendor }}
                 </p>
 
-             {% if products.weight %}
+                {% if products.weight %}
                 <p>
                  <strong>Weight :</strong> {{ products.weight }}
                 </p>
-              {% endif %}
+                {% endif %}
 
-                <p>
-                    {{ products.description }}
-                </p>
+                <!-- 📝 1. Product Description: ப்ராடக்ட்டின் பொதுவான விளக்கம் இங்க பத்தியா காட்டும் பாஸ் -->
+                <div class="product-description-box mb-4">
+                    <h5 class="text-dark fw-bold mb-2">Product Description</h5>
+                    <p class="text-secondary" style="line-height: 1.6; font-size: 15px;">
+                        {{ products.description|linebreaksbr }}
+                    </p>
+                </div>
 
                 <h6 class="text-danger">
                     Current Price :
@@ -131,22 +134,17 @@
 
                 </div>
 
-                 
-            <div class="mt-3 mb-3 p-0" style="border: none !important; background: none !important;">
-    
-                     <!-- 💡 அட்மின் 0 என்று கொடுத்தால் FREE DELIVERY பேட்ஜ் காட்டும் -->
-                          {% if products.delivery_charge == 0 or not products.delivery_charge %}
-             <p class="mb-0" style="font-size: 16px; color: #000000; font-weight: 500;">
-                  Delivery Charges: <span class="badge bg-success text-white ms-1 px-2 py-1" style="font-size: 13px; font-weight: 600; vertical-align: middle;">FREE DELIVERY</span>
-             </p>
-                   {% else %}
-                   <!-- 💡 அட்மின் என்டர் பண்ண அமௌன்ட் (Rs. XX) மஞ்சள்/பச்சை பேட்ஜில் காட்டும் பாஸ் -->
-             p class="mb-0" style="font-size: 16px; color: #ffffff; font-weight: 500;">
-                   Delivery Charges: <span class="badge bg-warning text-dark ms-1 px-2 py-1" style="font-size: 13px; font-weight: 600; vertical-align: middle;">Rs. {{ products.delivery_charge }}</span>
-             </p>
-                  {% endif %}
-    
-        </div>
+                <div class="mt-3 mb-3 p-0" style="border: none !important; background: none !important;">
+                    {% if products.delivery_charge == 0 or not products.delivery_charge %}
+                    <p class="mb-0" style="font-size: 16px; color: #000000; font-weight: 500;">
+                        Delivery Charges: <span class="badge bg-success text-white ms-1 px-2 py-1" style="font-size: 13px; font-weight: 600; vertical-align: middle;">FREE DELIVERY</span>
+                    </p>
+                    {% else %}
+                    <p class="mb-0" style="font-size: 16px; color: #000000; font-weight: 500;">
+                        Delivery Charges: <span class="badge bg-warning text-dark ms-1 px-2 py-1" style="font-size: 13px; font-weight: 600; vertical-align: middle;">Rs. {{ products.delivery_charge }}</span>
+                    </p>
+                    {% endif %}
+                </div>
 
                 <button class="btn btn-primary"
                         id="btncart">
@@ -169,105 +167,120 @@
                 </button>
 
             </div>
-
-         <hr class="mt-5">
-
-<div class="card shadow-sm p-3 mt-4">
-    <h4>Customer Reviews</h4>
-
-    {% if user.is_authenticated %}
-    <form method="POST" action="{% url 'add_review' products.id %}" enctype="multipart/form-data">
-        {% csrf_token %}
-
-        <div class="mb-3">
-            <label>Review Image</label>
-            <input type="file"
-                   name="review_image"
-                   class="form-control">
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Rating</label>
-            <select name="rating" class="form-control">
-                <option value="5">⭐⭐⭐⭐⭐ (5)</option>
-                <option value="4">⭐⭐⭐⭐ (4)</option>
-                <option value="3">⭐⭐⭐ (3)</option>
-                <option value="2">⭐⭐ (2)</option>
-                <option value="1">⭐ (1)</option>
-            </select>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">Your Review</label>
-            <textarea name="comment"
-                      class="form-control"
-                      rows="4"
-                      placeholder="Write your review here..."
-                      required></textarea>
+        <!-- 🎯 2. About this item: ரிவியூஸ் செக்ஷனுக்கு மேலேயே புல்லட் பாயிண்ட்ஸ் வரும்படி வச்சாச்சு பாஸ்! -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="product-about-section p-4 rounded shadow-sm mb-4" style="background-color: #212529; color: #ffffff;">
+                    <h4 class="text-warning fw-bold mb-3" style="font-size: 18px; border-bottom: 1px solid #343a40; padding-bottom: 8px;">
+                        <i class="fas fa-info-circle"></i> About this item
+                    </h4>
+                    
+                    <ul class="list-unstyled mb-0" style="padding-left: 0; line-height: 1.8;">
+                        {% if products.description %}
+                            {% for line in products.description.splitlines %}
+                                {% if line.strip %}
+                                    <li class="d-flex align-items-start mb-2" style="font-size: 14px; color: #e0e0e0;">
+                                        <span class="text-warning me-2" style="font-size: 10px; margin-top: 5px;">●</span>
+                                        <div>{{ line }}</div>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <li class="text-muted small">No specifications added for this product, boss!</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
         </div>
 
-        <button type="submit" class="btn btn-success">
-            Submit Review
-        </button>
-    </form>
+        <!-- 💬 3. Customer Reviews Section -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm p-3 mt-2">
+                    <h4>Customer Reviews</h4>
 
-    {% else %}
-    <p class="text-danger">
-        Please login to write a review.
-    </p>
-    {% endif %}
+                    {% if user.is_authenticated %}
+                    <form method="POST" action="{% url 'add_review' products.id %}" enctype="multipart/form-data">
+                        {% csrf_token %}
 
-    <hr>
+                        <div class="mb-3">
+                            <label>Review Image</label>
+                            <input type="file"
+                                   name="review_image"
+                                   class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Rating</label>
+                            <select name="rating" class="form-control">
+                                <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+                                <option value="4">⭐⭐⭐⭐ (4)</option>
+                                <option value="3">⭐⭐⭐ (3)</option>
+                                <option value="2">⭐⭐ (2)</option>
+                                <option value="1">⭐ (1)</option>
+                            </select>
+                        </div>
 
-    {% for review in reviews %}
-    <div class="border rounded p-3 mb-3">
+                        <div class="mb-3">
+                            <label class="form-label">Your Review</label>
+                            <textarea name="comment"
+                                      class="form-control"
+                                      rows="4"
+                                      placeholder="Write your review here..."
+                                      required></textarea>
+                        </div>
 
-        <small class="text-muted">
-            {{ review.created_at }}
-        </small>
+                        <button type="submit" class="btn btn-success">
+                            Submit Review
+                        </button>
+                    </form>
 
-        <div class="border p-3 mb-3">
+                    {% else %}
+                    <p class="text-danger">
+                        Please login to write a review.
+                    </p>
+                    {% endif %}
 
-            <strong>{{ review.user.username }}</strong>
+                    <hr>
 
-            <br>
+                    {% for review in reviews %}
+                    <div class="border rounded p-3 mb-3">
+                        <small class="text-muted">
+                            {{ review.created_at }}
+                        </small>
 
-             {% if review.review_image %}
-            <img src="{{ review.review_image.url }}"
-                 width="200"
-                 class="img-thumbnail">
-            {% endif %}
-
-            <br>
-            Rating: {{ review.rating }}/5 ⭐
-
-            <p>{{ review.comment }}</p>
-
+                        <div class="p-2 mt-1">
+                            <strong>{{ review.user.username }}</strong>
+                            <br>
+                            {% if review.review_image %}
+                            <img src="{{ review.review_image.url }}"
+                                 width="200"
+                                 class="img-thumbnail my-2 d-block">
+                            {% endif %}
+                            Rating: {{ review.rating }}/5 ⭐
+                            <p class="mt-2 mb-0">{{ review.comment }}</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p>No reviews yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
-    </div>
-    {% empty %}
-    <p>No reviews yet.</p>
-    {% endfor %}
-</div>
 
-        </div>
     </div>
 </section>
 
-<!-- ======================================================================= -->
-<!-- 🌐 1. பிளிப்கார்ட் ஸ்டைல் ஃபுல்-ஸ்கிரீன் இமேஜ் வியூவர் லேஅவுட் (HTML + CSS) -->
-<!-- ======================================================================= -->
+<!-- 🌐 Flipkart Style Full-Screen Image Viewer Overlay -->
 <div id="fullImageModal" class="full-img-overlay" onclick="closeFullImageView()">
-    <!-- க்ளோஸ் பட்டன் (X) -->
     <span class="close-full-img">&times;</span>
-    
-    <!-- ஜூம் செய்யக்கூடிய இமேஜ் கன்டெய்னர் -->
     <div class="full-img-container" onclick="event.stopPropagation()">
         <img id="imgViewer" src="{{ products.product_image.url }}" alt="Full View">
     </div>
 </div>
 
 <style>
-    /* ஃபுல்-ஸ்கிரீன் பளீச் வெள்ளை பேக்ரவுண்ட் ஓவர்லே */
     .full-img-overlay {
         display: none;
         position: fixed;
@@ -281,7 +294,6 @@
         align-items: center;
     }
 
-    /* க்ளோஸ் பட்டன் ஸ்டைல் */
     .close-full-img {
         position: absolute;
         top: 20px;
@@ -293,7 +305,6 @@
         z-index: 100000;
     }
 
-    /* மொபைல் ஜூம் மற்றும் ஸ்க்ரோல் செய்ய உதவும் பகுதி பாஸ் */
     .full-img-container {
         max-width: 95%;
         max-height: 90%;
@@ -311,7 +322,6 @@
         cursor: zoom-in;
     }
     
-    /* கம்ப்யூட்டரில் டபுள் கிளிக் அல்லது நார்மல் கிளிக் பண்ணும்போது 2 மடங்கு ஜூம் ஆக இந்த கிளாஸ் பயன்படும் பாஸ் */
     .img-zoomed {
         transform: scale(2);
         cursor: zoom-out !important;
@@ -322,15 +332,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
 
 <script>
-// கேலரி இமேஜ் மாறும்போது ஜூம் வியூவர் இமேஜையும் மாற்றுகிறோம் பாஸ்!
 function changeImage(element){
     document.getElementById("main-image").src = element.src;
     document.getElementById("imgViewer").src = element.src; 
 }
 
-// 🎯 ஜூம் ஓப்பன் மற்றும் க்ளோஸ் செய்யும் ஜாவாஸ்கிரிப்ட் லாஜிக்
 function openFullImageView() {
-    // இமேஜ் பெருசாகும் போது மொபைல் பாட்டம் பாரை தற்காலிகமாக ஹைட் பண்றோம் பாஸ்
     const bottomNav = document.querySelector('.bottom-nav');
     if (bottomNav) bottomNav.style.display = 'none';
     
@@ -338,7 +345,6 @@ function openFullImageView() {
 }
 
 function closeFullImageView() {
-    // மூடும்போது மொபைல் பாட்டம் பார் மீண்டும் தெரியும்
     const bottomNav = document.querySelector('.bottom-nav');
     if (bottomNav) bottomNav.style.display = 'flex';
     
@@ -349,7 +355,6 @@ function closeFullImageView() {
 
 document.addEventListener("DOMContentLoaded", function(){
 
-    // கிளிக் செய்யும் போது டொகிள் ஜூம் ஆக
     const imgViewer = document.getElementById("imgViewer");
     if(imgViewer) {
         imgViewer.addEventListener("click", function() {
@@ -357,7 +362,6 @@ document.addEventListener("DOMContentLoaded", function(){
         });
     }
 
-    // --- இந்தியக் கொடி செட்டப் ஆரம்பம் ---
     const phoneInputField = document.querySelector("#phone");
     if (phoneInputField) {
         window.phoneInput = window.intlTelInput(phoneInputField, {
@@ -366,7 +370,6 @@ document.addEventListener("DOMContentLoaded", function(){
             utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
         });
     }
-    // --- இந்தியக் கொடி செட்டப் முடிவு ---
 
     const btnPlus = document.getElementById("btnPlus");
     const btnMinus = document.getElementById("btnMinus");
