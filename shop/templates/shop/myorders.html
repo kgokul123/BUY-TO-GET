@@ -1,56 +1,71 @@
 {% extends 'shop/layouts/main.html' %}
 
 {% block title %}
-My Orders
+My Orders | Kalaiarasi Metal Store
 {% endblock title %}
 
 {% block content %}
 
-<div class="container" style="margin-top:80px;">
+<div class="container text-white" style="margin-top: 100px; min-height: 80vh;">
     <div class="row">
         <div class="col-md-12">
 
-            <h3>My Orders</h3>
-            <hr>
+            <h3 class="text-warning"><i class="fas fa-box-open"></i> My Orders</h3>
+            <hr style="border-color: #343a40;">
 
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th>Order Number</th>
-                        <th>Total Amount</th>
-                        <th>Payment Mode</th>
-                        <th>Order Date</th>
-                        <th>View Details</th>
-                    </tr>
-                </thead>
+            <div class="card bg-secondary text-white shadow-sm border-0" style="border-radius: 8px; overflow: hidden;">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover mb-0" style="vertical-align: middle;">
+                            <thead>
+                                <tr style="background-color: #212529;">
+                                    <th class="ps-3 py-3">Order Number</th>
+                                    <th class="py-3">Total Amount</th>
+                                    <th class="py-3">Payment Mode</th>
+                                    <th class="py-3">Order Date</th>
+                                    <th class="py-3 text-center">View Details</th>
+                                </tr>
+                            </thead>
 
-                <tbody>
+                            <tbody>
+                                {% for item in orders %}
+                                <tr>
+                                    <td class="ps-3 py-3 fw-bold text-info">{{ item.order_number }}</td>
+                                    
+                                    <td class="py-3 fw-bold">₹{{ item.total_amount }}</td>
+                                    
+                                    <td class="py-3">
+                                        {% if item.payment_mode == 'UPI' %}
+                                            <span class="badge bg-success text-white px-2 py-1" style="font-size: 12px; font-weight: 600;">UPI</span>
+                                        {% elif item.payment_mode == 'COD' %}
+                                            <span class="badge bg-info text-dark px-2 py-1" style="font-size: 12px; font-weight: 600;">COD</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary text-white px-2 py-1" style="font-size: 12px; font-weight: 600;">{{ item.payment_mode }}</span>
+                                        {% endif %}
+                                    </td>
+                                    
+                                    <td class="py-3 text-muted" style="color: #a0a0a0 !important;">{{ item.created_at|date:"d M Y, h:i A" }}</td>
+                                    
+                                    <td class="py-3 text-center">
+                                        <a href="{% url 'orderdetails' item.id %}" class="btn btn-outline-light btn-sm fw-bold px-3">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
 
-                    {% for item in orders %}
-                    <tr>
-                        <td>{{ item.order_number }}</td>
-                        <td>₹{{ item.total_amount }}</td>
-                        <td>{{ item.payment_mode }}</td>
-                        <td>{{ item.created_at }}</td>
-                        <td>
-                            <a href="{% url 'orderdetails' item.id %}"
-                               class="btn btn-primary btn-sm">
-                                View
-                            </a>
-                        </td>
-                    </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-5 text-muted fs-5">
+                                        You haven't placed any orders yet, boss!
+                                    </td>
+                                </tr>
+                                {% endfor %}
 
-                    {% empty %}
-                    <tr>
-                        <td colspan="5" class="text-center">
-                            No Orders Found
-                        </td>
-                    </tr>
-                    {% endfor %}
-
-                </tbody>
-
-            </table>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
         </div>
     </div>
