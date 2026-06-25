@@ -2,6 +2,7 @@ import json
 import random
 import uuid
 import requests
+import urllib.parse
 from abc import ABC, abstractmethod
 from datetime import timedelta
 
@@ -26,6 +27,81 @@ from .models import (
     Product,
     Review,
 )
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import Order, Cart, Product # உங்க மாடல் பெயர்களை செக் பண்ணிக்கோங்க பாஸ்
+import random
+from django.shortcuts import get_object_or_404
+from .models import Order # உங்க மாடல் பெயர்களை செக் பண்ணிக்கோங்க பாஸ்
+
+
+
+@login_required(login_url='loginpage')
+def orderdetails(request, oid):
+    # கஸ்டமரோட ஐடி மற்றும் ஆர்டர் ஐடியை வச்சு துல்லியமா அந்த ஒரு ஆர்டரை மட்டும் எடுக்கிறோம் பாஸ்
+    order = get_object_or_404(Order, id=oid, user=request.user)
+    
+    context = {
+        'order': order
+    }
+    return render(request, "shop/orderdetails.html", context)
+
+
+def placeorder(request):
+    if request.method == 'POST':
+        # 1. ஃபார்ம்ல இருந்து கஸ்டமர் டேட்டாவை எடுக்குறோம் பாஸ்
+        # (பெயர், அட்ரஸ் ஃபீல்டுகள் உங்க கோடுக்கு ஏத்த மாதிரி மாத்திக்கோங்க)
+        payment_mode = request.POST.get('payment_mode')
+        
+        # 2. ஒரு புதிய ஆர்டர் ஆப்ஜெக்ட் கிரியேட் பண்றோம் பாஸ்
+        neworder = Order()
+        neworder.user = request.user
+        
+        # கஸ்டமரோட மத்த விபரங்கள் (உதாரணத்திற்கு)
+        neworder.fname = request.POST.get('fname')
+        neworder.lname = request.POST.get('lname')
+        neworder.email = request.POST.get('email')
+        neworder.phone = request.POST.get('phone')
+        neworder.address = request.POST.get('address')
+        
+        # கார்ட் டோட்டல் அமௌன்ட் (உங்க கார்ட் லாஜிக் படி இங்க வரும் பாஸ்)
+        # neworder.total_price = total_price 
+
+        # 🎯 [மெயின் மேஜிக்]: பேமெண்ட் மோட் என்னன்னு செக் பண்ணி சேவ் பண்றோம் பாஸ்!
+        neworder.payment_mode = payment_mode
+        
+        if payment_mode == "UPI":
+            neworder.payment_id = request.POST.get('payment_id') # 12 டிஜிட் UPI Ref No
+            
+            # ஒருவேளை கஸ்டமர் ஸ்கிரீன்ஷாட் அப்லோட் பண்ணியிருந்தா அதை வாங்குறோம் பாஸ்
+            if request.FILES.get('payment_screenshot'):
+                neworder.payment_screenshot = request.FILES.get('payment_screenshot')
+            
+            # UPI-க்கு ஆர்டர் ஸ்டேட்டஸ் முதல்ல 'Pending' அல்லது 'Hold'-ல் வைக்கலாம் (நாம செக் பண்ற வரைக்கும்)
+            neworder.status = 'Pending' 
+            
+        elif payment_mode == "COD":
+            neworder.payment_id = "COD_ORDER_" + str(random.randint(111111, 999999))
+            neworder.status = 'Approved' # COD ஆர்டரை நேரடியாக கன்பார்ம் பண்ணிக்கலாம் பாஸ்
+        
+        # ஆர்டர் நம்பர் ஜெனரேட் பண்ணுவது
+        trackno = 'kalaiarasi' + str(random.randint(1111111, 9999999))
+        while Order.objects.filter(tracking_no=trackno).exists():
+            trackno = 'kalaiarasi' + str(random.randint(1111111, 9999999))
+        neworder.tracking_no = trackno
+        
+        neworder.save() # 🚀 டேட்டாபேஸ்ல ஆர்டர் மாஸா சேவ் ஆகிடும் பாஸ்!
+        
+        # 3. ஆர்டர் முடிஞ்சதும் கார்டை காலி பண்ணிட்டு கஸ்டமரை சக்சஸ் பேஜுக்கு அனுப்பலாம் பா&b
+        # Cart.objects.filter(user=request.user).delete()
+        
+        messages.success(request, f"Order placed successfully! Tracking No: {trackno}")
+        return redirect('my_orders') # அல்லது உங்க 'success' யூஆர்எல்க்கு ரீடைரக்ட் பண்ணுங்க பாஸ்
+        
+    return redirect('checkout')
+
+
 
 OTP_STORE = {}
 
@@ -290,23 +366,59 @@ def remove_fav(request, fid):
 
 @login_required(login_url="login")
 def checkout(request):
+    # 🛒 கார்ட் ஐட்டம்களை முதலிலேயே எடுத்து வச்சுக்கிறோம் பாஸ் (GET மற்றும் POST இரண்டுக்கும் தேவை)
+    cartitems = Cart.objects.filter(user=request.user)
+    
+    # கார்ட்டில் பொருட்கள் ஏதும் இல்லை என்றால் செக்அவுட் செய்ய விடாமல் கார்ட் பக்கத்திற்கே திருப்புவது நல்லது பாஸ்
+    if not cartitems.exists() and request.method == "GET":
+        messages.warning(request, "Your cart is empty, boss!")
+        return redirect("cart")
+
+    # 🎯 [கியூஆர் கோடு & Intent மேஜிக் லாஜிக் - பாஸ்]:
+    # உங்க கார்ட் டோட்டலை கணக்கிட்டு அதற்கான UPI URL-ஐ ரெடி பண்றோம்
+    from .utils import CartTotalCalculator # உங்க கால்குலேட்டர் ஃபைல் இம்போர்ட் பாத்
+    total_calculator = CartTotalCalculator(cartitems)
+    total_amount = total_calculator.calculate_total()
+
+    # 💡 [மிக முக்கியம்]: உங்க அட்மின் ஸ்கிரீன்ஷாட்ல பார்த்த அதே UPI ID இங்க கொடுத்திருக்கேன் பாஸ்!
+    your_upi_id = "kalaiarasi2128@okaxis" 
+    merchant_name = "Kalaiarasi Metal Store"
+    
+    upi_payload = {
+        "pa": your_upi_id,
+        "pn": merchant_name,
+        "am": str(total_amount), # டோட்டல் பில் அமௌன்ட் ஆட்டோமேட்டிக்கா இங்க உக்காந்துடும் பாஸ்
+        "cu": "INR",
+        "tn": f"Payment for Order at Kalaiarasi Store"
+    }
+    # கூகுள் API கியூஆர் கோடு மற்றும் மொபைல் ஆப்ஸ் ஓப்பன் பண்ண இந்த லிங்க் தான் பயன்படும் பாஸ்
+    upi_url = "upi://pay?" + urllib.parse.urlencode(upi_payload)
+
+
+    # 🚀 1. கஸ்டமர் "Place Order" பட்டன் கிளிக் பண்ணும்போது (POST Method)
     if request.method == "POST":
         payment_mode = request.POST.get("payment_mode")
-        transaction_id = request.POST.get("transaction_id")
+        
+        # 💡 உங்க ஃபார்ம்ல 'payment_id' அல்லது 'transaction_id' எதை கொடுத்திருந்தாலும் சேஃபா எடுக்கும்படி செஞ்சிருக்கேன் பாஸ்
+        transaction_id = request.POST.get("transaction_id") or request.POST.get("payment_id")
+        
         if payment_mode == "COD":
             transaction_id = None
+            
         pincode = request.POST.get("pincode")
 
+        # 📍 பின்கோடு டெலிவரி செக்கிங் லாஜிக் (உங்க ஒரிஜினல் கோடு பாஸ்)
         if pincode != "631208":
             return render(
                 request,
                 "shop/checkout.html",
-                {"error": "Delivery Not Available"},
+                {
+                    "error": "Delivery Not Available",
+                    "total_amount": total_amount,
+                    "upi_url": upi_url,
+                    "cartitems": cartitems
+                },
             )
-
-        cartitems = Cart.objects.filter(user=request.user)
-        total_calculator = CartTotalCalculator(cartitems)
-        total_amount = total_calculator.calculate_total()
 
         form_phone = request.POST.get("phone")
         if not form_phone:
@@ -315,6 +427,7 @@ def checkout(request):
         if not form_phone:
             form_phone = "0000000000"
 
+        # 💾 புது ஆர்டரை டேட்டாபேஸில் கிரியேட் செய்கிறோம் பாஸ்
         order = Order.objects.create(
             user=request.user,
             order_number="ORD" + str(uuid.uuid4().hex[:8]).upper(),
@@ -323,13 +436,15 @@ def checkout(request):
             address=request.POST.get("address"),
             pincode=pincode,
             payment_mode=payment_mode,
-            transaction_id=transaction_id,
+            transaction_id=transaction_id, # மாடல் ஃபீல்டு பெயருக்கு ஏத்த மாதிரி சேவ் ஆகும்
             total_amount=total_amount,
         )
 
+        # 📦 ஸ்டாக் செக்கிங் மற்றும் மைனஸ் செய்யும் லூப் லாஜிக் (உங்க ஒரிஜினல் கோடு பாஸ்)
         for item in cartitems:
             if item.product.quantity < item.product_qty:
                 messages.error(request, f"{item.product.name} stock not available")
+                order.delete() # ஆர்டரை கேன்சல் பண்ணிட்டு திருப்புகிறோம் பாஸ்
                 return redirect("cart")
 
             OrderItem.objects.create(
@@ -339,10 +454,12 @@ def checkout(request):
                 price=item.product.selling_price,
             )
 
+            # ஸ்டாக்கை குறைப்பது
             product = item.product
             product.quantity -= item.product_qty
             product.save()
 
+        # செஷன் மற்றும் கார்டை காலி செய்வது
         if 'mobile_number' in request.session:
             del request.session['mobile_number']
 
@@ -350,7 +467,13 @@ def checkout(request):
         order.save()
         return redirect("order_success")
 
-    return render(request, "shop/checkout.html")
+    # 🚀 2. கஸ்டமர் செக்அவுட் பக்கத்தை சும்மா ஓப்பன் பண்ணும்போது (GET Method)
+    context = {
+        "cartitems": cartitems,
+        "total_amount": total_amount,
+        "upi_url": upi_url, # 🎯 இந்த வேரியபிள்தான் உங்க HTML-ல் QR கோடாக மாறும் பாஸ்!
+    }
+    return render(request, "shop/checkout.html", context)
 
 
 def order_success(request):
@@ -359,6 +482,7 @@ def order_success(request):
 @login_required(login_url="login")
 def myorders(request):
     if request.user.is_authenticated:
+        orders = Order.objects.filter(user=request.user).order_by('-id')
         orders = Order.objects.filter(user=request.user).order_by("-created_at")
     else:
         orders = Order.objects.none()
