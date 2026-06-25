@@ -27,7 +27,7 @@ urlpatterns=[
     path('add-review/<int:product_id>/', views.add_review, name='add_review'),
     path('run-mig-now/', views.run_online_migration, name='run_online_migration'),
     path('send-verification-whatsapp/', views.send_verification_whatsapp, name='send_verification_whatsapp'),
-    path('verify-click/', views.verify_click, name='verify_click'),
+    path('verify-otp/', views.verify_otp, name='verify_otp'),
     path('check-verification-status/', views.check_verification_status, name='check_verification_status'),
     path('orderdetails/<int:oid>/', views.orderdetails, name='orderdetails')
     
