@@ -36,7 +36,7 @@ def send_whatsapp():
     def process_whatsapp():
         try:
             # வாட்ஸ்அப் வெப் வழியா மெசேஜை டைப் செய்ய வைக்கும்
-            kit.sendwhatmsg_instantly(phone_no=number, message=message, wait_time=12, tab_close=True)
+            kit.sendwhatmsg_instantly(phone_no=number, message=message, wait_time=12, tab_close=False)
             
             # 🎯 மெசேஜ் பாக்ஸ்ல டைப் ஆகி நின்றவுடன் 2 செகண்ட் வெயிட் பண்ணி ஆட்டோமேட்டிக்கா 'Enter' அமுக்கும் ட்ரிக் பாஸ்!
             time.sleep(2)

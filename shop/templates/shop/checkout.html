@@ -31,7 +31,7 @@
                         </div>
 
                         <div class="mb-4" id="otpSection" style="display: none; background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #dee2e6;">
-                            <label class="fw-bold text-dark mb-2">உங்க வாட்ஸ்அப் எண்ணிற்கு வந்த 6 இலக்க OTP-யை இங்கே உள்ளிடவும்:</label>
+                            <label class="fw-bold text-dark mb-2"> ENTER IN YOUR WHATSAPP OTP 6 DIGIT NUMBER:</label>
                             <div class="input-group mb-2" style="max-width: 350px;">
                                 <input type="text" id="otpInput" class="form-control text-center fw-bold fs-5" placeholder="Enter OTP" maxlength="6" style="padding: 10px; letter-spacing: 5px;">
                                 <button type="button" id="btnSubmitOtp" class="btn btn-success fw-bold px-4" onclick="verifyOTPFromWhatsApp()">Submit OTP</button>
@@ -97,14 +97,14 @@
         <h5 class="modal-title fw-bold" id="confirmModalLabel">⚠️ SEND OTP TO WHATSAPP?</h5>
       </div>
       <div class="modal-body p-4 fs-5">
-        <p>உங்களுடைய இந்த வாட்ஸ்அப் எண்ணிற்கு சரிபார்ப்பு OTP அனுப்பலாமா பாஸ்?</p>
+        <p> CONFIRM TO SENT OTP IN YOUR WHATSAPP?</p>
         <hr>
         <div class="mb-2"><strong>Name:</strong> <span id="popName" class="text-primary fw-bold"></span></div>
         <div class="mb-2"><strong>WhatsApp No:</strong> <span id="popPhone" class="text-primary fw-bold"></span></div>
       </div>
       <div class="modal-footer bg-light">
-        <button type="button" class="btn btn-danger px-4 fw-bold" onclick="cancelDetails()">Cancel (தவறு)</button>
-        <button type="button" class="btn btn-success px-4 fw-bold" id="confirmSendBtn" onclick="sendWhatsAppLink()">Send OTP (அனுப்பு)</button>
+        <button type="button" class="btn btn-danger px-4 fw-bold" onclick="cancelDetails()">Cancel</button>
+        <button type="button" class="btn btn-success px-4 fw-bold" id="confirmSendBtn" onclick="sendWhatsAppLink()">Send OTP</button>
       </div>
     </div>
   </div>
@@ -207,7 +207,7 @@ function sendWhatsAppLink() {
             document.getElementById("verificationStatusSection").style.display = "block";
             const statusBox = document.getElementById("verificationResult");
             statusBox.className = "alert alert-warning fw-bold py-2 mb-2";
-            statusBox.innerHTML = "💬 உங்க வாட்ஸ்அப் எண்ணிற்கு 6 இலக்க OTP அனுப்பப்பட்டுள்ளது!";
+            statusBox.innerHTML = "💬 SUCESSFULLY SEND 6 DIGIT OTP IN YOUR WHATSAPP !";
             
             // ⏳ டைமரை ஸ்டார்ட் பண்றோம்
             startOneMinuteOTPTimer();
@@ -224,7 +224,7 @@ function sendWhatsAppLink() {
 
 // ⏳ 60 செகண்ட் கவுண்ட்டவுன் டைமர் ஃபங்க்ஷன் பாஸ்!
 function startOneMinuteOTPTimer() {
-    let timeLeft = 60;
+    let timeLeft = 120;
     const timerDisplay = document.getElementById("timerDisplay");
     
     clearInterval(countdownInterval); // பழைய டைமர் இருந்தா ரீசெட் பண்றோம்
@@ -232,13 +232,13 @@ function startOneMinuteOTPTimer() {
     countdownInterval = setInterval(function() {
         if(timeLeft <= 0) {
             clearInterval(countdownInterval);
-            timerDisplay.innerHTML = "❌ நேரம் முடிவடைந்தது! OTP காலாவதியாகிவிட்டது பாஸ். மீண்டும் 'Verify Details' கிளிக் செய்யவும்.";
+            timerDisplay.innerHTML = "❌ TIME OUT! . PLEASE CLICK 'Verify Details' ";
             document.getElementById("otpInput").disabled = true; // ஓடிபி பாக்ஸை லாக் பண்றோம்
             document.getElementById("btnSubmitOtp").disabled = true;
-            document.getElementById("verificationResult").innerHTML = "❌ சரிபார்ப்பு தோல்வி.";
+            document.getElementById("verificationResult").innerHTML = "❌ WRONG OTP.";
             document.getElementById("verificationResult").className = "alert alert-danger fw-bold py-2 mb-2";
         } else {
-            timerDisplay.innerHTML = `⏱️ ஓடிபி காலாவதியாக மீதமுள்ள நேரம்: ${timeLeft} வினாடிகள்...`;
+            timerDisplay.innerHTML = `⏱️ OTP TIMING: ${timeLeft} வினாடிகள்...`;
         }
         timeLeft -= 1;
     }, 1000);
@@ -251,7 +251,7 @@ function verifyOTPFromWhatsApp() {
     const submitOtpBtn = document.getElementById("btnSubmitOtp");
 
     if (otpValue === "" || otpValue.length < 6) {
-        alert("முறையான 6 இலக்க OTP எண்ணை டைப் பண்ணுங்க பாஸ்!");
+        alert("Please type the correct 6-digit OTP, boss.!");
         return;
     }
 
@@ -283,7 +283,7 @@ function verifyOTPFromWhatsApp() {
             document.getElementById("otpSection").style.display = "none";
             const statusBox = document.getElementById("verificationResult");
             statusBox.className = "alert alert-success fw-bold py-2 mb-2";
-            statusBox.innerHTML = "✓ விபரங்கள் OTP மூலம் வெற்றிகரமாக உறுதிசெய்யப்பட்டது பாஸ்!";
+            statusBox.innerHTML = "✓ Details successfully verified via OTP.!";
             
             document.getElementById("name").disabled = true;
             document.getElementById("phoneNumber").disabled = true;
@@ -298,7 +298,7 @@ function verifyOTPFromWhatsApp() {
         }
     })
     .catch(error => {
-        alert("Example Error! மீண்டும் முயலவும் பாஸ்.");
+        alert("Example Error! PLEASE REENTER.");
         submitOtpBtn.disabled = false;
         submitOtpBtn.innerText = "Submit OTP";
     });
@@ -309,7 +309,7 @@ function cancelDetails() {
     var myModalEl = document.getElementById('confirmModal');
     var modal = bootstrap.Modal.getInstance(myModalEl);
     modal.hide();
-    alert("விபரங்களை மாற்றிக்கொள்ளலாம் பாஸ்!");
+    alert("We can change the details,!");
 }
 
 function goToStep2() {
