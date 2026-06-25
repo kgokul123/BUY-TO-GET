@@ -40,13 +40,13 @@ def process_whatsapp_background(number, message):
             print("🎯 வாட்ஸ்அப் சென்ட் பட்டனை ஃபோகஸ் செய்ய ட்ரை பண்ணுகிறோம்...")
             
             # வாட்ஸ்அப் வெப்பில் Shift + Tab அமுக்கினால் ஃபோகஸ் நேராக 'Send' பட்டனுக்குப் போகும்!
-            
-              with pyautogui.press('enter')
+            with pyautogui.hold('ctrl'):
+                pyautogui.press('enter')
             
             time.sleep(1)
             # இப்போ கன்பார்மா என்டர் தட்டுகிறோம்!
             pyautogui.press('enter')
-            print(f"✓ OTP SENT SUCCESSFULLY VIA DIRECT ENTER: {number}")
+            print(f"✓ OTP SENT SUCCESSFULLY VIA ctrl+enter SEND: {number}")
             
         except Exception as click_error:
             # ஒருவேளை மாறவில்லை என்றால், ஸ்கிரீனின் நடுப்பகுதியை கிளிக் செய்து என்டர் தட்டும் பழைய பேக்கப்

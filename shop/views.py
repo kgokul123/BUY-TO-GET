@@ -346,7 +346,7 @@ def checkout(request):
 def order_success(request):
     return render(request, "shop/success.html")
 
-
+@login_required(login_url="login")
 def myorders(request):
     if request.user.is_authenticated:
         orders = Order.objects.filter(user=request.user).order_by("-created_at")
