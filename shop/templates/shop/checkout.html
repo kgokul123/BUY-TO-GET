@@ -175,6 +175,8 @@ function sendWhatsAppLink() {
     confirmBtn.disabled = true;
     confirmBtn.innerText = "Sending OTP...";
 
+    // 🎯 ⚠️ கவனிக்கவும் பாஸ்: இங்க எந்தவிதமான window.open() அல்லது whatsapp.com லிங்கும் இருக்கக் கூடாது!
+    // வெறும் fetch ரிக்வஸ்ட் மட்டும்தான் இருக்கணும். அப்போதுதான் வாட்ஸ்அப் ஆப் ஆட்டோமேட்டிக்கா ஓப்பன் ஆகாது.
     fetch("/send-verification-whatsapp/", {
         method: "POST",
         headers: {
@@ -190,12 +192,13 @@ function sendWhatsAppLink() {
     .then(data => {
         var myModalEl = document.getElementById('confirmModal');
         var modal = bootstrap.Modal.getInstance(myModalEl);
-        modal.hide();
+        modal.hide(); // பாப்-அப் மாடலை மட்டும் மூடுகிறோம்
         
         confirmBtn.disabled = false;
         confirmBtn.innerText = "Send OTP (அனுப்பு)";
 
         if(data.success) {
+            // வெப்சைட் பக்கத்திலேயே ஓடிபி பாக்ஸை ஓப்பன் செய்கிறோம் பாஸ்!
             document.getElementById("otpSection").style.display = "block";
             document.getElementById("otpInput").disabled = false;
             document.getElementById("btnSubmitOtp").disabled = false;
@@ -206,7 +209,7 @@ function sendWhatsAppLink() {
             statusBox.className = "alert alert-warning fw-bold py-2 mb-2";
             statusBox.innerHTML = "💬 உங்க வாட்ஸ்அப் எண்ணிற்கு 6 இலக்க OTP அனுப்பப்பட்டுள்ளது!";
             
-            // ⏳ ஓடிபி அனுப்பியதும் 1 நிமிட டைமரை ஸ்டார்ட் பண்றோம் பாஸ்!
+            // ⏳ டைமரை ஸ்டார்ட் பண்றோம்
             startOneMinuteOTPTimer();
         } else {
             alert("Error sending WhatsApp OTP: " + data.message);
