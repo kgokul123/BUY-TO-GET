@@ -27,95 +27,64 @@ from .models import (
     Review,
 )
 
-# ⚠️ வாட்ஸ்அப் வெரிஃபிகேஷன் நிலையை தற்காலிகமாகச் சேமிக்க உலகளாவிய டிக்ஸ்னரி பாஸ்
-VERIFICATION_STORE = {}
-
-# === 1. WHATSAPP VERIFICATION SYSTEM ===
+OTP_STORE = {}
 
 @csrf_exempt
 def send_verification_whatsapp(request):
     if request.method == "POST":
         try:
+            import json
+            import requests
             body = json.loads(request.body)
-            mobile_number = body.get('mobile_number')
-            name = body.get('name')
-            
+            mobile_number = body.get('mobile_number', '')
+            name = body.get('name', '')
+
             if not mobile_number:
                 return JsonResponse({"success": False, "message": "Mobile number is required boss!"})
+
+            # 🔢 6 இலக்க OTP-யை உருவாக்குகிறோம்!
+            otp = str(random.randint(100000, 999999))
             
-            # 🎯 கஸ்டமருக்கு ஒரு தனித்துவமான வெரிஃபிகேஷன் டோக்கன் உருவாக்குறோம்
-            token = str(random.randint(100000, 999999))
-            
-            # 🎯 இந்த நம்பர் இன்னும் வெரிஃபை ஆகலன்னு ஸ்டோர் பண்ணி வைக்கிறோம்
-            VERIFICATION_STORE[mobile_number] = {
-                "verified": False,
-                "token": token
-            }
-            
-            # 🎯 கஸ்டமரோட வாட்ஸ்அப்புக்கு அனுப்ப வேண்டிய 1 நிமிட செக்யூர் லிங்க்
-            # (நீங்க Vercel லைவ் லிங்க் வச்சிருந்தா 127.0.0.1 இடத்துல டொமைன் பேரை மாத்திக்கலாம் பாஸ்)
-            click_link = f"https://buy-to-get.vercel.app/verify-click/?phone={mobile_number}&token={token}"
-            
+            # நம்பரைச் சுத்தப்படுத்தி ஸ்டோர் செய்கிறோம்
+            clean_number = "".join([c for c in mobile_number if c.isdigit()])
+            OTP_STORE[clean_number] = otp
+
+            # வாட்ஸ்அப் மெசேஜ் டெம்ப்ளேட்
             whatsapp_message = (
                 f"வணக்கம் {name} பாஸ்! 🙏\n\n"
-                f"உங்களுடைய KALAIARASI METAL STORE ஆர்டர் விபரங்களை உறுதி செய்ய கீழே உள்ள லிங்கை 1 நிமிடத்திற்குள் கிளிக் செய்யவும்:\n👉 {click_link}"
+                f"உங்களுடைய KALAIARASI METAL STORE ஆர்டர் விபரங்களை உறுதி செய்ய உங்களுக்கான OTP எண் இதோ:\n"
+                f"🔢 *{otp}*\n\n"
+                f"இந்த எண்ணை வெப்சைட்டில் உள்ளிட்டு ஆர்டரை முடிக்கவும் பாஸ்!"
             )
-            
-            # 🚀 உங்க Ngrok முகவரி வழியா உங்க வீட்டு பைதான் சர்வருக்கு டேட்டாவை அனுப்புறோம்!
-            # 🚀 இனிமேல் இந்த லிங்க் மாறவே மாறாது பாஸ்!
+
+            # உங்க வீட்டு பைதான் சர்வருக்கு சிக்னல் அனுப்புகிறோம்
             ngrok_url = "https://ludicrous-slighting-negligent.ngrok-free.dev/send-whatsapp"
             payload = {
                 "number": mobile_number,
                 "message": whatsapp_message
             }
             
-            # வீட்டு சர்வருக்கு சிக்னல் போகிறது
-            response = requests.post(ngrok_url, json=payload, timeout=20)
-            
-            if response.status_code == 200:
-                return JsonResponse({"success": True})
-            else:
-                return JsonResponse({"success": False, "message": "Failed to trigger home server"})
-                
+            requests.post(ngrok_url, json=payload, timeout=10)
+            return JsonResponse({"success": True, "message": "OTP sent to WhatsApp boss!"})
+
         except Exception as e:
             return JsonResponse({"success": False, "message": str(e)})
-            
-    return JsonResponse({"success": False, "message": "Invalid Method"})
 
+@csrf_exempt
+def verify_otp(request):
+    """கஸ்டமர் டைப் செய்யும் OTP-யைச் சரிபார்க்கும் புதிய ஃபங்க்ஷன் பாஸ்!"""
+    if request.method == "POST":
+        import json
+        body = json.loads(request.body)
+        mobile_number = body.get('mobile_number', '')
+        user_otp = body.get('otp', '')
 
+        clean_number = "".join([c for c in mobile_number if c.isdigit()])
 
-import re  # இந்த வரி டாப்ல இல்லைனா இருக்கட்டும் பாஸ், இல்லைனாலும் பரவால
-
-def verify_click(request):
-    raw_phone = request.GET.get('phone', '')
-    token = request.GET.get('token', '')
-    
-    # 💡 போன் நம்பரில் இருக்கும் எண்கள் (0-9) தவிர மற்ற அனைத்து குறியீடுகளையும் (Spcae, +, %2B) சுத்தமாக நீக்குகிறோம் பாஸ்!
-    phone = "".join(re.findall(r'\d+', raw_phone))
-    
-    # ஒருவேளை நம்பர் 91-ல் ஆரம்பித்தால், லோக்கல் ஸ்டோரோடு ஒப்பிட 91-ஐ நீக்கியும் செக் செய்கிறோம்
-    phone_no_country = phone[2:] if phone.startswith('91') else phone
-    
-    # மெமரியில் இருக்கும் எண்களையும் சுத்தப்படுத்துகிறோம்
-    matched_key = None
-    for key in VERIFICATION_STORE.keys():
-        clean_key = "".join(re.findall(r'\d+', key))
-        if clean_key == phone or clean_key == phone_no_country or clean_key.endswith(phone_no_country):
-            matched_key = key
-            break
-
-    if matched_key and VERIFICATION_STORE[matched_key]['token'] == token:
-        VERIFICATION_STORE[matched_key]['verified'] = True
-        return HttpResponse(
-            "<h2 style='color: green; text-align: center; margin-top: 50px; font-family: sans-serif;'>"
-            "✓ விபரங்கள் வெற்றிகரமாக வாட்ஸ்அப் மூலம் உறுதிசெய்யப்பட்டது பாஸ்! <br>இப்போ நீங்க வெப்சைட் போய் Place Order அமுக்கலாம்.</h2>"
-        )
-    
-    return HttpResponse(
-        "<h2 style='color: red; text-align: center; margin-top: 50px; font-family: sans-serif;'>"
-        "❌ செல்லாத அல்லது காலாவதியான லிங்க் பாஸ்! <br><span style='color: gray; font-size: 14px;'>உதவி: வெப்சைட்டில் மீண்டும் ஒருமுறை 'Verify Details' கிளிக் செய்து புதிய லிங்க்கை ட்ரை பண்ணுங்க.</span></h2>"
-    )
-
+        if clean_number in OTP_STORE and OTP_STORE[clean_number] == str(user_otp):
+            return JsonResponse({"success": True, "message": "OTP Verified!"})
+        
+        return JsonResponse({"success": False, "message": "தவறான OTP எண் பாஸ்! மீண்டும் முயலவும்."})
 
 
 # 🎯 HTML பக்கத்தில் இருக்குற ஜாவாஸ்கிரிப்ட் டைமர் வந்து செக் செய்யும் இடம்
