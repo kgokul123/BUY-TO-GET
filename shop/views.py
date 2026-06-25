@@ -69,16 +69,32 @@ def send_verification_whatsapp(request):
 
 @csrf_exempt
 def verify_otp(request):
-    """கஸ்டமர் டைப் செய்யும் OTP-யைச் சரிபார்க்கும் புதிய ஃபங்க்ஷன் பாஸ்!"""
     if request.method == "POST":
         import json
         body = json.loads(request.body)
         mobile_number = body.get('mobile_number', '')
         user_otp = body.get('otp', '')
 
-        clean_number = "".join([c for c in mobile_number if c.isdigit()])
+        # 💡 போன் நம்பரில் இருக்கும் எண்களை (0-9) மட்டும் பிரித்து எடுக்கிறோம் பாஸ்! (+91 இருந்தாலும், வெறும் 10 இலக்கம் இருந்தாலும் சரி)
+        clean_number = "".join([c for c in str(mobile_number) if c.isdigit()])
+        
+        # இந்திய கண்ட்ரி கோடு (91) முன்னாடி இருந்தால் அதை நீக்கிவிட்டு லோக்கல் நம்பரை மட்டும் எடுக்கிறோம்
+        if clean_number.startswith('91') and len(clean_number) > 10:
+            clean_number = clean_number[2:]
 
-        if clean_number in OTP_STORE and OTP_STORE[clean_number] == str(user_otp):
+        # OTP_STORE-ல் இருக்கும் எண்களையும் இதே போல் கிளீன் செய்து செக் செய்கிறோம் பாஸ்
+        matched_otp = None
+        for key, stored_otp in OTP_STORE.items():
+            clean_key = "".join([c for c in str(key) if c.isdigit()])
+            if clean_key.startswith('91') and len(clean_key) > 10:
+                clean_key = clean_key[2:]
+            
+            if clean_key == clean_number:
+                matched_otp = stored_otp
+                break
+
+        # ஓடிபி சரியாக இருந்தால் ஓகே சொல்லி விடுகிறோம்!
+        if matched_otp and str(matched_otp).strip() == str(user_otp).strip():
             return JsonResponse({"success": True, "message": "OTP Verified!"})
         
         return JsonResponse({"success": False, "message": "தவறான OTP எண் பாஸ்! மீண்டும் முயலவும்."})
