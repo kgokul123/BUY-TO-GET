@@ -37,7 +37,7 @@ def process_whatsapp_background(number, message):
         try:
             # வாட்ஸ்அப் வெப் சென்ட் பட்டனின் இடத்தை (Focus) உறுதி செய்ய 2 முறை Tab அமுக்குகிறோம்
             pyautogui.press('tab')
-            time.slice_counter = time.sleep(0.5)
+            time.sleep(0.5)
             pyautogui.press('tab')
             time.sleep(0.5)
             
