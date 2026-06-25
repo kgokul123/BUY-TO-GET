@@ -24,9 +24,10 @@ except ImportError:
 
 app = Flask(__name__)
 
-# 💡 எரர் வராமல் இருக்க, பேக்கிரவுண்ட் வேலை செய்யும் ஃபங்க்ஷனை தனியாகவும், ஸ்பேஸ் கரெக்ட்டாகவும் மாற்றியுள்ளேன் பாஸ்!
+# 💡 வாட்ஸ்அப் மெசேஜ் அனுப்பும் முக்கிய பேக்கிரவுண்ட் ஃபங்க்ஷன் பாஸ்!
 def process_whatsapp_background(number, message):
     try:
+        print(f"🔄 வாட்ஸ்அப் வெப் ஓப்பன் ஆகிறது... எண்: {number}")
         # ⏳ 15 செகண்ட் தாராளமாக வெயிட் செய்து மெசேஜை டைப் செய்ய வைக்கிறோம்
         kit.sendwhatmsg_instantly(phone_no=number, message=message, wait_time=15, tab_close=False)
         
@@ -36,7 +37,7 @@ def process_whatsapp_background(number, message):
         try:
             # வாட்ஸ்அப் வெப் சென்ட் பட்டனின் இடத்தை (Focus) உறுதி செய்ய 2 முறை Tab அமுக்குகிறோம்
             pyautogui.press('tab')
-            time.sleep(0.5)
+            time.slice_counter = time.sleep(0.5)
             pyautogui.press('tab')
             time.sleep(0.5)
             
@@ -51,19 +52,23 @@ def process_whatsapp_background(number, message):
             print(f"✓ OTP SENT VIA CLICK BACKUP: {number}")
 
     except Exception as e:
-        print(f"❌ OTP NOT SENT: {str(e)}")
+        print(f"❌ OTP NOT SENT IN BACKGROUND: {str(e)}")
 
 @app.route('/send-whatsapp', methods=['POST'])
 def send_whatsapp():
     try:
+        # 🎯 சிக்னல் வந்ததும் முதலில் டேட்டாவை பத்திரமாக எடுக்கிறோம் பாஸ்!
         data = request.get_json()
+        if not data:
+            return jsonify({"success": False, "error": "No data received"}), 400
+            
         number = data.get('number')
         message = data.get('message')
         
         # 🎯 பேக்கிரவுண்ட் த்ரெட்டை இங்க தான் ஸ்டார்ட் பண்றோம் பாஸ்!
         threading.Thread(target=process_whatsapp_background, args=(number, message)).start()
         
-        # ⚠️ ஜாங்கோ வெப்சைட்டுக்கு உடனே சரியான சக்சஸ் ரிஸ்பான்ஸ் அனுப்பி விடுகிறோம்!
+        # ⚠️ மிக முக்கியம்: எந்த எரரும் இல்லாமல் உடனே பிளாஸ்க் 200 SUCCESS ரிஸ்பான்ஸ் அனுப்புகிறது பாஸ்!
         return jsonify({"success": True, "status": "Signal received boss!"}), 200
         
     except Exception as route_error:
@@ -72,4 +77,4 @@ def send_whatsapp():
 
 if __name__ == '__main__':
     print("🚀 பைதான் வாட்ஸ்அப் API சர்வர் 5000 போர்ட்ல ரெடி பாஸ்!")
-    app.run(port=5000)
+    app.run(port=5000, debug=False)
