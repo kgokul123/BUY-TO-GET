@@ -34,25 +34,26 @@ def process_whatsapp_background(number, message):
         # 🎯 மெசேஜ் பாக்ஸ்ல டெக்ஸ்ட் விழுந்ததும் 3 செகண்ட் வெயிட் பண்றோம்
         time.sleep(3)
         
-        # 🔥 [மரண மாஸ் ட்ரிக்]: மெசேஜ் பாக்ஸை கன்பார்மா ஆக்டிவேட் பண்ண 
-        # ஸ்கிரீனின் நடுப்பகுதியில் ஒரு கிளிக்கை தட்டிவிட்டு 'Enter' அமுக்குகிறோம்!
+        # 🔥 [மரண மாஸ் ட்ரிக்]: வாட்ஸ்அப் இன்புட் பாக்ஸில் இருந்து 'Send' பட்டனுக்குப் போக 
+        # ஷார்ட்கட் கீபோர்டு கமாண்ட் பயன்படுத்துகிறோம் பாஸ்!
         try:
-            print("🎯 விண்டோவை போக்கஸ் செய்ய கிளிக் செய்யப்படுகிறது...")
-            pyautogui.click(x=pyautogui.size().width // 2, y=pyautogui.size().height // 2)
-            time.sleep(1)
+            print("🎯 வாட்ஸ்அப் சென்ட் பட்டனை ஃபோகஸ் செய்ய ட்ரை பண்ணுகிறோம்...")
             
-            # இப்போ நேரடியாக 'Enter' தட்டுகிறோம்!
+            # வாட்ஸ்அப் வெப்பில் Shift + Tab அமுக்கினால் ஃபோகஸ் நேராக 'Send' பட்டனுக்குப் போகும்!
+            with pyautogui.hold('shift'):
+                pyautogui.press('tab')
+            
+            time.sleep(1)
+            # இப்போ கன்பார்மா என்டர் தட்டுகிறோம்!
             pyautogui.press('enter')
-            print(f"✓ OTP SENT SUCCESSFULLY VIA DIRECT ENTER: {number}")
+            print(f"✓ OTP SENT SUCCESSFULLY VIA SHIFT+TAB SEND: {number}")
             
         except Exception as click_error:
-            # பேக்கப் பிளான்: ஒருவேளை மாறவில்லை என்றால், பழைய டேப் முறையை ட்ரை செய்கிறோம்
-            pyautogui.press('tab')
-            time.sleep(0.5)
-            pyautogui.press('tab')
+            # ஒருவேளை மாறவில்லை என்றால், ஸ்கிரீனின் நடுப்பகுதியை கிளிக் செய்து என்டர் தட்டும் பழைய பேக்கப்
+            pyautogui.click(x=pyautogui.size().width // 2, y=pyautogui.size().height // 2)
             time.sleep(0.5)
             pyautogui.press('enter')
-            print(f"✓ OTP SENT VIA TAB BACKUP: {number}")
+            print(f"✓ OTP SENT VIA CLICK BACKUP: {number}")
 
     except Exception as e:
         print(f"❌ OTP NOT SENT IN BACKGROUND: {str(e)}")
