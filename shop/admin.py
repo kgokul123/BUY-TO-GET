@@ -49,8 +49,7 @@ class OrderAdmin(admin.ModelAdmin):
     readonly_fields = ['order_number', 'payment_mode', 'transaction_id', 'payment_id', 'created_at']
     
     inlines = [OrderItemInline]
-
-    def download_invoice_link(self, obj):
+ def download_invoice_link(self, obj):
         # நம்ம வியூவ்ஸ்ல இருக்குற 'download_invoice' யூஆர்எல் லிங்க்கை எடுக்கிறோம்
         url = reverse('download_invoice', args=[obj.order_number])
         # அட்மின் டேபிள்ல ஒரு அழகான பச்சை கலர் பட்டனை ரெடி பண்றோம் தலைவா

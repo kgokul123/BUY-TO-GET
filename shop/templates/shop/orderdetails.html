@@ -12,7 +12,7 @@ Order Details | Kalaiarasi Metal Store
         <div class="card-body p-4">
 
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="text-warning mb-0"><i class="fas fa-file-invoice"></i> Order Details</h3>
+                <h3 class="mb-0" style="color: #198754; font-weight: bold;"><i class="fas fa-file-invoice"></i> ORDER DETAILS </h3>
                 <a href="{% url 'myorders' %}" class="btn btn-outline-warning btn-sm fw-bold">
                     <i class="fas fa-arrow-left"></i> Back to Orders
                 </a>
@@ -66,7 +66,7 @@ Order Details | Kalaiarasi Metal Store
         </div>
     </div>
 
-    <h4 class="mt-5 mb-3 text-warning"><i class="fas fa-boxes"></i> Ordered Items</h4>
+    <h4 style="color: #198754; font-weight: bold; margin-top: 30px;"><i class="fas fa-boxes"></i> Ordered Items</h4>
 
     {% for item in orderitems %}
     <div class="card mb-3 shadow border-0 text-white" style="background-color: #1a1d20 !important; border-radius: 8px; overflow: hidden;">
