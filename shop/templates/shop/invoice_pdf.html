@@ -1,189 +1,398 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <title>Invoice - Kalaiarasi Metal Store</title>
     <style>
-        /* 📄 A4 பக்க அளவை கிரிஸ்டல் க்ளியரா லாக் பண்றோம் பாஸ் */
+        /* 📄 Page Configuration with generous margins */
         @page {
             size: a4;
-            margin: 20mm;
+            margin: 2.5cm 2.0cm 2.5cm 2.0cm;
         }
-        body { font-family: sans-serif; color: #333; padding: 0; margin: 0; }
-        .invoice-box { width: 100%; }
-        .title { font-size: 24px; color: #198754; font-weight: bold; text-align: center; text-transform: uppercase; }
-        .sub-title { text-align: center; font-size: 11px; color: #6c757d; margin-top: 2px; }
-        
-        /* 🏷️ காப்பி டைப் காட்டும் மாஸ் பேட்ஜ் */
-        .copy-badge { 
-            text-align: center; 
-            margin: 10px auto; 
-            font-size: 11px; 
-            font-weight: bold; 
-            color: #495057; 
-            background-color: #e9ecef; 
-            padding: 4px 12px; 
-            width: 150px;
-            border: 1px solid #ced4da;
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: #222222;
+            line-height: 1.5;
+            font-size: 11pt;
         }
         
-        table { width: 100%; line-height: 2; text-align: left; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #dee2e6; padding: 8px; font-size: 13px; }
-        .table-header { background-color: #f8f9fa; font-weight: bold; color: #495057; }
-        .total-row { font-size: 15px; font-weight: bold; color: #198754; text-align: right; }
-        
-        .auth-section { margin-top: 40px; border: none; }
-        .auth-section td { border: none; font-size: 14px; padding-top: 35px; }
-        .line-draw { border-top: 1px dashed #333; width: 180px; display: inline-block; margin-bottom: 5px; }
+        /* 🏢 Store Header Section */
+        .header-container {
+            border-bottom: 2px solid #2e7d32;
+            padding-bottom: 15px;
+            margin-bottom: 35px;
+        }
+        .store-name {
+            font-size: 24pt;
+            font-weight: bold;
+            color: #2e7d32;
+            text-transform: uppercase;
+            margin: 0;
+            padding: 0;
+        }
+        .store-tagline {
+            font-size: 10pt;
+            color: #666666;
+            font-style: italic;
+            margin: 3px 0 0 0;
+        }
+
+        /* 📑 Invoice Title Block */
+        .invoice-title-bar {
+            margin-bottom: 30px;
+        }
+        .invoice-title {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #333333;
+            letter-spacing: 1px;
+        }
+        .copy-indicator {
+            font-size: 10pt;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: #2e7d32;
+            padding: 4px 10px;
+            border-radius: 3px;
+            text-transform: uppercase;
+        }
+
+        /* 👥 Customer & Order Info Grid (Properly Spaced) */
+        .info-table {
+            width: 100%;
+            margin-bottom: 40px;
+        }
+        .info-col {
+            width: 50%;
+            vertical-align: top;
+        }
+        .section-label {
+            font-size: 10pt;
+            color: #777777;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 3px;
+            width: 85%;
+        }
+        .info-text {
+            font-size: 11pt;
+            line-height: 1.6;
+        }
+        .info-text strong {
+            color: #111111;
+        }
+
+        /* 📊 Styled Items Table */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+        }
+        .items-table th {
+            background-color: #f5f5f5;
+            color: #333333;
+            font-weight: bold;
+            text-align: left;
+            padding: 12px 10px;
+            border-bottom: 2px solid #dddddd;
+            font-size: 10.5pt;
+            text-transform: uppercase;
+        }
+        .items-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 11pt;
+        }
+        .text-right {
+            text-align: right !important;
+        }
+        .text-center {
+            text-align: center !important;
+        }
+
+        /* 💰 Payment and Summary Section */
+        .summary-container {
+            width: 100%;
+            margin-top: 20px;
+        }
+        .qr-col {
+            width: 45%;
+            vertical-align: top;
+            text-align: left;
+        }
+        .qr-box {
+            border: 1px solid #dddddd;
+            padding: 15px;
+            display: inline-block;
+            border-radius: 5px;
+            background-color: #fafafa;
+            text-align: center;
+        }
+        .qr-image {
+            width: 140px;
+            height: 140px;
+            margin-bottom: 10px;
+        }
+        .qr-hint {
+            font-size: 9pt;
+            color: #666666;
+            font-weight: bold;
+        }
+        .total-col {
+            width: 55%;
+            vertical-align: top;
+        }
+        .total-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .total-table td {
+            padding: 10px;
+            font-size: 11pt;
+        }
+        .grand-total-row td {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #2e7d32;
+            background-color: #edf7ed;
+            border-top: 2px solid #2e7d32;
+            border-bottom: 2px solid #2e7d32;
+            padding: 12px 10px;
+        }
+
+        /* 📝 Footer Greetings */
+        .invoice-footer {
+            margin-top: 60px;
+            text-align: center;
+            border-top: 1px dashed #cccccc;
+            padding-top: 20px;
+            color: #888888;
+            font-size: 10pt;
+        }
+
+        /* ✂️ Page Break for Double Copy Setup */
+        .page-break {
+            page-break-before: always;
+        }
     </style>
 </head>
 <body>
 
-    <!-- ==========================================
-         👥 1. முதல் பிரதி: கஸ்டமர்க்கான ஒரிஜினல் பில் 
-         ========================================== -->
-    <div class="invoice-box">
-        <div class="title">KALAIARASI METAL STORE</div>
-        <div class="sub-title">Premium Steel & Furniture Outlets | Pincode: 631208</div>
-        
-        <!-- 🎯 காப்பி டைப் லேபில் -->
-        <div class="copy-badge">ORIGINAL FOR BUYER</div>
-        
-        <hr style="border: 0; border-top: 1px solid #dee2e6; margin-top: 10px;">
-        
-        <table style="border: none; margin-bottom: 15px;">
-            <tr style="border: none;">
-                <td style="border: none; width: 50%; vertical-align: top;">
-                    <strong style="color: #495057;">Bill To:</strong><br>
-                    <strong>Name:</strong> {{ order.user.username }}<br>
-                    <strong>Phone:</strong> {{ order.phone }}<br>
-                    <strong>Address:</strong> {{ order.address }} - {{ order.pincode }}
-                </td>
-                <td style="border: none; width: 50%; text-align: right; vertical-align: top;">
-                    <strong style="color: #495057;">Invoice Details:</strong><br>
-                    <strong>Order ID:</strong> <span style="color: #0d6efd; font-weight: bold;">{{ order.order_number }}</span><br>
-                    <strong>Date:</strong> {{ order.created_at|date:"d M Y" }}<br>
-                    <strong>Payment:</strong> {{ order.payment_mode }}
+    <div class="header-container">
+        <table style="width: 100%;">
+            <tr>
+                <td>
+                    <div class="store-name">Kalaiarasi Metal Store</div>
+                    <div class="store-tagline">Premium Quality Steel & Modern Furniture</div>
                 </td>
             </tr>
         </table>
-
-        <table>
-            <thead>
-                <tr class="table-header">
-                    <th>Product Name</th>
-                    <th style="text-align: right; width: 100px;">Price</th>
-                    <th style="text-align: center; width: 80px;">Quantity</th>
-                    <th style="text-align: right; width: 120px;">Subtotal</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in orderitems %}
-                <tr>
-                    <td>{{ item.product.name }}</td>
-                    <td style="text-align: right;">₹{{ item.price }}</td>
-                    <td style="text-align: center;">{{ item.quantity }} Nos</td>
-                    <td style="text-align: right;">₹{{ item.quantity }}</td>
-                </tr>
-                {% endfor %}
-                <tr>
-                    <td colspan="3" class="total-row">Total Amount:</td>
-                    <td class="total-row">₹{{ order.total_amount }}</td>
-                </tr>
-            </tbody>
-        </table>
-        
-        <table class="auth-section">
-            <tr style="border: none;">
-                <td style="width: 50%; text-align: left; vertical-align: bottom;">
-                    <span class="line-draw"></span><br>
-                    <strong>Customer Signature</strong>
-                </td>
-                <td style="width: 50%; text-align: right; vertical-align: bottom;">
-                    <p style="font-size: 11px; color: #6c757d; margin-bottom: 40px;">For KALAIARASI METAL STORE</p>
-                    <span class="line-draw"></span><br>
-                    <strong>Authorized Signatory / Seal</strong>
-                </td>
-            </tr>
-        </table>
-        
-        <p style="text-align: center; margin-top: 30px; font-size: 13px; font-weight: bold; color: #6c757d;">
-            Thank you for shopping with us, boss! 🙏
-        </p>
     </div>
 
-    <!-- ⚡ [pdf:nextpage மேஜிக் பாஸ்]: இதுதான் பில்லை அடுத்த ஏ4 பக்கத்திற்குப் பிரிக்கும்! -->
-    <pdf:nextpage />
+    <div class="invoice-title-bar">
+        <table style="width: 100%;">
+            <tr>
+                <td><span class="invoice-title">TAX INVOICE</span></td>
+                <td style="text-align: right;"><span class="copy-indicator">Original Copy</span></td>
+            </tr>
+        </table>
+    </div>
 
-    <!-- ==========================================
-         🏢 2. இரண்டாவது பிரதி: உங்களுக்கான ஆபீஸ் காப்பி 
-         ========================================== -->
-    <div class="invoice-box">
-        <div class="title">KALAIARASI METAL STORE</div>
-        <div class="sub-title">Premium Steel & Furniture Outlets | Pincode: 631208</div>
-        
-        <!-- 🎯 காப்பி டைப் லேபில் -->
-        <div class="copy-badge">DUPLICATE FOR SHOP</div>
-        
-        <hr style="border: 0; border-top: 1px solid #dee2e6; margin-top: 10px;">
-        
-        <table style="border: none; margin-bottom: 15px;">
-            <tr style="border: none;">
-                <td style="border: none; width: 50%; vertical-align: top;">
-                    <strong style="color: #495057;">Bill To:</strong><br>
-                    <strong>Name:</strong> {{ order.user.username }}<br>
-                    <strong>Phone:</strong> {{ order.phone }}<br>
-                    <strong>Address:</strong> {{ order.address }} - {{ order.pincode }}
+    <div class="info-table">
+        <table style="width: 100%;">
+            <tr>
+                <td class="info-col">
+                    <div class="section-label">Billed To</div>
+                    <div class="info-text">
+                        <strong>{{ order.first_name }} {{ order.last_name }}</strong><br>
+                        {{ order.address_line_1 }}<br>
+                        {% if order.address_line_2 %}{{ order.address_line_2 }}<br>{% endif %}
+                        {{ order.city }}, {{ order.state }} - {{ order.pin_code }}<br>
+                        Ph: {{ order.phone }}
+                    </div>
                 </td>
-                <td style="border: none; width: 50%; text-align: right; vertical-align: top;">
-                    <strong style="color: #495057;">Invoice Details:</strong><br>
-                    <strong>Order ID:</strong> <span style="color: #0d6efd; font-weight: bold;">{{ order.order_number }}</span><br>
-                    <strong>Date:</strong> {{ order.created_at|date:"d M Y" }}<br>
-                    <strong>Payment:</strong> {{ order.payment_mode }}
+                <td class="info-col">
+                    <div class="section-label">Invoice Details</div>
+                    <div class="info-text">
+                        <strong>Invoice No:</strong> #{{ order.order_number }}<br>
+                        <strong>Date:</strong> {{ order.created_at|date:"d-M-Y" }}<br>
+                        <strong>Payment Status:</strong> {{ order.payment.status|default:"Pending" }}<br>
+                        <strong>Payment Mode:</strong> UPI / QR Code
+                    </div>
                 </td>
             </tr>
         </table>
+    </div>
 
-        <table>
-            <thead>
-                <tr class="table-header">
-                    <th>Product Name</th>
-                    <th style="text-align: right; width: 100px;">Price</th>
-                    <th style="text-align: center; width: 80px;">Quantity</th>
-                    <th style="text-align: right; width: 120px;">Subtotal</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in orderitems %}
-                <tr>
-                    <td>{{ item.product.name }}</td>
-                    <td style="text-align: right;">₹{{ item.price }}</td>
-                    <td style="text-align: center;">{{ item.quantity }} Nos</td>
-                    <td style="text-align: right;">₹{{ item.quantity }}</td>
-                </tr>
-                {% endfor %}
-                <tr>
-                    <td colspan="3" class="total-row">Total Amount:</td>
-                    <td class="total-row">₹{{ order.total_amount }}</td>
-                </tr>
-            </tbody>
-        </table>
-        
-        <table class="auth-section">
-            <tr style="border: none;">
-                <td style="width: 50%; text-align: left; vertical-align: bottom;">
-                    <span class="line-draw"></span><br>
-                    <strong>Customer Signature</strong>
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th style="width: 8%;">S.No</th>
+                <th style="width: 47%;">Item Description</th>
+                <th style="width: 15%; text-align: right;">Price</th>
+                <th style="width: 12%; text-align: center;">Qty</th>
+                <th style="width: 18%; text-align: right;">Total Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in orderitems %}
+            <tr>
+                <td class="text-center">{{ forloop.counter }}</td>
+                <td><strong>{{ item.product.product_name }}</strong></td>
+                <td class="text-right">₹{{ item.product_price }}</td>
+                <td class="text-center">{{ item.quantity }}</td>
+                <td class="text-right">₹{{ item.amount }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="summary-container">
+        <table style="width: 100%;">
+            <tr>
+                <td class="qr-col">
+                    <div class="qr-box">
+                        <img class="qr-image" src="{{ qr_code_url }}" alt="Payment QR Code">
+                        <div class="qr-hint">Scan to Pay via GPay/PhonePe</div>
+                    </div>
                 </td>
-                <td style="width: 50%; text-align: right; vertical-align: bottom;">
-                    <p style="font-size: 11px; color: #6c757d; margin-bottom: 40px;">For KALAIARASI METAL STORE</p>
-                    <span class="line-draw"></span><br>
-                    <strong>Authorized Signatory / Seal</strong>
+                <td class="total-col">
+                    <table class="total-table">
+                        <tr>
+                            <td style="color: #666666;">Subtotal:</td>
+                            <td class="text-right">₹{{ order.total_amount }}</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #666666;">CGST (0%):</td>
+                            <td class="text-right">₹0.00</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #666666;">SGST (0%):</td>
+                            <td class="text-right">₹0.00</td>
+                        </tr>
+                        <tr class="grand-total-row">
+                            <td>Grand Total:</td>
+                            <td class="text-right">₹{{ order.total_amount }}</td>
+                        </tr>
+                    </table>
                 </td>
             </tr>
         </table>
-        
-        <p style="text-align: center; margin-top: 30px; font-size: 13px; font-weight: bold; color: #6c757d;">
-            * Shop Accounts & Audit Copy *
-        </p>
+    </div>
+
+    <div class="invoice-footer">
+        Thank you for shopping , Visit again.
+    </div>
+
+
+    <div class="page-break"></div>
+
+    <div class="header-container">
+        <table style="width: 100%;">
+            <tr>
+                <td>
+                    <div class="store-name">Kalaiarasi Metal Store</div>
+                    <div class="store-tagline">Premium Quality Steel & Modern Furniture</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="invoice-title-bar">
+        <table style="width: 100%;">
+            <tr>
+                <td><span class="invoice-title">TAX INVOICE</span></td>
+                <td style="text-align: right;"><span class="copy-indicator" style="background-color: #555555;">Duplicate Copy</span></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="info-table">
+        <table style="width: 100%;">
+            <tr>
+                <td class="info-col">
+                    <div class="section-label">Billed To</div>
+                    <div class="info-text">
+                        <strong>{{ order.first_name }} {{ order.last_name }}</strong><br>
+                        {{ order.address_line_1 }}<br>
+                        {% if order.address_line_2 %}{{ order.address_line_2 }}<br>{% endif %}
+                        {{ order.city }}, {{ order.state }} - {{ order.pin_code }}<br>
+                        Ph: {{ order.phone }}
+                    </div>
+                </td>
+                <td class="info-col">
+                    <div class="section-label">Invoice Details</div>
+                    <div class="info-text">
+                        <strong>Invoice No:</strong> #{{ order.order_number }}<br>
+                        <strong>Date:</strong> {{ order.created_at|date:"d-M-Y" }}<br>
+                        <strong>Payment Status:</strong> {{ order.payment.status|default:"Pending" }}<br>
+                        <strong>Payment Mode:</strong> UPI / QR Code
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th style="width: 8%;">S.No</th>
+                <th style="width: 47%;">Item Description</th>
+                <th style="width: 15%; text-align: right;">Price</th>
+                <th style="width: 12%; text-align: center;">Qty</th>
+                <th style="width: 18%; text-align: right;">Total Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in orderitems %}
+            <tr>
+                <td class="text-center">{{ forloop.counter }}</td>
+                <td><strong>{{ item.product.product_name }}</strong></td>
+                <td class="text-right">₹{{ item.product_price }}</td>
+                <td class="text-center">{{ item.quantity }}</td>
+                <td class="text-right">₹{{ item.amount }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="summary-container">
+        <table style="width: 100%;">
+            <tr>
+                <td class="qr-col">
+                    <div class="qr-box">
+                        <img class="qr-image" src="{{ qr_code_url }}" alt="Payment QR Code">
+                        <div class="qr-hint">Scan to Pay via GPay/PhonePe</div>
+                    </div>
+                </td>
+                <td class="total-col">
+                    <table class="total-table">
+                        <tr>
+                            <td style="color: #666666;">Subtotal:</td>
+                            <td class="text-right">₹{{ order.total_amount }}</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #666666;">CGST (0%):</td>
+                            <td class="text-right">₹0.00</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #666666;">SGST (0%):</td>
+                            <td class="text-right">₹0.00</td>
+                        </tr>
+                        <tr class="grand-total-row">
+                            <td>Grand Total:</td>
+                            <td class="text-right">₹{{ order.total_amount }}</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="invoice-footer">
+        * Office Records Copy *
     </div>
 
 </body>
