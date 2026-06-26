@@ -36,12 +36,10 @@ import base64
 @login_required(login_url="login")
 def download_invoice_pdf(request, order_no):
     # 🚀 'ORD4698511A' என்ற ஸ்ட்ரிங்கில் இருந்து வெறும் நம்பரான ஐடியை மட்டும் பிரிக்கிறோம் பாஸ்.
-    # ஒருவேளை வெர்சல் டேட்டாபேஸ்ல அந்த ஐடி இல்லைனா 404 எர்ரர் தராம, கஸ்டமரோட லேட்டஸ்ட் ஆர்டரை எடுத்து கிராஷ் ஆகாம தடுக்கும்!
     try:
         clean_id = order_no.replace("ORD", "").replace("A", "").strip()
         order = Order.objects.get(id=clean_id)
     except (Order.DoesNotExist, ValueError):
-        # சேஃப் ஃபால்பேக் லாஜிக் பாஸ்
         order = Order.objects.filter(user=request.user).last()
         if not order:
             order = Order.objects.last()
@@ -50,7 +48,7 @@ def download_invoice_pdf(request, order_no):
             return HttpResponse("பாஸ், டேட்டாபேஸ்ல இன்னும் ஒரு ஆர்டர் கூட இல்லை! முதல்ல வெப்சைட்ல ஒரு டெஸ்ட் ஆர்டர் போடுங்க தலைவா.")
 
     # 1. 🚀 [டாப்-லெஃப்ட் கியூஆர்]: டிஜிட்டல் வெரிஃபிகேஷன் லைவ் லிங்க்
-    live_domain = "https://buy-to-get.vercel.app"  # உங்க அசல் வெர்சல் லிங்க் பாஸ்!
+    live_domain = "https://buy-to-get.vercel.app"
     verification_url = f"{live_domain}/digital-verify/{order.id}/"
     
     top_qr = qrcode.QRCode(version=1, box_size=3, border=1)
@@ -65,7 +63,7 @@ def download_invoice_pdf(request, order_no):
     # 2. 💰 [பாட்டம்-லெஃப்ட் கியூஆர்]: COD கியூஆர் கோடு
     qr_code_base64_data = ""
     if str(order.order_status).lower() == 'pending' or str(order.payment_mode).upper() == 'COD':
-        your_upi_id = "kalaiarasi2128@oksbi"  # உங்க அசல் UPI ID பாஸ்!
+        your_upi_id = "kalaiarasi2128@oksbi"
         store_name = "KALAIARASI METAL STORE"
         upi_string = f"upi://pay?pa={your_upi_id}&pn={urllib.parse.quote(store_name)}&am={order.total_amount}&cu=INR"
         
@@ -78,15 +76,29 @@ def download_invoice_pdf(request, order_no):
         bottom_img.save(bottom_buffer, format="PNG")
         qr_code_base64_data = base64.b64encode(bottom_buffer.getvalue()).decode('utf-8')
 
-    # 3. 🎯 காண்டெக்ஸ்ட் மேப்பிங்
+    # 3. 🎯 [லோகோவை பேஸ்64 ஆக மாத்தும் மேஜிக் - பக்கா ஃபைல் நேம் பிக்ஸ் பாஸ்!]
+    logo_base64 = ""
+    try:
+        # லோகோ ஃபைல் பெயரை 'logojpg.jpeg' என்று துல்லியமாக மாற்றியுள்ளோம் பாஸ்!
+        logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logojpg.jpeg')
+        
+        if not os.path.exists(logo_path):
+            logo_path = os.path.join(settings.BASE_DIR, 'shop', 'static', 'images', 'logojpg.jpeg')
+
+        with open(logo_path, "rb") as image_file:
+            logo_base64 = base64.b64encode(image_file.read()).decode('utf-8')
+    except Exception as e:
+        pass
+
+    # 4. 🎯 காண்டெக்ஸ்ட் மேப்பிங்
     context = {
         'order': order,
-        'order_no': order_no,                  # 👈 அசல் ஆர்டர் நம்பரை அப்படியே இங்க பாஸ் பண்ணிட்டோம் பாஸ்!
+        'order_no': order_no,
         'invoice_url_qr': invoice_url_qr,       
         'qr_code_base64_data': qr_code_base64_data, 
+        'logo_base64': logo_base64, # 👈 இப்போ லோகோ டேட்டா எச்டிஎம்எல்க்கு கச்சிதமா போயிடும்!
     }
     
-    # பிடிஎஃப் ரெண்டரிங் (pisa.CreatePDF) லாஜிக்
     html_template = render(request, 'shop/invoice_pdf.html', context)
     html = html_template.content.decode('utf-8')
     response = HttpResponse(content_type='application/pdf')

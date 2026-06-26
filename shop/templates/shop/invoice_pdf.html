@@ -19,12 +19,12 @@
             margin-bottom: 25px;
         }
         .store-title {
-            font-size: 20pt; /* 🚀 ஒரே வரியில கச்சிதமா அடங்க 20pt ஆக்கியாச்சு பாஸ் */
+            font-size: 20pt; /* ஒரே வரியில் கச்சிதமாக அடங்க 20pt ஆக்கியாச்சு பாஸ் */
             font-weight: bold;
             color: #1b5e20;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            white-space: nowrap; /* 🚀 பேரை ரெண்டு வரியா உடைய விடாம லாக் பண்ணியாச்சு பாஸ்! */
+            white-space: nowrap; /* பேரை ரெண்டு வரியா உடைய விடாமல் லாக் பண்ணியாச்சு பாஸ்! */
         }
         .store-subtitle {
             font-size: 10pt;
@@ -87,29 +87,44 @@
 </head>
 <body>
 
-    <!-- 1. டாப் ஹெட்டர் செக்ஷன்: கடை பெயர் & டிஜிட்டல் வெரிஃபிகேஷன் QR -->
-    <table class="header-table">
+    <!-- 1. 🎯 டாப் ஹெட்டர் செக்ஷன்: கியூஆர் + கடை பெயர் + லோகோ -->
+    <table class="header-table" style="width: 100%; border-collapse: collapse;">
         <tr>
-            <!-- டாப்-இடது: டிஜிட்டல் வெரிஃபிகேஷன் கியூஆர் கோடு (ஸ்கேன் பண்ணா ப்ரூஃப் மட்டும் காட்டும் பாஸ்) -->
-            <td style="width: 25%; vertical-align: top; text-align: left;">
-                <div style="text-align: center; width: 90px;">
+            <!-- டாப்-இடது: டிஜிட்டல் வெரிஃபிகேஷன் கியூஆர் கோடு -->
+            <td style="width: 20%; vertical-align: top; text-align: left;">
+                <div style="text-align: center; width: 85px;">
                     {% if invoice_url_qr %}
-                        <img src="data:image/png;base64,{{ invoice_url_qr }}" alt="Digital Verification QR" style="width: 80px; height: 80px;">
+                        <img src="data:image/png;base64,{{ invoice_url_qr }}" alt="Digital Verification QR" style="width: 75px; height: 75px;">
                     {% else %}
-                        <div style="width: 80px; height: 80px; border: 1px dashed #ccc;"></div>
+                        <div style="width: 75px; height: 75px; border: 1px dashed #ccc;"></div>
                     {% endif %}
-                    <div style="font-size: 7.5pt; color: #555555; font-weight: bold; margin-top: 4px; text-transform: uppercase;">
+                    <div style="font-size: 7pt; color: #555555; font-weight: bold; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.3px;">
                         Digital Verification
                     </div>
                 </div>
             </td>
             
             <!-- டாப்-நடுவு: கடை விபரங்கள் -->
-            <td style="width: 75%; text-align: center; vertical-align: top; padding-right: 100px;">
+            <td style="width: 60%; text-align: center; vertical-align: middle; padding: 0 10px;">
                 <div class="store-title">KALAIARASI METAL STORE</div>
                 <div class="store-subtitle">Premium Quality Steel & Modern Furniture</div>
                 <div style="font-size: 9pt; color: #666666; margin-top: 3px;">Pincode: 631208</div>
             </td>
+
+            <!-- டாப்-வலது: கடையோட "BUY TO GET" லோகோ காட்டும் பகுதி பாஸ்! -->
+            <td style="width: 20%; vertical-align: top; text-align: right;">
+    <div style="width: 85px; display: inline-block; text-align: center;">
+        
+        <!-- 🚀 இதோ இதுதான் பாஸ் புரோபரான இமேஜ் டேக் மற்றும் யூஆர்எல் வடிவம் -->
+        {% if logo_base64 %}
+            <img src="data:image/jpeg;base64,{{ logo_base64 }}" alt="Store Logo" style="width: 75px; height: 75px; object-fit: contain;">
+        {% else %}
+            <!-- ஒருவேளை லோகோ டேட்டா வரலைனா பாக்ஸ் மட்டும் காலியா இருக்கும், எர்ரர் வராது பாஸ் -->
+            <div style="width: 75px; height: 75px;"></div>
+        {% endif %}
+        
+    </div>
+</td>
         </tr>
     </table>
 
@@ -151,7 +166,7 @@
                 <table style="width: 100%;">
                     <tr>
                         <td style="width: 40%; font-weight: bold;">Invoice No:</td>
-                        <td style="font-weight: bold; color: #1b5e20;">{{ order_no }}</td> <!-- 🚀 அசல் ஆர்டர் ஐடி கச்சிதமா காட்டும் பாஸ்! -->
+                        <td style="font-weight: bold; color: #1b5e20;">{{ order_no }}</td>
                     </tr>
                     <tr>
                         <td style="font-weight: bold;">Date:</td>

@@ -64,7 +64,7 @@
         </h5>
         <p class="small text-muted">பாஸ், நீங்க கஸ்டமர்கிட்ட வாங்குன புதிய சைன் மற்றும் சீல் இமேஜ்களை இங்க அப்லோடு பண்ணி எடிட் பண்ணிக்கலாம்:</p>
         
-        <form method="POST" action="{% url 'upload_verification_images' order.id %}" enctype="multipart/form-data">
+        <form method="POST" action="{% url 'digital_verification_view' order.id %}" enctype="multipart/form-data"></form>
             {% csrf_token %}
             <div class="row g-3">
                 <div class="col-md-4">
