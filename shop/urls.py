@@ -29,6 +29,7 @@ urlpatterns=[
     path('send-verification-whatsapp/', views.send_verification_whatsapp, name='send_verification_whatsapp'),
     path('verify-otp/', views.verify_otp, name='verify_otp'),
     path('check-verification-status/', views.check_verification_status, name='check_verification_status'),
+    path('download-invoice/<str:order_no>/', views.download_invoice_pdf, name='download_invoice'),
     path('orderdetails/<int:oid>/', views.orderdetails, name='orderdetails')
     
 ]

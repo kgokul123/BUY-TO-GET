@@ -30,6 +30,38 @@ from .models import (
 
 # === 1. OTP & WHATSAPP VERIFICATION ===
 
+@login_required(login_url="login")
+def download_invoice_pdf(request, order_no):
+    # 🎯 கஸ்டமரோட குறிப்பிட்ட ஆர்டர் மற்றும் அவங்க வாங்கின பொருட்களை டேட்டாபேஸ்ல இருந்து எடுக்கிறோம் பாஸ்!
+    try:
+        order = Order.objects.get(order_number=order_no, user=request.user)
+        orderitems = OrderItem.objects.filter(order=order)
+    except Order.DoesNotExist:
+        return HttpResponse("Order not found, boss!", status=404)
+    
+    context = {
+        'order': order,
+        'orderitems': orderitems,
+    }
+    
+    # 🧾 நாம் அடுத்து உருவாக்கப்போற invoice_pdf.html பில் டெம்ப்ளேட்டை லோடு பண்றோம் பாஸ்
+    template = get_template('shop/invoice_pdf.html')
+    html = template.render(context)
+    
+    # பிரவுசருக்கு இது ஒரு PDF ஃபைல்னு சொல்றோம்
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="Invoice_{order.order_number}.pdf"'
+    
+    # xhtml2pdf லைப்ரரி மூலமா HTML கோடை அப்படியே மாஸான PDF-ஆ மாத்துறோம் தலைவா!
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    
+    if pisa_status.err:
+        return HttpResponse('Error generating PDF invoice, boss!', status=500)
+        
+    return response
+
+
+
 OTP_STORE = {}
 
 @csrf_exempt
@@ -297,6 +329,9 @@ def checkout(request):
     }
     upi_url = "upi://pay?" + urllib.parse.urlencode(upi_payload)
 
+    # 🎯 [மரண மாஸ் செக் பாயிண்ட் பாஸ்]: கஸ்டமர் ஏற்கனவே ஏதாச்சும் ஒரு ஆர்டர் வெற்றிகரமா பண்ணியிருக்காங்களான்னு பார்க்கிறோம்!
+    already_verified = Order.objects.filter(user=request.user).exists()
+
     if request.method == "POST":
         payment_mode = request.POST.get("payment_mode")
         transaction_id = request.POST.get("transaction_id") or request.POST.get("payment_id")
@@ -314,7 +349,8 @@ def checkout(request):
                     "error": "Delivery Not Available",
                     "total_amount": total_amount,
                     "upi_url": upi_url,
-                    "cartitems": cartitems
+                    "cartitems": cartitems,
+                    "already_verified": already_verified  # எரர் வந்தாலும் இந்த ஸ்டேட்டஸ் வேணும் பாஸ்
                 },
             )
 
@@ -367,6 +403,7 @@ def checkout(request):
         "cartitems": cartitems,
         "total_amount": total_amount,
         "upi_url": upi_url,
+        "already_verified": already_verified, # 🎯 இங்கதான் நம்ம HTML-க்கு டேட்டாவை அனுப்புறோம் பாஸ்!
     }
     return render(request, "shop/checkout.html", context)
 

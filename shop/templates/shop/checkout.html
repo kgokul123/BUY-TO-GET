@@ -132,6 +132,7 @@ let isPincodeAvailable = false;
 let isDetailsConfirmed = false; 
 let countdownInterval; // ⏳ டைமர் இன்டெர்வல் வேரியபிள்
 
+
 let phoneInput;
 document.addEventListener("DOMContentLoaded", function() {
     const phoneInputField = document.querySelector("#phoneNumber");
@@ -145,6 +146,39 @@ document.addEventListener("DOMContentLoaded", function() {
     const upiRadio = document.getElementById("upi");
     const upiFields = document.getElementById("upi-fields");
     const disclaimerBox = document.getElementById("upi_disclaimer_box");
+
+    // 🎯 [மரண மாஸ் எர்ரர் ஃப்ரீ பிக்ஸ் பாஸ்]: சிங்கிள் கோட்ஸ் ஸ்ட்ரிங் ஃபார்மட்ல மாத்தியாச்சு!
+    // இப்போ உங்க விஎஸ் கோடு எடிட்டர்ல எந்த ஒரு சிகப்பு கோடும் காட்டாது, கிரிஸ்டல் க்ளியரா இருக்கும் பாஸ்!
+    const djangoVerifiedStatus = "{{ already_verified|yesno:'true,false' }}";
+    const alreadyVerified = (djangoVerifiedStatus === "true");
+
+    // 🎯 [பழைய கஸ்டமர் பைபாஸ் லாஜிக்]: கஸ்டமர் ஏற்கனவே வெரிஃபைடுனா ஓடிபியை ஸ்கிப் பண்றோம்!
+    if (alreadyVerified) {
+        isDetailsConfirmed = true; // ஓடிபி ஏற்கனவே வெரிஃபைடுனு செட் பண்றோம் பாஸ்!
+        
+        // 💬 ஸ்கிரீன்ல நேரடியா வெரிஃபைடு மெசேஜ் பாக்ஸை ஆன் பண்ணி டெக்ஸ்ட் காட்டுறோம்!
+        const statusBox = document.getElementById("verificationResult");
+        if (statusBox) {
+            statusBox.className = "alert alert-success fw-bold py-2 mb-2";
+            statusBox.innerHTML = "✓ Welcome back, boss! Your details are verified via past orders.";
+            
+            const statusSection = document.getElementById("verificationStatusSection");
+            if (statusSection) statusSection.style.display = "block";
+        }
+        
+        // 🔓 அட்ரஸ், போன் நம்பரை எடிட் பண்ணிக்க ஏதுவாக ஃபீல்டுகளை எனேபிள் பண்றோம்!
+        if (document.getElementById("name")) document.getElementById("name").disabled = false;
+        if (document.getElementById("phoneNumber")) document.getElementById("phoneNumber").disabled = false;
+        if (document.getElementById("address")) document.getElementById("address").disabled = false;
+        
+        // இவங்களுக்கு 'Verify Details' பட்டன் தேவையில்லை என்பதால் டிஸேபிள் பண்றோம்!
+        if (document.getElementById("btnVerifyDetails")) {
+            document.getElementById("btnVerifyDetails").disabled = true;
+        }
+        
+        // 🚀 பிளேஸ் ஆர்டர் பட்டன் வேலிடிட்டியை செக் பண்ணி எனேபிள் பண்றோம் பாஸ்
+        checkFormValidity();
+    }
 
     // 🎯 [பக்கா ரேடியோ பட்டன் லாஜிக் பாஸ்]: UPI-க்கு மட்டும் டிஸ்கிளைமர் காட்டும், COD-க்கு காட்டாது!
     function togglePaymentFields() {
@@ -202,6 +236,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 });
+
 
 function showConfirmPopup() {
     const name = document.getElementById("name").value.trim();

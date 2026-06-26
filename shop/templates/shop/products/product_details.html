@@ -8,7 +8,7 @@
 {% block content %}
 
 <!-- International Telephone Input CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
+<link class="image_b9dd60.jpg" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
 
 <section class="bg-light py-4 my-5" style="min-height:600px;">
     <div class="container">
@@ -89,10 +89,11 @@
                 </p>
                 {% endif %}
 
-                <!-- 📝 1. Product Description: ப்ராடக்ட்டின் பொதுவான விளக்கம் இங்க பத்தியா காட்டும் பாஸ் -->
+                <!-- 📝 1. Product Description Box -->
                 <div class="product-description-box mb-4">
                     <h5 class="text-dark fw-bold mb-2">Product Description</h5>
                     <p class="text-secondary" style="line-height: 1.6; font-size: 15px;">
+                        <!-- 🎯 இங்க இப்போ பழையபடி வெறும் பொதுவான விளக்கம் மட்டும் பத்தியா நீட்டா காட்டும் பாஸ் -->
                         {{ products.description|linebreaksbr }}
                     </p>
                 </div>
@@ -169,7 +170,7 @@
             </div>
         </div>
 
-        <!-- 🎯 2. About this item: ரிவியூஸ் செக்ஷனுக்கு மேலேயே புல்லட் பாயிண்ட்ஸ் வரும்படி வச்சாச்சு பாஸ்! -->
+        <!-- 🎯 2. About this item: புது மைக்ரேஷன் ஃபீல்டான about_this_item-ஐ இங்க புல்லட் பாயிண்ட்டா பிரிக்கிறோம் பாஸ்! -->
         <div class="row mt-4">
             <div class="col-12">
                 <div class="product-about-section p-4 rounded shadow-sm mb-4" style="background-color: #212529; color: #ffffff;">
@@ -178,8 +179,8 @@
                     </h4>
                     
                     <ul class="list-unstyled mb-0" style="padding-left: 0; line-height: 1.8;">
-                        {% if products.description %}
-                            {% for line in products.description.splitlines %}
+                        {% if products.about_this_item %}
+                            {% for line in products.about_this_item.splitlines %}
                                 {% if line.strip %}
                                     <li class="d-flex align-items-start mb-2" style="font-size: 14px; color: #e0e0e0;">
                                         <span class="text-warning me-2" style="font-size: 10px; margin-top: 5px;">●</span>
@@ -272,7 +273,7 @@
     </div>
 </section>
 
-<!-- 🌐 Flipkart Style Full-Screen Image Viewer Overlay -->
+<!-- Flipkart Style Full-Screen Image Viewer Overlay -->
 <div id="fullImageModal" class="full-img-overlay" onclick="closeFullImageView()">
     <span class="close-full-img">&times;</span>
     <div class="full-img-container" onclick="event.stopPropagation()">
