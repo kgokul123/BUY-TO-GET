@@ -79,10 +79,9 @@ def download_invoice_pdf(request, order_no):
     # 3. 🎯 [லோகோவை பேஸ்64 ஆக மாத்தும் மேஜிக் - பக்கா ஃபைல் நேம் பிக்ஸ் பாஸ்!]
     logo_base64 = ""
     try:
-        # லோகோ ஃபைல் பெயரை 'logojpg.jpeg' என்று துல்லியமாக மாற்றியுள்ளோம் பாஸ்!
-       logo_path = os.path.join(settings.BASE_DIR, 'shop/static/images/logojpg.jpeg')
+
         if not os.path.exists(logo_path):
-            logo_path = os.path.join(settings.BASE_DIR, 'shop', 'static', 'images', 'logojpg.jpeg')
+            logo_path = os.path.join(settings.BASE_DIR, 'shop', 'static', 'images', 'logo.jpg.jpeg')
 
         with open(logo_path, "rb") as image_file:
             logo_base64 = base64.b64encode(image_file.read()).decode('utf-8')
