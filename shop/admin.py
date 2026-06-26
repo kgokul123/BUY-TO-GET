@@ -20,7 +20,8 @@ class CategoryAdmin(admin.ModelAdmin):
 # ⭐️ 3. Product செக்ஷன் (வித் இமேஜ் இன்லைன்)
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
-    extra = 5
+    extra = 10
+    fields = ['image', 'video']
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):

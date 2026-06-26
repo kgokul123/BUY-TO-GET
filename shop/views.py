@@ -80,8 +80,7 @@ def download_invoice_pdf(request, order_no):
     logo_base64 = ""
     try:
         # லோகோ ஃபைல் பெயரை 'logojpg.jpeg' என்று துல்லியமாக மாற்றியுள்ளோம் பாஸ்!
-        logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logojpg.jpeg')
-        
+       logo_path = os.path.join(settings.BASE_DIR, 'shop/static/images/logojpg.jpeg')
         if not os.path.exists(logo_path):
             logo_path = os.path.join(settings.BASE_DIR, 'shop', 'static', 'images', 'logojpg.jpeg')
 
@@ -170,45 +169,30 @@ def your_invoice_pdf_view(request, order_id):
 # === 1. OTP & WHATSAPP VERIFICATION ===
 
 def digital_verification_view(request, order_id):
-    # 1. 🚀 [டேட்டாபேஸ் செக்யூரிட்டி செக்]
-    # ஒருவேளை வெர்சல் லைவ் டேட்டாபேஸ்ல அந்த குறிப்பிட்ட ஐடி இல்லைனா கூட, 404 எர்ரர் தராம சேஃபா ஹேண்டில் பண்ணும்!
     try:
         order = Order.objects.get(id=order_id)
     except (Order.DoesNotExist, ValueError):
-        # சேஃப் ஃபால்பேக்: ஐடி இல்லைனா சிஸ்டம்ல லேட்டஸ்டா வெரிஃபைட் ஆன ஏதாச்சும் ஒரு ஆர்டரை எடுக்கும் பாஸ்
         order = Order.objects.filter(is_digitally_verified=True).last()
         if not order:
             order = Order.objects.last()
 
     if not order:
-        return HttpResponse("பாஸ், வெப்சைட்ல இன்னும் ஒரு ஆர்டர் கூட இல்லை தலைவா! முதல்ல ஒரு டெஸ்ட் ஆர்டர் போடுங்க.")
+        return HttpResponse("பாஸ், வெப்சைட்ல இன்னும் ஆர்டர்கள் எதுவும் இல்லை!")
 
-    # 2. 🔐 [அட்மின் இமேஜ் அப்லோடு / எடிட் லாஜிக்]
-    # அட்மினான நீங்க லாக்-இன் செஞ்சு ஃபார்ம் சப்மிட் பண்ணும்போது இமேஜ்களை இங்க தான் வாங்குறோம் பாஸ்
+    # 🔐 [ஒரே ஒரு முழு பில் போட்டோவை மட்டும் வாங்கி சேவ் செய்யும் லாஜிக் பாஸ்]
     if request.method == "POST" and request.FILES:
         if request.user.is_authenticated and request.user.is_staff:
-            # எச்டிஎம்எல் ஃபார்ம்ல இருந்து வர்ற சைன் மற்றும் சீல் இமேஜ்கள்
-            customer_sig = request.FILES.get('customer_sig')
-            admin_sig = request.FILES.get('admin_sig')
-            store_seal = request.FILES.get('store_seal')
+            invoice_photo = request.FILES.get('signed_invoice')
             
-            # ஒருவேளை புது இமேஜ் அப்லோடு பண்ணுனா மட்டும் அப்டேட் ஆகும் பாஸ், இல்லைனா பழைய இமேஜ் அப்படியே இருக்கும்
-            if customer_sig:
-                order.customer_signature = customer_sig
-            if admin_sig:
-                order.admin_signature = admin_sig
-            if store_seal:
-                order.store_seal = store_seal
-                
-            order.is_digitally_verified = True
-            order.save()
+            if invoice_photo:
+                order.signed_invoice_image = invoice_photo
+                order.is_digitally_verified = True
+                order.save()
             
-            # இமேஜ் சேவ் ஆனதும் அதே பேஜுக்கு ரீஃப்ரெஷ் ஆகிடும் பாஸ்
             return redirect('digital_verification_view', order_id=order.id)
         else:
-            return HttpResponse("YOUR ARE NOT ADMIN,SO NO PERMIT TO EDIT IN YTHE PAGE!")
+            return HttpResponse("பாஸ், நீங்க அட்மின் இல்லை!")
 
-    # 3. 🎯 காண்டெக்ஸ்ட் மேப்பிங் மற்றும் எச்டிஎம்எல் ரெண்டரிங்
     context = {
         'order': order,
     }

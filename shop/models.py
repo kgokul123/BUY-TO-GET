@@ -57,6 +57,7 @@ class Product(models.Model):
     weight = models.CharField(max_length=50, blank=True, null=True)
     delivery_charge = models.IntegerField(default=0, help_text="ENTER YOUR DELIVERY CHARGES AMOUNT (0 is Free Delivery)")
     about_this_item = models.TextField(max_length=2000, null=True, blank=True, help_text=" WRITE THE POINTS TAP ENTER.")
+    video = models.FileField(upload_to='product_videos/', null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -121,6 +122,9 @@ class Order(models.Model):
     admin_signature = models.ImageField(upload_to='signatures/admin/', null=True, blank=True)
     store_seal = models.ImageField(upload_to='seals/', null=True, blank=True)
     is_digitally_verified = models.BooleanField(default=False)
+    signed_invoice_image = models.ImageField(upload_to='signed_invoices/', null=True, blank=True)
+    is_digitally_verified = models.BooleanField(default=False)
+
     def save(self, *args, **kwargs):
         if not self.order_number:
             self.order_number = "ORD" + str(uuid.uuid4().hex[:10]).upper()
