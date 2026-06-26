@@ -19,11 +19,12 @@
             margin-bottom: 25px;
         }
         .store-title {
-            font-size: 24pt;
+            font-size: 20pt; /* 🚀 ஒரே வரியில கச்சிதமா அடங்க 20pt ஆக்கியாச்சு பாஸ் */
             font-weight: bold;
             color: #1b5e20;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
+            white-space: nowrap; /* 🚀 பேரை ரெண்டு வரியா உடைய விடாம லாக் பண்ணியாச்சு பாஸ்! */
         }
         .store-subtitle {
             font-size: 10pt;
@@ -89,7 +90,7 @@
     <!-- 1. டாப் ஹெட்டர் செக்ஷன்: கடை பெயர் & டிஜிட்டல் வெரிஃபிகேஷன் QR -->
     <table class="header-table">
         <tr>
-            <!-- டாப்-இடது: டிஜிட்டல் வெரிஃபிகேஷன் கியூஆர் கோடு (யார் ஸ்கேன் பண்ணாலும் ப்ரூஃப் மட்டும் காட்டும் பாஸ்) -->
+            <!-- டாப்-இடது: டிஜிட்டல் வெரிஃபிகேஷன் கியூஆர் கோடு (ஸ்கேன் பண்ணா ப்ரூஃப் மட்டும் காட்டும் பாஸ்) -->
             <td style="width: 25%; vertical-align: top; text-align: left;">
                 <div style="text-align: center; width: 90px;">
                     {% if invoice_url_qr %}
@@ -122,27 +123,48 @@
         </tr>
     </table>
 
-    <!-- 3. பில் மற்றும் கஸ்டமர் விபரங்கள் -->
+    <!-- 3. பில் மற்றும் கஸ்டமர் விபரங்கள் (பக்கா அலைன்மென்ட் பிக்ஸ் பாஸ்) -->
     <table class="details-table">
         <tr>
-            <!-- Billed To -->
-            <td class="details-box" style="padding-right: 20px;">
+            <!-- Billed To செக்ஷன் -->
+            <td class="details-box" style="padding-right: 20px; width: 50%;">
                 <div class="fw-bold" style="color: #555555; margin-bottom: 5px; border-bottom: 1px solid #ddd; padding-bottom: 3px;">Billed To</div>
                 <table style="width: 100%;">
-                    <tr><td style="width: 25%;" class="fw-bold">Name:</td><td>{{ order.user.username }}</td></tr>
-                    <tr><td class="fw-bold" style="vertical-align: top;">Address:</td><td>370 MEL NEDUNGAL METTU STREET - 631208</td></tr>
-                    <tr><td class="fw-bold">Ph:</td><td>06380963615</td></tr>
+                    <tr>
+                        <td style="width: 25%; font-weight: bold;">Name:</td>
+                        <td>{{ order.user.username }}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold; vertical-align: top;">Address:</td>
+                        <td>370 MEL NEDUNGAL METTU STREET - 631208</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold;">Ph:</td>
+                        <td>06380963615</td>
+                    </tr>
                 </table>
             </td>
             
-            <!-- Invoice Details -->
-            <td class="details-box" style="padding-left: 20px;">
+            <!-- Invoice Details செக்ஷன் -->
+            <td class="details-box" style="padding-left: 20px; width: 50%;">
                 <div class="fw-bold" style="color: #555555; margin-bottom: 5px; border-bottom: 1px solid #ddd; padding-bottom: 3px;">Invoice Details</div>
                 <table style="width: 100%;">
-                    <tr><td style="width: 40%;" class="fw-bold">Invoice No:</td><td>#ORD{{ order.id }}A</td></tr>
-                    <tr><td class="fw-bold">Date:</td><td>26-Jun-2026</td></tr>
-                    <tr><td class="fw-bold">Payment Status:</td><td class="fw-bold" style="color: #d32f2f;">{{ order.order_status|upper }}</td></tr>
-                    <tr><td class="fw-bold">Payment Mode:</td><td>{{ order.payment_mode|upper }}</td></tr>
+                    <tr>
+                        <td style="width: 40%; font-weight: bold;">Invoice No:</td>
+                        <td style="font-weight: bold; color: #1b5e20;">{{ order_no }}</td> <!-- 🚀 அசல் ஆர்டர் ஐடி கச்சிதமா காட்டும் பாஸ்! -->
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold;">Date:</td>
+                        <td>26-Jun-2026</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold;">Payment Status:</td>
+                        <td style="font-weight: bold; color: #d32f2f;">{{ order.order_status|upper }}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold;">Payment Mode:</td>
+                        <td>{{ order.payment_mode|upper }}</td>
+                    </tr>
                 </table>
             </td>
         </tr>
@@ -170,11 +192,11 @@
         </tbody>
     </table>
 
-    <!-- 5. 🎯 [பக்கா எர்ரர்-ஃப்ரீ சம்மரி கியூஆர் டேபிள்] - 1 rows x 0 cols எர்ரரை இது அடியோடு தீர்க்கும் பாஸ் -->
+    <!-- 5. பாட்டம் சம்மரி கியூஆர் மற்றும் பில் டோட்டல் டேபிள் -->
     <div style="margin-top: 15px; border-top: 1px solid #dddddd; padding-top: 15px;">
         <table style="width: 100%;">
             <tr>
-                <!-- இடது பக்கம்: கண்டிஷனல் கியூஆர் கோடு லாஜிக் -->
+                <!-- இடது பக்கம்: பாட்டம் UPI கியூஆர் கோடு லாஜிக் -->
                 <td style="width: 50%; vertical-align: middle; text-align: left;">
                     {% if order.order_status == 'pending' or order.payment_mode == 'COD' %}
                         <div style="width: 130px; text-align: center;">
@@ -186,14 +208,13 @@
                             {% endif %}
                         </div>
                     {% else %}
-                        <!-- ஆன்லைன்ல பணம் செலுத்தியிருந்தா இந்த சீல் விழும் பாஸ் -->
                         <div style="border: 3px solid #2e7d32; color: #2e7d32; display: inline-block; padding: 10px 20px; font-size: 13pt; font-weight: bold; border-radius: 4px; text-transform: uppercase;">
                             🎯 PAYMENT RECEIVED ✔
                         </div>
                     {% endif %}
                 </td>
 
-                <!-- வலது பக்கம்: பில் டோட்டல் கணக்குகள் -->
+                <!-- வலது பக்கம்: பில் தொகை விபரங்கள் -->
                 <td style="width: 50%; vertical-align: top;">
                     <table style="width: 100%;">
                         <tr>

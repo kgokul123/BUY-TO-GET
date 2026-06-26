@@ -33,6 +33,70 @@ import qrcode
 import io
 import base64
 
+@login_required(login_url="login")
+def download_invoice_pdf(request, order_no):
+    # 🚀 'ORD4698511A' என்ற ஸ்ட்ரிங்கில் இருந்து வெறும் நம்பரான ஐடியை மட்டும் பிரிக்கிறோம் பாஸ்.
+    # ஒருவேளை வெர்சல் டேட்டாபேஸ்ல அந்த ஐடி இல்லைனா 404 எர்ரர் தராம, கஸ்டமரோட லேட்டஸ்ட் ஆர்டரை எடுத்து கிராஷ் ஆகாம தடுக்கும்!
+    try:
+        clean_id = order_no.replace("ORD", "").replace("A", "").strip()
+        order = Order.objects.get(id=clean_id)
+    except (Order.DoesNotExist, ValueError):
+        # சேஃப் ஃபால்பேக் லாஜிக் பாஸ்
+        order = Order.objects.filter(user=request.user).last()
+        if not order:
+            order = Order.objects.last()
+            
+        if not order:
+            return HttpResponse("பாஸ், டேட்டாபேஸ்ல இன்னும் ஒரு ஆர்டர் கூட இல்லை! முதல்ல வெப்சைட்ல ஒரு டெஸ்ட் ஆர்டர் போடுங்க தலைவா.")
+
+    # 1. 🚀 [டாப்-லெஃப்ட் கியூஆர்]: டிஜிட்டல் வெரிஃபிகேஷன் லைவ் லிங்க்
+    live_domain = "https://buy-to-get.vercel.app"  # உங்க அசல் வெர்சல் லிங்க் பாஸ்!
+    verification_url = f"{live_domain}/digital-verify/{order.id}/"
+    
+    top_qr = qrcode.QRCode(version=1, box_size=3, border=1)
+    top_qr.add_data(verification_url)
+    top_qr.make(fit=True)
+    
+    top_img = top_qr.make_image(fill_color="black", back_color="white")
+    top_buffer = io.BytesIO()
+    top_img.save(top_buffer, format="PNG")
+    invoice_url_qr = base64.b64encode(top_buffer.getvalue()).decode('utf-8')
+    
+    # 2. 💰 [பாட்டம்-லெஃப்ட் கியூஆர்]: COD கியூஆர் கோடு
+    qr_code_base64_data = ""
+    if str(order.order_status).lower() == 'pending' or str(order.payment_mode).upper() == 'COD':
+        your_upi_id = "kalaiarasi2128@oksbi"  # உங்க அசல் UPI ID பாஸ்!
+        store_name = "KALAIARASI METAL STORE"
+        upi_string = f"upi://pay?pa={your_upi_id}&pn={urllib.parse.quote(store_name)}&am={order.total_amount}&cu=INR"
+        
+        bottom_qr = qrcode.QRCode(version=1, box_size=4, border=1)
+        bottom_qr.add_data(upi_string)
+        bottom_qr.make(fit=True)
+        
+        bottom_img = bottom_qr.make_image(fill_color="black", back_color="white")
+        bottom_buffer = io.BytesIO()
+        bottom_img.save(bottom_buffer, format="PNG")
+        qr_code_base64_data = base64.b64encode(bottom_buffer.getvalue()).decode('utf-8')
+
+    # 3. 🎯 காண்டெக்ஸ்ட் மேப்பிங்
+    context = {
+        'order': order,
+        'order_no': order_no,                  # 👈 அசல் ஆர்டர் நம்பரை அப்படியே இங்க பாஸ் பண்ணிட்டோம் பாஸ்!
+        'invoice_url_qr': invoice_url_qr,       
+        'qr_code_base64_data': qr_code_base64_data, 
+    }
+    
+    # பிடிஎஃப் ரெண்டரிங் (pisa.CreatePDF) லாஜிக்
+    html_template = render(request, 'shop/invoice_pdf.html', context)
+    html = html_template.content.decode('utf-8')
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="invoice_{order_no}.pdf"'
+    
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    if pisa_status.err:
+        return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
+
 
 def upload_verification_images(request, order_id):
     order = Order.objects.get(id=order_id)
@@ -93,70 +157,50 @@ def your_invoice_pdf_view(request, order_id):
 
 # === 1. OTP & WHATSAPP VERIFICATION ===
 
-@login_required(login_url="login")
-def download_invoice_pdf(request, order_no):
-    # 🚀 [மரண மாஸ் செக்யூரிட்டி பிக்ஸ் பாஸ்]
-    # 'ORD4698511A' என்ற ஸ்ட்ரிங்கில் இருந்து வெறும் நம்பரான ஐடியை மட்டும் பிரிக்கிறோம்.
-    # ஒருவேளை வெர்சல் டேட்டாபேஸ்ல அந்த ஐடி இல்லைனா 404 எர்ரர் தராம, கஸ்டமரோட லேட்டஸ்ட் ஆர்டரை எடுத்து கிராஷ் ஆகாம தடுக்கும்!
+def digital_verification_view(request, order_id):
+    # 1. 🚀 [டேட்டாபேஸ் செக்யூரிட்டி செக்]
+    # ஒருவேளை வெர்சல் லைவ் டேட்டாபேஸ்ல அந்த குறிப்பிட்ட ஐடி இல்லைனா கூட, 404 எர்ரர் தராம சேஃபா ஹேண்டில் பண்ணும்!
     try:
-        clean_id = order_no.replace("ORD", "").replace("A", "").strip()
-        order = Order.objects.get(id=clean_id)
+        order = Order.objects.get(id=order_id)
     except (Order.DoesNotExist, ValueError):
-        # சேஃப் ஃபால்பேக்: லாக்-இன் செஞ்சிருக்க இந்த யூசரோட லேட்டஸ்ட் ஆர்டரை எடுக்குறோம் பாஸ்
-        order = Order.objects.filter(user=request.user).last()
+        # சேஃப் ஃபால்பேக்: ஐடி இல்லைனா சிஸ்டம்ல லேட்டஸ்டா வெரிஃபைட் ஆன ஏதாச்சும் ஒரு ஆர்டரை எடுக்கும் பாஸ்
+        order = Order.objects.filter(is_digitally_verified=True).last()
         if not order:
-            # ஒருவேளை அந்த யூசருக்கு ஆர்டரே இல்லைனா, டேட்டாபேஸ்ல இருக்குற பொதுவான கடைசி ஆர்டர்
             order = Order.objects.last()
+
+    if not order:
+        return HttpResponse("பாஸ், வெப்சைட்ல இன்னும் ஒரு ஆர்டர் கூட இல்லை தலைவா! முதல்ல ஒரு டெஸ்ட் ஆர்டர் போடுங்க.")
+
+    # 2. 🔐 [அட்மின் இமேஜ் அப்லோடு / எடிட் லாஜிக்]
+    # அட்மினான நீங்க லாக்-இன் செஞ்சு ஃபார்ம் சப்மிட் பண்ணும்போது இமேஜ்களை இங்க தான் வாங்குறோம் பாஸ்
+    if request.method == "POST" and request.FILES:
+        if request.user.is_authenticated and request.user.is_staff:
+            # எச்டிஎம்எல் ஃபார்ம்ல இருந்து வர்ற சைன் மற்றும் சீல் இமேஜ்கள்
+            customer_sig = request.FILES.get('customer_sig')
+            admin_sig = request.FILES.get('admin_sig')
+            store_seal = request.FILES.get('store_seal')
             
-        if not order:
-            return HttpResponse("பாஸ், டேட்டாபேஸ்ல இன்னும் ஒரு ஆர்டர் கூட இல்லை! முதல்ல வெப்சைட்ல ஒரு டெஸ்ட் ஆர்டர் போடுங்க தலைவா.")
+            # ஒருவேளை புது இமேஜ் அப்லோடு பண்ணுனா மட்டும் அப்டேட் ஆகும் பாஸ், இல்லைனா பழைய இமேஜ் அப்படியே இருக்கும்
+            if customer_sig:
+                order.customer_signature = customer_sig
+            if admin_sig:
+                order.admin_signature = admin_sig
+            if store_seal:
+                order.store_seal = store_seal
+                
+            order.is_digitally_verified = True
+            order.save()
+            
+            # இமேஜ் சேவ் ஆனதும் அதே பேஜுக்கு ரீஃப்ரெஷ் ஆகிடும் பாஸ்
+            return redirect('digital_verification_view', order_id=order.id)
+        else:
+            return HttpResponse("YOUR ARE NOT ADMIN,SO NO PERMIT TO EDIT IN YTHE PAGE!")
 
-    # 1. 🚀 [டாப்-லெஃப்ட் கியூஆர்]: டிஜிட்டல் வெரிஃபிகேஷன் லைவ் லிங்க்
-    live_domain = "https://buy-to-get.vercel.app"  # உங்க அசல் வெர்சல் லிங்க் பாஸ்!
-    verification_url = f"{live_domain}/digital-verify/{order.id}/"
-    
-    top_qr = qrcode.QRCode(version=1, box_size=3, border=1)
-    top_qr.add_data(verification_url)
-    top_qr.make(fit=True)
-    
-    top_img = top_qr.make_image(fill_color="black", back_color="white")
-    top_buffer = io.BytesIO()
-    top_img.save(top_buffer, format="PNG")
-    invoice_url_qr = base64.b64encode(top_buffer.getvalue()).decode('utf-8')
-    
-    # 2. 💰 [பாட்டம்-லெஃப்ட் கியூஆர்]: COD கியூஆர் கோடு
-    qr_code_base64_data = ""
-    if str(order.order_status).lower() == 'pending' or str(order.payment_mode).upper() == 'COD':
-        your_upi_id = "kalaiarasi2128@oksbi"  # உங்க அசல் UPI ID பாஸ்!
-        store_name = "KALAIARASI METAL STORE"
-        upi_string = f"upi://pay?pa={your_upi_id}&pn={urllib.parse.quote(store_name)}&am={order.total_amount}&cu=INR"
-        
-        bottom_qr = qrcode.QRCode(version=1, box_size=4, border=1)
-        bottom_qr.add_data(upi_string)
-        bottom_qr.make(fit=True)
-        
-        bottom_img = bottom_qr.make_image(fill_color="black", back_color="white")
-        bottom_buffer = io.BytesIO()
-        bottom_img.save(bottom_buffer, format="PNG")
-        qr_code_base64_data = base64.b64encode(bottom_buffer.getvalue()).decode('utf-8')
-
-    # 3. 🎯 காண்டெக்ஸ்ட்ல நம்ம எச்டிஎம்எல்-ல் இருக்குற அதே வேரியபிள் பெயர்களை கச்சிதமா மேப் பண்றோம் பாஸ்!
+    # 3. 🎯 காண்டெக்ஸ்ட் மேப்பிங் மற்றும் எச்டிஎம்எல் ரெண்டரிங்
     context = {
         'order': order,
-        'invoice_url_qr': invoice_url_qr,       
-        'qr_code_base64_data': qr_code_base64_data, 
     }
-    
-    # பிடிஎஃப் ரெண்டரிங் (pisa.CreatePDF) லாஜிக்
-    html_template = render(request, 'shop/invoice_pdf.html', context)
-    html = html_template.content.decode('utf-8')
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="invoice_{order_no}.pdf"'
-    
-    pisa_status = pisa.CreatePDF(html, dest=response)
-    if pisa_status.err:
-        return HttpResponse('We had some errors <pre>' + html + '</pre>')
-    return response
+    return render(request, 'shop/digital_verification.html', context)
 
 
 OTP_STORE = {}
