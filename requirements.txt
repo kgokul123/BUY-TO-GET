@@ -34,3 +34,4 @@ Werkzeug==3.1.8
 wikipedia==1.4.0
 whitenoise==6.6.0
 xhtml2pdf
+qrcode==7.4.2
