@@ -15,6 +15,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.core.management import call_command
+from django.template.loader import get_template
 
 from .form import CustomUserForm
 from .models import (
