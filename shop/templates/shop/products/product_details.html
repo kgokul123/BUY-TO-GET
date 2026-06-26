@@ -40,31 +40,9 @@
             <div class="col-md-5 my-3 pic-box">
 
                 <div style="position: relative; display: inline-block; width: 100%;">
-                    
                     {% if products.trending %}
-                    <div class="hot" style="z-index: 5;">Hot</div>
+                    <div class="hot">Hot</div>
                     {% endif %}
-
-                    <button onclick="shareProduct()" title="Share Product" 
-                            style="position: absolute; 
-                                   top: 15px; 
-                                   right: 15px; 
-                                   z-index: 10; 
-                                   background-color: rgba(255, 255, 255, 0.9); 
-                                   border: 1px solid #dddddd; 
-                                   border-radius: 50%; 
-                                   width: 40px; 
-                                   height: 40px; 
-                                   display: flex; 
-                                   align-items: center; 
-                                   justify-content: center; 
-                                   box-shadow: 0px 4px 8px rgba(0,0,0,0.12); 
-                                   cursor: pointer; 
-                                   transition: transform 0.2s, background-color 0.2s;"
-                            onmouseover="this.style.transform='scale(1.1)'; this.style.backgroundColor='#ffffff';"
-                            onmouseout="this.style.transform='scale(1)'; this.style.backgroundColor='rgba(255, 255, 255, 0.9)';">
-                        <i class="fas fa-share-alt" style="color: #333333; font-size: 15px;"></i>
-                    </button>
 
                     <img id="main-image"
                          src="{{ products.product_image.url }}"
@@ -96,9 +74,17 @@
 
             <div class="col-md-7 my-3">
 
-                <h3 class="text-success">
-                    {{ products|upper }}
-                </h3>
+                <div class="d-flex justify-content-between align-items-center flex-wrap mb-2">
+                    <h3 class="text-success m-0" style="font-weight: 700; letter-spacing: 0.5px;">
+                        {{ products|upper }}
+                    </h3>
+                    
+                    <button onclick="shareProduct()" class="btn btn-light shadow-sm d-flex align-items-center justify-content-center" 
+                            title="Share Product" 
+                            style="border: 1px solid #ced4da; border-radius: 50%; width: 42px; height: 42px; transition: all 0.2s;">
+                        <i class="fas fa-share-nodes" style="color: #495057; font-size: 16px;"></i>
+                    </button>
+                </div>
 
                 <p class="text-muted">
                     {{ products.vendor }}
@@ -118,21 +104,16 @@
                 </div>
 
                 <div class="price-section my-3">
-                    <h6 class="text-danger mb-1" style="font-size: 15px;">
+                    <h6 class="text-muted mb-1" style="font-size: 14px;">
                         M.R.P.: <s>₹ <span id="orig_price">{{ products.original_price }}</span></s>
                     </h6>
-                    <h4 class="text-primary fw-bold mb-2">
-                        Offer Price: ₹ <span id="sell_price">{{ products.selling_price }}</span>
-                    </h4>
-                    
-                    <div id="discount_badge_container" class="mt-2" style="display: none;">
-                        <span class="badge bg-success px-2 py-1" style="font-size: 14px; font-weight: 600;">
-                            <i class="fas fa-tag me-1"></i> Save <span id="discount_percent">0</span>% OFF
+                    <h3 class="fw-bold mb-2 d-flex align-items-center flex-wrap" style="gap: 10px;">
+                        <span class="text-primary">₹ <span id="sell_price">{{ products.selling_price }}</span></span>
+                        
+                        <span id="discount_percent_badge" class="text-danger fw-bold" style="font-size: 22px; display: none;">
+                            -<span id="discount_percent">0</span>%
                         </span>
-                        <span class="text-success small fw-bold ms-1">
-                            (You save ₹ <span id="saved_amount">0</span>)
-                        </span>
-                    </div>
+                    </h3>
                 </div>
 
                 <hr>
@@ -295,6 +276,56 @@
             </div>
         </div>
 
+        <div class="row mt-5 mb-4">
+            <div class="col-12">
+                <h4 class="text-dark fw-bold mb-3">Explore More Trending Items</h4>
+                <hr style="border-color:#b8bfc2;">
+            </div>
+        </div>
+
+        <div class="row">
+            {% for item in trending_products %}
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="card h-100 shadow-sm border-0" style="border-radius: 8px; transition: transform 0.2s, box-shadow 0.2s;" 
+                     onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.1)';" 
+                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 5px rgba(0,0,0,0.05)';">
+                    
+                    <a href="{% url 'product_details' item.category.slug item.slug %}" class="text-decoration-none">
+                        <div style="height: 200px; display: flex; align-items: center; justify-content: center; background: #ffffff; padding: 15px; border-top-left-radius: 8px; border-top-right-radius: 8px;">
+                            <img src="{{ item.product_image.url }}" alt="{{ item.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                        </div>
+                    </a>
+
+                    <div class="card-body d-flex flex-column bg-white" style="border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
+                        <span class="text-muted small uppercase" style="font-size: 11px;">{{ item.vendor }}</span>
+                        
+                        <h6 class="card-title my-1 text-dark fw-bold" style="font-size: 14px; height: 40px; overflow: hidden;">
+                            <a href="{% url 'product_details' item.category.slug item.slug %}" class="text-decoration-none text-dark">
+                                {{ item.name|upper }}
+                            </a>
+                        </h6>
+
+                        <div class="mt-auto">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="text-primary fw-bold" style="font-size: 16px;">₹ {{ item.selling_price }}</span>
+                                <span class="text-muted small"><s>₹ {{ item.original_price }}</s></span>
+                            </div>
+                            
+                            <div class="mt-1">
+                                <span class="badge bg-success" style="font-size: 11px;">Trending Deal</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center text-muted">
+                <p>No other trending products found, boss!</p>
+            </div>
+            {% endfor %}
+        </div>
+
     </div>
 </section>
 
@@ -385,9 +416,8 @@ document.addEventListener("DOMContentLoaded", function() {
         const saved = originalPrice - sellingPrice;
         const percent = Math.round((saved / originalPrice) * 100);
 
-        document.getElementById("saved_amount").innerText = saved.toFixed(2);
         document.getElementById("discount_percent").innerText = percent;
-        document.getElementById("discount_badge_container").style.display = "block";
+        document.getElementById("discount_percent_badge").style.display = "inline-block";
     }
 });
 </script>
@@ -529,6 +559,13 @@ document.addEventListener("DOMContentLoaded", function(){
 
 <style>
   .iti { width: 100%; }
+  
+  /* 🎯 ஷேர் பட்டன் ஹோவர் எஃபெக்ட் பாஸ் */
+  button[onclick="shareProduct()"]:hover {
+      background-color: #f8f9fa !important;
+      transform: scale(1.08);
+      border-color: #6c757d !important;
+  }
 </style>
 
 {% endblock content %}

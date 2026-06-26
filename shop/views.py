@@ -29,51 +29,122 @@ from .models import (
     Product,
     Review,
 )
+import qrcode
+import io
+import base64
+
+
+def upload_verification_images(request, order_id):
+    order = Order.objects.get(id=order_id)
+    
+    if request.method == "POST" and request.FILES:
+        # கஸ்டமர் சைன், அட்மின் சைன் மற்றும் சீல் இமேஜ்களை ஃபார்ம் மூலமா வாங்குறோம் பாஸ்
+        order.customer_signature = request.FILES.get('customer_sig')
+        order.admin_signature = request.FILES.get('admin_sig')
+        order.store_seal = request.FILES.get('store_seal')
+        order.is_digitally_verified = True
+        order.save()
+        return redirect('admin_dashboard')
+
+
+# 🎯 [உங்க இன்வாய்ஸ் வியூவ் ஃபங்க்ஷனுக்கு உள்ளே இந்த லாஜிக்கை வைங்க பாஸ்]
+def your_invoice_pdf_view(request, order_id):
+    order = Order.objects.get(id=order_id)
+    
+    # 🚀 [லைவ் வெப்சைட் வெரிஃபிகேஷன் லிங்க் பாஸ்]:
+    # கஸ்டமர் ஸ்கேன் பண்ணா நேரா உங்க வெப்சைட்ல இருக்குற 'digital-verify' பக்கத்துக்கு போகும்!
+    # (உங்க ஒரிஜினல் டொமைன் நேமை 'https://kalaiarasi-metal-store.vercel.app' மாதிரி இங்க மாத்திக்கோங்க பாஸ்)
+    live_domain = "https://your-website-domain.com" 
+    verification_url = f"{live_domain}/digital-verify/{order.id}/"
+    
+    # டாப் லெஃப்ட் கியூஆர் கோடு இமேஜ் ஜெனரேட் பண்றோம் பாஸ்
+    top_qr = qrcode.QRCode(version=1, box_size=3, border=1)
+    top_qr.add_data(verification_url)
+    top_qr.make(fit=True)
+    
+    top_img = top_qr.make_image(fill_color="black", back_color="white")
+    
+    top_buffer = io.BytesIO()
+    top_img.save(top_buffer, format="PNG")
+    invoice_url_qr_base64 = base64.b64encode(top_buffer.getvalue()).decode('utf-8')
+    
+    # 💰 உங்க பழைய பாட்டம் பேமெண்ட் யூபிஐ கியூஆர் கோடு லாஜிக் (COD-க்காக மட்டும்)
+    qr_code_base64_data = ""
+    if order.order_status|lower == 'pending' or order.payment_mode|upper == 'COD':
+        your_upi_id = "kalaiarasi2128@oksbi"
+        upi_string = f"upi://pay?pa={your_upi_id}&pn=KALAIARASI%20METAL%20STORE&am={order.total_amount}&cu=INR"
+        
+        bottom_qr = qrcode.QRCode(version=1, box_size=4, border=1)
+        bottom_qr.add_box_data(upi_string) if hasattr(bottom_qr, 'add_box_data') else bottom_qr.add_data(upi_string)
+        bottom_qr.make(fit=True)
+        
+        bottom_img = bottom_qr.make_image(fill_color="black", back_color="white")
+        bottom_buffer = io.BytesIO()
+        bottom_img.save(bottom_buffer, format="PNG")
+        qr_code_base64_data = base64.b64encode(bottom_buffer.getvalue()).decode('utf-8')
+
+    context = {
+        'order': order,
+        'invoice_url_qr': invoice_url_qr_base64, # 👈 டாப்-லெஃப்ட் வெரிஃபிகேஷன் லிங்க் கியூஆர் பாஸ்!
+        'qr_code_base64_data': qr_code_base64_data, # பாட்டம் பேமெண்ட் கியூஆர்
+    }
+    # உங்க பிடிஎஃப் ரெண்டரிங் லாஜிக் அப்படியே கீழே தொடரட்டும் பாஸ்...
+
 
 # === 1. OTP & WHATSAPP VERIFICATION ===
 
-# 🎯 [views.py உள்ளே இருக்குற இன்வாய்ஸ் ஃபங்க்ஷன் முழு பிக்ஸ் பாஸ்]
 @login_required(login_url="login")
 def download_invoice_pdf(request, order_no):
-    try:
-        # அட்மின் மூலமா பார்க்கும்போது சூப்பர் யூசரா இருந்தா எல்லா பில்லும் தெரியணும் பாஸ்
-        if request.user.is_superuser:
-            order = Order.objects.get(order_number=order_no)
-        else:
-            order = Order.objects.get(order_number=order_no, user=request.user)
-            
-        orderitems = OrderItem.objects.filter(order=order)
-    except Order.DoesNotExist:
-        return HttpResponse("Order not found, boss!", status=404)
+    # உங்க பழைய லாஜிக் படி order_no வச்சு ஆப்ஜெக்ட் எடுக்குறோம் பாஸ்
+    # (ஒருவேளை உங்க பழைய கோடுல 'id=order_no' இருந்தா அதையே வச்சுக்கோங்க)
+    order = get_object_or_404(Order, id=order_no.replace("ORD", "").replace("A", "")) 
     
-    # 🔗 1. டாப்ல வர வேண்டிய டிஜிட்டல் பில் க்யூஆர் லிங்க் (Live Link)
-    live_invoice_url = f"https://buy-to-get.vercel.app/download-invoice/{order.order_number}/"
-    # xhtml2pdf-க்கு புரியுற மாதிரி 'http' புரோட்டோகால் மாத்தியாச்சு பாஸ், இப்போ கியூஆர் கண்டிப்பா தெரியும்!
-    invoice_url_qr = f"http://api.qrserver.com/v1/create-qr-code/?size=150x150&data={live_invoice_url}"
+    # 1. 🚀 [டாப்-லெஃப்ட் கியூஆர்]: டிஜிட்டல் வெரிஃபிகேஷன் லைவ் லிங்க்
+    live_domain = "https://buy-to-get.vercel.app" # உங்க ஒரிஜினல் டொமைன் லிங்க் பாஸ்
+    verification_url = f"{live_domain}/digital-verify/{order.id}/"
     
-    # 🔗 2. கீழ வர வேண்டிய பேமெண்ட் UPI க்யூஆர் லிங்க்
-    upi_string = f"upi://pay?pa=kalaiarasistores@okaxis&pn=KalaiarasiMetalStore&am={order.total_amount}&cu=INR"
-    qr_code_url = f"http://api.qrserver.com/v1/create-qr-code/?size=200x200&data={upi_string}"
+    top_qr = qrcode.QRCode(version=1, box_size=3, border=1)
+    top_qr.add_data(verification_url)
+    top_qr.make(fit=True)
+    
+    top_img = top_qr.make_image(fill_color="black", back_color="white")
+    top_buffer = io.BytesIO()
+    top_img.save(top_buffer, format="PNG")
+    invoice_url_qr = base64.b64encode(top_buffer.getvalue()).decode('utf-8')
+    
+    # 2. 💰 [பாட்டம்-லெஃப்ட் கியூஆர்]: COD கியூஆர் கோடு
+    qr_code_base64_data = ""
+    # உங்க பழைய கோடுல ஸ்டேட்டஸ் செக் பண்ற வேரியபிள் ஆர்டர் ஆப்ஜெக்ட்ல எப்படி இருக்கோ அப்படி செக் பண்றோம் பாஸ்
+    if str(order.order_status).lower() == 'pending' or str(order.payment_mode).upper() == 'COD':
+        your_upi_id = "kalaiarasi2128@oksbi" # உங்க அசல் UPI ID பாஸ்
+        store_name = "KALAIARASI METAL STORE"
+        upi_string = f"upi://pay?pa={your_upi_id}&pn={urllib.parse.quote(store_name)}&am={order.total_amount}&cu=INR"
+        
+        bottom_qr = qrcode.QRCode(version=1, box_size=4, border=1)
+        bottom_qr.add_data(upi_string)
+        bottom_qr.make(fit=True)
+        
+        bottom_img = bottom_qr.make_image(fill_color="black", back_color="white")
+        bottom_buffer = io.BytesIO()
+        bottom_img.save(bottom_buffer, format="PNG")
+        qr_code_base64_data = base64.b64encode(bottom_buffer.getvalue()).decode('utf-8')
 
-    # ஜாங்கோ டெம்ப்ளேட்டுக்கு டேட்டாவை அனுப்புறோம் பாஸ்
+    # 3. 🎯 காண்டெக்ஸ்ட்ல நம்ம எச்டிஎம்எல்-ல் இருக்குற அதே வேரியபிள் பெயர்களை கச்சிதமா மேப் பண்றோம் பாஸ்!
     context = {
         'order': order,
-        'orderitems': orderitems,
-        'invoice_url_qr': invoice_url_qr, # டாப் கியூஆர் பாஸ்
-        'qr_code_url': qr_code_url,       # பேமெண்ட் கியூஆர் பாஸ்
+        'invoice_url_qr': invoice_url_qr,       # 👈 எச்டிஎம்எல்ல டாப்-லெஃப்ட்ல இருக்குற அதே பெயர் பாஸ்!
+        'qr_code_base64_data': qr_code_base64_data, # 👈 எச்டிஎம்எல்ல பாட்டம்-லெஃப்ட்ல இருக்குற அதே பெயர் பாஸ்!
     }
     
-    template = get_template('shop/invoice_pdf.html')
-    html = template.render(context)
-    
+    # உங்க பழைய பிடிஎஃப் ரெண்டரிங் (pisa.CreatePDF) லாஜிக் அப்படியே கீழே இருக்கட்டும் பாஸ்...
+    html_template = render(request, 'shop/invoice_pdf.html', context)
+    html = html_template.content.decode('utf-8')
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="Invoice_{order.order_number}.pdf"'
+    response['Content-Disposition'] = f'attachment; filename="invoice_{order_no}.pdf"'
     
-    # பிடிஎஃப் ஆக மாத்துறோம் தலைவா
     pisa_status = pisa.CreatePDF(html, dest=response)
     if pisa_status.err:
-        return HttpResponse('Error generating PDF invoice, boss!', status=500)
-        
+        return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
 
 
@@ -210,15 +281,25 @@ def Product_details(request, cname, pname):
         single_product = Product.objects.filter(category__name__icontains=clean_cname, status=0).first()
         
     reviews = []
+    trending_products = [] # 👈 டிரெண்டிங் பொருட்களுக்கான புது லிஸ்ட் பாஸ்!
+    
     if single_product:
         try:
             reviews = Review.objects.filter(product=single_product)
         except Exception as e:
             print(e)
+            
+        # 🚀 [மரண மாஸ் லாஜிக் பாஸ்]: 
+        # தற்போதைய சிங்கிள் ப்ராடக்ட் ஐடியை எக்ஸ்க்ளூட் (Exclude) பண்ணிட்டு, மீதி இருக்குற டிரெண்டிங் பொருட்களை மட்டும் 4 கார்டுகளாக எடுக்கிறோம்!
+        trending_products = Product.objects.filter(trending=True, status=0).exclude(id=single_product.id)[:4]
+    else:
+        # ஒருவேளை மெயின் ப்ராடக்ட் இல்லைனா, பொதுவான ஏதாச்சும் 4 டிரெண்டிங் பொருட்களைக் காட்டுவோம் பாஸ்
+        trending_products = Product.objects.filter(trending=True, status=0)[:4]
 
     context = {
         "products": single_product, 
-        "reviews": reviews
+        "reviews": reviews,
+        "trending_products": trending_products # 👈 இந்த புது வேரியபிளை இப்போ காண்டெக்ஸ்ட்ல ஏத்தியாச்சு தலைவா!
     }
     return render(request, 'shop/products/product_details.html', context)
 

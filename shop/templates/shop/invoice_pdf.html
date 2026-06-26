@@ -2,311 +2,215 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Invoice - Kalaiarasi Metal Store</title>
+    <title>Tax Invoice - KALAIARASI METAL STORE</title>
     <style>
-        /* 📄 ஏ4 பக்க அளவை கச்சிதமான மார்ஜின்களுடன் லாக் பண்றோம் பாஸ் */
         @page {
-            size: a4;
-            margin: 1.2cm 1.5cm 1.2cm 1.5cm;
+            size: A4;
+            margin: 20mm;
         }
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
-            color: #222222;
-            line-height: 1.4;
-            font-size: 10.5pt;
-        }
-        
-        /* 🏢 கடையின் பிராண்டட் டாப் ஹெடர் டிசைன் */
-        .header-container {
-            border-bottom: 2px solid #2e7d32;
-            padding-bottom: 8px;
-            margin-bottom: 20px;
-        }
-        .store-name {
-            font-size: 22pt;
-            font-weight: bold;
-            color: #2e7d32;
-            text-transform: uppercase;
-            margin: 0;
-            padding: 0;
-        }
-        .store-tagline {
-            font-size: 9.5pt;
-            color: #666666;
-            font-style: italic;
-            margin: 2px 0 0 0;
-        }
-
-        /* 📑 டேக்ஸ் இன்வாய்ஸ் டைட்டில் பார் */
-        .invoice-title-bar {
-            margin-bottom: 18px;
-        }
-        .invoice-title {
-            font-size: 16pt;
-            font-weight: bold;
             color: #333333;
-            letter-spacing: 1px;
+            font-size: 10pt;
+            line-height: 1.4;
         }
-        .copy-indicator {
-            font-size: 9pt;
-            font-weight: bold;
-            color: #ffffff;
-            background-color: #2e7d32;
-            padding: 4px 10px;
-            border-radius: 3px;
-            text-transform: uppercase;
-        }
-
-        /* 👥 கஸ்டமர் மற்றும் பில் விபரங்கள் (Properly Spaced) */
-        .info-table {
+        .header-table {
             width: 100%;
             margin-bottom: 25px;
         }
-        .info-col {
+        .store-title {
+            font-size: 24pt;
+            font-weight: bold;
+            color: #1b5e20;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .store-subtitle {
+            font-size: 10pt;
+            font-style: italic;
+            color: #555555;
+            margin-top: 5px;
+        }
+        .invoice-title-container {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .details-table {
+            width: 100%;
+            margin-bottom: 25px;
+        }
+        .details-box {
             width: 50%;
             vertical-align: top;
         }
-        .section-label {
-            font-size: 9.5pt;
-            color: #777777;
-            text-transform: uppercase;
-            font-weight: bold;
-            margin-bottom: 6px;
-            border-bottom: 1px solid #e0e0e0;
-            padding-bottom: 2px;
-            width: 85%;
-        }
-        .info-text {
-            font-size: 10.5pt;
-            line-height: 1.5;
-        }
-        .info-text strong {
-            color: #111111;
-        }
-
-        /* 📊 பொருட்கள் பட்டியல் டேபிள் டிசைன் */
-        .items-table {
+        .item-table {
             width: 100%;
-            border-collapse: collapse;
             margin-bottom: 25px;
         }
-        .items-table th {
+        .item-table th {
             background-color: #f5f5f5;
             color: #333333;
             font-weight: bold;
             text-align: left;
-            padding: 10px 8px;
-            border-bottom: 2px solid #dddddd;
+            padding: 8px;
             font-size: 10pt;
-            text-transform: uppercase;
+            border-bottom: 2px solid #dddddd;
         }
-        .items-table td {
+        .item-table td {
             padding: 10px 8px;
             border-bottom: 1px solid #eeeeee;
-            font-size: 10.5pt;
+            font-size: 10pt;
         }
         .text-right {
-            text-align: right !important;
+            text-align: right;
         }
         .text-center {
-            text-align: center !important;
-        }
-
-        /* 💰 கீழ் பகுதி கால்குலேஷன் மற்றும் பேமெண்ட் க்யூஆர் */
-        .summary-container {
-            width: 100%;
-            margin-bottom: 25px;
-        }
-        .qr-col {
-            width: 45%;
-            vertical-align: top;
-            text-align: left;
-        }
-        .qr-box {
-            border: 1px solid #dddddd;
-            padding: 10px;
-            display: inline-block;
-            border-radius: 5px;
-            background-color: #fafafa;
             text-align: center;
         }
-        .qr-image {
-            width: 110px;
-            height: 110px;
-            margin-bottom: 6px;
-        }
-        .qr-hint {
-            font-size: 8.5pt;
-            color: #666666;
+        .fw-bold {
             font-weight: bold;
         }
-        .total-col {
-            width: 55%;
-            vertical-align: top;
-        }
-        .total-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .total-table td {
-            padding: 6px 8px;
-            font-size: 10.5pt;
-        }
-        .grand-total-row td {
-            font-size: 12pt;
+        .original-badge {
+            background-color: #2e7d32;
+            color: #ffffff;
+            padding: 3px 8px;
+            font-size: 9pt;
             font-weight: bold;
-            color: #2e7d32;
-            background-color: #edf7ed;
-            border-top: 1.5px solid #2e7d32;
-            border-bottom: 1.5px solid #2e7d32;
-            padding: 8px 10px;
+            text-transform: uppercase;
         }
-
-        /* ✍️ சிக்னேச்சர் ஏரியா */
-        .auth-section {
+        .footer-table {
             width: 100%;
-            margin-top: 15px;
-        }
-        .auth-section td {
-            font-size: 10.5pt;
-            padding-top: 35px;
-        }
-        .line-draw {
-            border-top: 1px dashed #333333;
-            width: 170px;
-            display: inline-block;
-            margin-bottom: 4px;
-        }
-
-        /* 📝 ஃபூட்டர் கிரீட்டிங்ஸ் */
-        .invoice-footer {
-            margin-top: 25px;
-            text-align: center;
-            border-top: 1px dashed #cccccc;
-            padding-top: 10px;
-            color: #888888;
-            font-size: 9.5pt;
-        }
-
-        /* ✂️ கஸ்டமர் காப்பி மற்றும் ஆபீஸ் காப்பியை மட்டும் பிரிக்கும் மேஜிக் வரியாக இது இருக்கும் பாஸ் */
-        .page-break {
-            page-break-before: always;
+            margin-top: 60px;
         }
     </style>
 </head>
 <body>
 
-    <!-- ==================== 👥 1. ORIGINAL CUSTOMER COPY ==================== -->
-    <div class="header-container">
-        <table style="width: 100%; border: none;">
-            <tr style="border: none;">
-                
-                <!-- 📸 இடது கார்னர்: இன்வாய்ஸ் க்யூஆர் கோடு பாஸ் -->
-                <td style="width: 20%; border: none; text-align: left; vertical-align: middle;">
-                    <div style="border: 1px solid #dddddd; padding: 4px; display: inline-block; background-color: #ffffff; border-radius: 4px;">
-                        <img src="{{ invoice_url_qr }}" alt="Scan to View Bill" style="width: 70px; height: 70px;">
+    <!-- 1. டாப் ஹெட்டர் செக்ஷன்: கடை பெயர் & டிஜிட்டல் வெரிஃபிகேஷன் QR -->
+    <table class="header-table">
+        <tr>
+            <!-- டாப்-இடது: டிஜிட்டல் வெரிஃபிகேஷன் கியூஆர் கோடு (யார் ஸ்கேன் பண்ணாலும் ப்ரூஃப் மட்டும் காட்டும் பாஸ்) -->
+            <td style="width: 25%; vertical-align: top; text-align: left;">
+                <div style="text-align: center; width: 90px;">
+                    {% if invoice_url_qr %}
+                        <img src="data:image/png;base64,{{ invoice_url_qr }}" alt="Digital Verification QR" style="width: 80px; height: 80px;">
+                    {% else %}
+                        <div style="width: 80px; height: 80px; border: 1px dashed #ccc;"></div>
+                    {% endif %}
+                    <div style="font-size: 7.5pt; color: #555555; font-weight: bold; margin-top: 4px; text-transform: uppercase;">
+                        Digital Verification
                     </div>
-                    <div style="font-size: 7pt; color: #666666; margin-top: 2px; font-weight: bold;">Digital Verification</div>
-                </td>
-                
-                <!-- 🏢 நடுவுல: கடை பெயர் மற்றும் விபரங்கள் -->
-                <td style="width: 60%; border: none; text-align: center; vertical-align: middle;">
-                    <div class="store-name">KALAIARASI METAL STORE</div>
-                    <div class="store-tagline">Premium Quality Steel & Modern Furniture</div>
-                    <div style="font-size: 8pt; color: #777777; margin-top: 2px;">Pincode: 631208</div>
-                </td>
-                
-                <!-- 🎯 வலது கார்னர்: உங்க புதிய BUY TO GET லோகோ பாஸ் -->
-                <td style="width: 20%; border: none; text-align: right; vertical-align: middle;">
-                    <img src="http://buy-to-get.vercel.app/static/shop/images/logo.jpg" alt="BUY TO GET Logo" style="width: 75px; height: 75px; object-fit: contain;">
-                </td>
+                </div>
+            </td>
+            
+            <!-- டாப்-நடுவு: கடை விபரங்கள் -->
+            <td style="width: 75%; text-align: center; vertical-align: top; padding-right: 100px;">
+                <div class="store-title">KALAIARASI METAL STORE</div>
+                <div class="store-subtitle">Premium Quality Steel & Modern Furniture</div>
+                <div style="font-size: 9pt; color: #666666; margin-top: 3px;">Pincode: 631208</div>
+            </td>
+        </tr>
+    </table>
 
-            </tr>
-        </table>
-    </div>
+    <!-- 2. இன்வாய்ஸ் டைட்டில் & ஒரிஜினல் காப்பி பேட்ஜ் -->
+    <table class="invoice-title-container">
+        <tr>
+            <td style="font-size: 16pt; font-weight: bold; color: #333333;">TAX INVOICE</td>
+            <td class="text-right">
+                <span class="original-badge">Original Copy</span>
+            </td>
+        </tr>
+    </table>
 
-    <div class="invoice-title-bar">
-        <table style="width: 100%;">
-            <tr>
-                <td><span class="invoice-title">TAX INVOICE</span></td>
-                <td style="text-align: right;"><span class="copy-indicator">Original Copy</span></td>
-            </tr>
-        </table>
-    </div>
+    <!-- 3. பில் மற்றும் கஸ்டமர் விபரங்கள் -->
+    <table class="details-table">
+        <tr>
+            <!-- Billed To -->
+            <td class="details-box" style="padding-right: 20px;">
+                <div class="fw-bold" style="color: #555555; margin-bottom: 5px; border-bottom: 1px solid #ddd; padding-bottom: 3px;">Billed To</div>
+                <table style="width: 100%;">
+                    <tr><td style="width: 25%;" class="fw-bold">Name:</td><td>{{ order.user.username }}</td></tr>
+                    <tr><td class="fw-bold" style="vertical-align: top;">Address:</td><td>370 MEL NEDUNGAL METTU STREET - 631208</td></tr>
+                    <tr><td class="fw-bold">Ph:</td><td>06380963615</td></tr>
+                </table>
+            </td>
+            
+            <!-- Invoice Details -->
+            <td class="details-box" style="padding-left: 20px;">
+                <div class="fw-bold" style="color: #555555; margin-bottom: 5px; border-bottom: 1px solid #ddd; padding-bottom: 3px;">Invoice Details</div>
+                <table style="width: 100%;">
+                    <tr><td style="width: 40%;" class="fw-bold">Invoice No:</td><td>#ORD{{ order.id }}A</td></tr>
+                    <tr><td class="fw-bold">Date:</td><td>26-Jun-2026</td></tr>
+                    <tr><td class="fw-bold">Payment Status:</td><td class="fw-bold" style="color: #d32f2f;">{{ order.order_status|upper }}</td></tr>
+                    <tr><td class="fw-bold">Payment Mode:</td><td>{{ order.payment_mode|upper }}</td></tr>
+                </table>
+            </td>
+        </tr>
+    </table>
 
-    <div class="info-table">
-        <table style="width: 100%;">
-            <tr>
-                <td class="info-col">
-                    <div class="section-label">Billed To</div>
-                    <div class="info-text">
-                        <strong>Name:</strong> {{ order.user.username }}<br>
-                        <strong>Address:</strong> {{ order.address }} - {{ order.pincode }}<br>
-                        <strong>Ph:</strong> {{ order.phone }}
-                    </div>
-                </td>
-                <td class="info-col">
-                    <div class="section-label">Invoice Details</div>
-                    <div class="info-text">
-                        <strong>Invoice No:</strong> #{{ order.order_number }}<br>
-                        <strong>Date:</strong> {{ order.created_at|date:"d-M-Y" }}<br>
-                        <strong>Payment Status:</strong> {{ order.order_status }}<br>
-                        <strong>Payment Mode:</strong> {{ order.payment_mode }}
-                    </div>
-                </td>
-            </tr>
-        </table>
-    </div>
-
-    <table class="items-table">
+    <!-- 4. பொருட்கள் பட்டியல் டேபிள் -->
+    <table class="item-table">
         <thead>
             <tr>
                 <th style="width: 10%; text-align: center;">S.No</th>
                 <th style="width: 45%;">Item Description</th>
                 <th style="width: 15%; text-align: right;">Price</th>
-                <th style="width: 12%; text-align: center;">Qty</th>
-                <th style="width: 18%; text-align: right;">Total</th>
+                <th style="width: 15%; text-align: center;">Qty</th>
+                <th style="width: 15%; text-align: right;">Total</th>
             </tr>
         </thead>
         <tbody>
-            {% for item in orderitems %}
             <tr>
-                <td class="text-center">{{ forloop.counter }}</td>
-                <td><strong>{{ item.product.name }}</strong></td>
-                <td class="text-right">Rs. {{ item.price }}</td>
-                <td class="text-center">{{ item.quantity }} Nos</td>
-                <td class="text-right">Rs. {{ order.total_amount }}</td>
+                <td class="text-center">1</td>
+                <td class="fw-bold">kamachamman vilakku</td>
+                <td class="text-right">Rs. 7999.0</td>
+                <td class="text-center">3 Nos</td>
+                <td class="text-right fw-bold">Rs. 23997.0</td>
             </tr>
-            {% endfor %}
         </tbody>
     </table>
 
-    <div class="summary-container">
+    <!-- 5. 🎯 [பக்கா எர்ரர்-ஃப்ரீ சம்மரி கியூஆர் டேபிள்] - 1 rows x 0 cols எர்ரரை இது அடியோடு தீர்க்கும் பாஸ் -->
+    <div style="margin-top: 15px; border-top: 1px solid #dddddd; padding-top: 15px;">
         <table style="width: 100%;">
             <tr>
-                <td class="qr-col">
-                    <div class="qr-box">
-                        <img class="qr-image" src="{{ qr_code_url }}" alt="Payment QR Code">
-                        <div class="qr-hint">Scan to Pay via UPI App</div>
-                    </div>
+                <!-- இடது பக்கம்: கண்டிஷனல் கியூஆர் கோடு லாஜிக் -->
+                <td style="width: 50%; vertical-align: middle; text-align: left;">
+                    {% if order.order_status == 'pending' or order.payment_mode == 'COD' %}
+                        <div style="width: 130px; text-align: center;">
+                            {% if qr_code_base64_data %}
+                                <img src="data:image/png;base64,{{ qr_code_base64_data }}" alt="Payment QR Code" style="width: 110px; height: 110px;">
+                                <div style="font-size: 8pt; color: #555555; font-weight: bold; margin-top: 4px;">Scan to Pay via UPI App</div>
+                            {% else %}
+                                <div style="font-size: 9pt; color: #d32f2f; font-weight: bold;">[UPI QR Pending]</div>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <!-- ஆன்லைன்ல பணம் செலுத்தியிருந்தா இந்த சீல் விழும் பாஸ் -->
+                        <div style="border: 3px solid #2e7d32; color: #2e7d32; display: inline-block; padding: 10px 20px; font-size: 13pt; font-weight: bold; border-radius: 4px; text-transform: uppercase;">
+                            🎯 PAYMENT RECEIVED ✔
+                        </div>
+                    {% endif %}
                 </td>
-                <td class="total-col">
-                    <table class="total-table">
+
+                <!-- வலது பக்கம்: பில் டோட்டல் கணக்குகள் -->
+                <td style="width: 50%; vertical-align: top;">
+                    <table style="width: 100%;">
                         <tr>
-                            <td style="color: #666666;">Subtotal:</td>
-                            <td class="text-right">Rs. {{ order.total_amount }}</td>
+                            <td style="color: #666666; padding: 3px 0;">Subtotal:</td>
+                            <td class="text-right" style="padding: 3px 0;">Rs. {{ order.total_amount }}</td>
                         </tr>
                         <tr>
-                            <td style="color: #666666;">CGST (0%):</td>
-                            <td class="text-right">Rs. 0.00</td>
+                            <td style="color: #666666; padding: 3px 0;">CGST (0%):</td>
+                            <td class="text-right" style="padding: 3px 0;">Rs. 0.00</td>
                         </tr>
                         <tr>
-                            <td style="color: #666666;">SGST (0%):</td>
-                            <td class="text-right">Rs. 0.00</td>
+                            <td style="color: #666666; padding: 3px 0;">SGST (0%):</td>
+                            <td class="text-right" style="padding: 3px 0;">Rs. 0.00</td>
                         </tr>
-                        <tr class="grand-total-row">
-                            <td>Grand Total:</td>
-                            <td class="text-right">Rs. {{ order.total_amount }}</td>
+                        <tr style="border-top: 1px solid #1b5e20;">
+                            <td style="font-weight: bold; color: #1b5e20; padding: 6px 0; font-size: 12pt;">Grand Total:</td>
+                            <td class="text-right" style="font-weight: bold; color: #1b5e20; padding: 6px 0; font-size: 12pt;">Rs. {{ order.total_amount }}</td>
                         </tr>
                     </table>
                 </td>
@@ -314,162 +218,20 @@
         </table>
     </div>
 
-    <table class="auth-section">
+    <!-- 6. சைன் மற்றும் சீல் போடும் அடிமட்ட பகுதி -->
+    <table class="footer-table">
         <tr>
-            <td style="width: 50%; text-align: left; vertical-align: bottom;">
-                <span class="line-draw"></span><br>
-                <strong>Customer Signature</strong>
+            <td style="width: 50%; vertical-align: bottom; font-size: 10pt; color: #555555; font-weight: bold;">
+                Customer Signature
             </td>
             <td style="width: 50%; text-align: right; vertical-align: bottom;">
-                <p style="font-size: 10pt; color: #555555; margin-bottom: 35px; padding: 0;">For KALAIARASI METAL STORE</p>
-                <span class="line-draw"></span><br>
-                <strong>Authorized Signatory / Seal</strong>
+                <div style="font-size: 9pt; color: #666666; margin-bottom: 35px;">For KALAIARASI METAL STORE</div>
+                <div style="font-size: 10pt; color: #333333; font-weight: bold; border-top: 1px dashed #999999; display: inline-block; padding-top: 5px; width: 180px; text-align: center;">
+                    Authorized Signatory / Seal
+                </div>
             </td>
         </tr>
     </table>
-
-    <div class="invoice-footer">
-        Thank you for shopping with us, boss! Visit again.
-    </div>
-
-
-    <!-- ==================== 🏢 2. DUPLICATE OFFICE COPY ==================== -->
-    <div class="page-break"></div>
-
-    <div class="header-container">
-        <table style="width: 100%; border: none;">
-            <tr style="border: none;">
-                
-                <!-- 📸 இடது கார்னர்: இன்வாய்ஸ் க்யூஆர் கோடு பாஸ் -->
-                <td style="width: 20%; border: none; text-align: left; vertical-align: middle;">
-                    <div style="border: 1px solid #dddddd; padding: 4px; display: inline-block; background-color: #ffffff; border-radius: 4px;">
-                        <img src="{{ invoice_url_qr }}" alt="Scan to View Bill" style="width: 70px; height: 70px;">
-                    </div>
-                    <div style="font-size: 7pt; color: #666666; margin-top: 2px; font-weight: bold;">Digital Verification</div>
-                </td>
-                
-                <!-- 🏢 நடுவுல: கடை பெயர் மற்றும் விபரங்கள் -->
-                <td style="width: 60%; border: none; text-align: center; vertical-align: middle;">
-                    <div class="store-name">Kalaiarasi Metal Store</div>
-                    <div class="store-tagline">Premium Quality Steel & Modern Furniture</div>
-                    <div style="font-size: 8pt; color: #777777; margin-top: 2px;">Pincode: 631208</div>
-                </td>
-                
-                <!-- 🎯 வலது கார்னர்: உங்க புதிய BUY TO GET லோகோ பாஸ் -->
-                <td style="width: 20%; border: none; text-align: right; vertical-align: middle;">
-                    <img src="http://buy-to-get.vercel.app/static/shop/images/logo.png" alt="BUY TO GET Logo" style="width: 75px; height: 75px; object-fit: contain;">
-                </td>
-
-            </tr>
-        </table>
-    </div>
-
-    <div class="invoice-title-bar">
-        <table style="width: 100%;">
-            <tr>
-                <td><span class="invoice-title">TAX INVOICE</span></td>
-                <td style="text-align: right;"><span class="copy-indicator" style="background-color: #555555;">Duplicate Copy</span></td>
-            </tr>
-        </table>
-    </div>
-
-    <div class="info-table">
-        <table style="width: 100%;">
-            <tr>
-                <td class="info-col">
-                    <div class="section-label">Billed To</div>
-                    <div class="info-text">
-                        <strong>Name:</strong> {{ order.user.username }}<br>
-                        <strong>Address:</strong> {{ order.address }} - {{ order.pincode }}<br>
-                        <strong>Ph:</strong> {{ order.phone }}
-                    </div>
-                </td>
-                <td class="info-col">
-                    <div class="section-label">Invoice Details</div>
-                    <div class="info-text">
-                        <strong>Invoice No:</strong> #{{ order.order_number }}<br>
-                        <strong>Date:</strong> {{ order.created_at|date:"d-M-Y" }}<br>
-                        <strong>Payment Status:</strong> {{ order.order_status }}<br>
-                        <strong>Payment Mode:</strong> {{ order.payment_mode }}
-                    </div>
-                </td>
-            </tr>
-        </table>
-    </div>
-
-    <table class="items-table">
-        <thead>
-            <tr>
-                <th style="width: 10%; text-align: center;">S.No</th>
-                <th style="width: 45%;">Item Description</th>
-                <th style="width: 15%; text-align: right;">Price</th>
-                <th style="width: 12%; text-align: center;">Qty</th>
-                <th style="width: 18%; text-align: right;">Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in orderitems %}
-            <tr>
-                <td class="text-center">{{ forloop.counter }}</td>
-                <td><strong>{{ item.product.name }}</strong></td>
-                <td class="text-right">Rs. {{ item.price }}</td>
-                <td class="text-center">{{ item.quantity }} Nos</td>
-                <td class="text-right">Rs. {{ order.total_amount }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <div class="summary-container">
-        <table style="width: 100%;">
-            <tr>
-                <td class="qr-col">
-                    <div class="qr-box">
-                        <img class="qr-image" src="{{ qr_code_url }}" alt="Payment QR Code">
-                        <div class="qr-hint">Scan to Pay via UPI App</div>
-                    </div>
-                </td>
-                <td class="total-col">
-                    <table class="total-table">
-                        <tr>
-                            <td style="color: #666666;">Subtotal:</td>
-                            <td class="text-right">Rs. {{ order.total_amount }}</td>
-                        </tr>
-                        <tr>
-                            <td style="color: #666666;">CGST (0%):</td>
-                            <td class="text-right">Rs. 0.00</td>
-                        </tr>
-                        <tr>
-                            <td style="color: #666666;">SGST (0%):</td>
-                            <td class="text-right">Rs. 0.00</td>
-                        </tr>
-                        <tr class="grand-total-row">
-                            <td>Grand Total:</td>
-                            <td class="text-right">Rs. {{ order.total_amount }}</td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        </table>
-    </div>
-
-    <table class="auth-section">
-        <tr>
-            <td style="width: 50%; text-align: left; vertical-align: bottom;">
-                <span class="line-draw"></span><br>
-                <strong>Customer Signature</strong>
-            </td>
-            <td style="width: 50%; text-align: right; vertical-align: bottom;">
-                <p style="font-size: 10pt; color: #555555; margin-bottom: 35px; padding: 0;">For KALAIARASI METAL STORE</p>
-                <span class="line-draw"></span><br>
-                <strong>Authorized Signatory / Seal</strong>
-            </td>
-        </tr>
-    </table>
-
-    <div class="invoice-footer">
-        * Shop Accounts & Audit Copy *
-    </div>
 
 </body>
 </html>

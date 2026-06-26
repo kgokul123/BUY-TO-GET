@@ -117,7 +117,10 @@ class Order(models.Model):
     order_status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='Pending')
     transaction_id = models.CharField(max_length=100, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    customer_signature = models.ImageField(upload_to='signatures/customer/', null=True, blank=True)
+    admin_signature = models.ImageField(upload_to='signatures/admin/', null=True, blank=True)
+    store_seal = models.ImageField(upload_to='seals/', null=True, blank=True)
+    is_digitally_verified = models.BooleanField(default=False)
     def save(self, *args, **kwargs):
         if not self.order_number:
             self.order_number = "ORD" + str(uuid.uuid4().hex[:10]).upper()

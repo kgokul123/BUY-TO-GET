@@ -1,0 +1,92 @@
+{% extends 'shop/layouts/main.html' %}
+{% block content %}
+
+<div class="container text-center my-5 p-4 bg-white rounded shadow-sm" style="max-width: 800px;">
+    
+    <div class="verification-header mb-4">
+        <h2 class="text-success fw-bold">
+            <i class="fas fa-check-circle"></i> DIGITAL INVOICE VERIFIED
+        </h2>
+        <p class="text-muted">KALAIARASI METAL STORE • Premium Quality Steel & Modern Furniture</p>
+    </div>
+    
+    <div class="row text-start my-3">
+        <div class="col-md-6">
+            <strong>Order ID:</strong> #ORD{{ order.id }}A <br>
+            <strong>Customer Name:</strong> {{ order.user.username }}
+        </div>
+        <div class="col-md-6 text-md-end">
+            <strong>Status:</strong> <span class="badge bg-success">AUTHENTIC INVOICE</span>
+        </div>
+    </div>
+    
+    <hr style="border-color: #b8bfc2;">
+    
+    <!-- 📸 [ப்ரூஃப் செக்ஷன்] - இதை யார் ஸ்கேன் பண்ணினாலும் பார்க்க முடியும் பாஸ் -->
+    <h4 class="text-dark fw-bold my-4 text-start">Official Verification Proofs</h4>
+    
+    <div class="row g-4 mb-5">
+        {% if order.is_digitally_verified %}
+            <div class="col-md-4">
+                <div class="p-3 border rounded bg-light text-center">
+                    <h6 class="fw-bold text-secondary">Customer Signature</h6>
+                    <img src="{{ order.customer_signature.url }}" class="img-fluid img-thumbnail mt-2" style="max-height: 120px;" alt="Customer Sign">
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="p-3 border rounded bg-light text-center">
+                    <h6 class="fw-bold text-secondary">Authorized Admin Sign</h6>
+                    <img src="{{ order.admin_signature.url }}" class="img-fluid img-thumbnail mt-2" style="max-height: 120px;" alt="Admin Sign">
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="p-3 border rounded bg-light text-center">
+                    <h6 class="fw-bold text-secondary">Official Store Seal</h6>
+                    <img src="{{ order.store_seal.url }}" class="img-fluid img-thumbnail mt-2" style="max-height: 120px;" alt="Store Seal">
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12 text-center py-4">
+                <p class="text-warning fw-bold">⚠️ Digital documents are currently being processed/uploaded by the store manager, boss!</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- 🔐 [செக்யூரிட்டி லாக் மேஜிக் பாஸ்]: 
+         கடையோட மெயின் அட்மினான நீங்க லாக்-இன் செஞ்சு இந்த கியூஆரை ஸ்கேன் பண்ணா மட்டும்தான், 
+         இமேஜ்களை மாத்துற (Edit/Upload) இந்த ஃபார்ம் கீழே காட்டும். மத்த யாருக்கும் இது காட்டாது! -->
+    {% if request.user.is_authenticated and request.user.is_staff %}
+    <div class="card p-4 text-start mt-4" style="background-color: #fff3cd; border: 1px solid #ffeba2;">
+        <h5 class="text-warning-dark fw-bold mb-3">
+            <i class="fas fa-lock"></i> Admin Panel
+        </h5>
+        <p class="small text-muted">பாஸ், நீங்க கஸ்டமர்கிட்ட வாங்குன புதிய சைன் மற்றும் சீல் இமேஜ்களை இங்க அப்லோடு பண்ணி எடிட் பண்ணிக்கலாம்:</p>
+        
+        <form method="POST" action="{% url 'upload_verification_images' order.id %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">Update Customer Sign</label>
+                    <input type="file" name="customer_sig" class="form-control form-control-sm" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">Update Admin Sign</label>
+                    <input type="file" name="customer_sig" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">Update Store Seal</label>
+                    <input type="file" name="store_seal" class="form-control form-control-sm">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-warning btn-sm mt-3 fw-bold text-dark">
+                Save & Update Proofs
+            </button>
+        </form>
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock content %}
