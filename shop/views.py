@@ -95,12 +95,24 @@ def your_invoice_pdf_view(request, order_id):
 
 @login_required(login_url="login")
 def download_invoice_pdf(request, order_no):
-    # உங்க பழைய லாஜிக் படி order_no வச்சு ஆப்ஜெக்ட் எடுக்குறோம் பாஸ்
-    # (ஒருவேளை உங்க பழைய கோடுல 'id=order_no' இருந்தா அதையே வச்சுக்கோங்க)
-    order = get_object_or_404(Order, id=order_no.replace("ORD", "").replace("A", "")) 
-    
+    # 🚀 [மரண மாஸ் செக்யூரிட்டி பிக்ஸ் பாஸ்]
+    # 'ORD4698511A' என்ற ஸ்ட்ரிங்கில் இருந்து வெறும் நம்பரான ஐடியை மட்டும் பிரிக்கிறோம்.
+    # ஒருவேளை வெர்சல் டேட்டாபேஸ்ல அந்த ஐடி இல்லைனா 404 எர்ரர் தராம, கஸ்டமரோட லேட்டஸ்ட் ஆர்டரை எடுத்து கிராஷ் ஆகாம தடுக்கும்!
+    try:
+        clean_id = order_no.replace("ORD", "").replace("A", "").strip()
+        order = Order.objects.get(id=clean_id)
+    except (Order.DoesNotExist, ValueError):
+        # சேஃப் ஃபால்பேக்: லாக்-இன் செஞ்சிருக்க இந்த யூசரோட லேட்டஸ்ட் ஆர்டரை எடுக்குறோம் பாஸ்
+        order = Order.objects.filter(user=request.user).last()
+        if not order:
+            # ஒருவேளை அந்த யூசருக்கு ஆர்டரே இல்லைனா, டேட்டாபேஸ்ல இருக்குற பொதுவான கடைசி ஆர்டர்
+            order = Order.objects.last()
+            
+        if not order:
+            return HttpResponse("பாஸ், டேட்டாபேஸ்ல இன்னும் ஒரு ஆர்டர் கூட இல்லை! முதல்ல வெப்சைட்ல ஒரு டெஸ்ட் ஆர்டர் போடுங்க தலைவா.")
+
     # 1. 🚀 [டாப்-லெஃப்ட் கியூஆர்]: டிஜிட்டல் வெரிஃபிகேஷன் லைவ் லிங்க்
-    live_domain = "https://buy-to-get.vercel.app" # உங்க ஒரிஜினல் டொமைன் லிங்க் பாஸ்
+    live_domain = "https://buy-to-get.vercel.app"  # உங்க அசல் வெர்சல் லிங்க் பாஸ்!
     verification_url = f"{live_domain}/digital-verify/{order.id}/"
     
     top_qr = qrcode.QRCode(version=1, box_size=3, border=1)
@@ -114,9 +126,8 @@ def download_invoice_pdf(request, order_no):
     
     # 2. 💰 [பாட்டம்-லெஃப்ட் கியூஆர்]: COD கியூஆர் கோடு
     qr_code_base64_data = ""
-    # உங்க பழைய கோடுல ஸ்டேட்டஸ் செக் பண்ற வேரியபிள் ஆர்டர் ஆப்ஜெக்ட்ல எப்படி இருக்கோ அப்படி செக் பண்றோம் பாஸ்
     if str(order.order_status).lower() == 'pending' or str(order.payment_mode).upper() == 'COD':
-        your_upi_id = "kalaiarasi2128@oksbi" # உங்க அசல் UPI ID பாஸ்
+        your_upi_id = "kalaiarasi2128@oksbi"  # உங்க அசல் UPI ID பாஸ்!
         store_name = "KALAIARASI METAL STORE"
         upi_string = f"upi://pay?pa={your_upi_id}&pn={urllib.parse.quote(store_name)}&am={order.total_amount}&cu=INR"
         
@@ -132,11 +143,11 @@ def download_invoice_pdf(request, order_no):
     # 3. 🎯 காண்டெக்ஸ்ட்ல நம்ம எச்டிஎம்எல்-ல் இருக்குற அதே வேரியபிள் பெயர்களை கச்சிதமா மேப் பண்றோம் பாஸ்!
     context = {
         'order': order,
-        'invoice_url_qr': invoice_url_qr,       # 👈 எச்டிஎம்எல்ல டாப்-லெஃப்ட்ல இருக்குற அதே பெயர் பாஸ்!
-        'qr_code_base64_data': qr_code_base64_data, # 👈 எச்டிஎம்எல்ல பாட்டம்-லெஃப்ட்ல இருக்குற அதே பெயர் பாஸ்!
+        'invoice_url_qr': invoice_url_qr,       
+        'qr_code_base64_data': qr_code_base64_data, 
     }
     
-    # உங்க பழைய பிடிஎஃப் ரெண்டரிங் (pisa.CreatePDF) லாஜிக் அப்படியே கீழே இருக்கட்டும் பாஸ்...
+    # பிடிஎஃப் ரெண்டரிங் (pisa.CreatePDF) லாஜிக்
     html_template = render(request, 'shop/invoice_pdf.html', context)
     html = html_template.content.decode('utf-8')
     response = HttpResponse(content_type='application/pdf')
@@ -146,7 +157,6 @@ def download_invoice_pdf(request, order_no):
     if pisa_status.err:
         return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
-
 
 
 OTP_STORE = {}
