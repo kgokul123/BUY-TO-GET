@@ -57,7 +57,6 @@ class Product(models.Model):
     weight = models.CharField(max_length=50, blank=True, null=True)
     delivery_charge = models.IntegerField(default=0, help_text="ENTER YOUR DELIVERY CHARGES AMOUNT (0 is Free Delivery)")
     about_this_item = models.TextField(max_length=2000, null=True, blank=True, help_text=" WRITE THE POINTS TAP ENTER.")
-    video = models.FileField(upload_to='product_videos/', null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -70,6 +69,8 @@ class ProductImage(models.Model):
         related_name='gallery'
     )
     image = models.ImageField(upload_to='product_gallery/')
+    video = models.FileField(upload_to='product_videos/', null=True, blank=True)
+
 
 
 class Cart(models.Model):

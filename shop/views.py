@@ -77,16 +77,19 @@ def download_invoice_pdf(request, order_no):
         qr_code_base64_data = base64.b64encode(bottom_buffer.getvalue()).decode('utf-8')
 
     # 3. 🎯 [லோகோவை பேஸ்64 ஆக மாத்தும் மேஜிக் - பக்கா ஃபைல் நேம் பிக்ஸ் பாஸ்!]
-    logo_base64 = ""
+   logo_base64 = ""
     try:
-
+        # வெர்சல் சர்வர்ல static கோப்புகளை அணுக இந்த வழிதான் கரெக்ட் பாஸ்
+        logo_path = os.path.join(settings.BASE_DIR, 'shop', 'static', 'images', 'logojpg.jpeg')
+        
+        # ஒருவேளை அங்க இல்லனா, ரூட் ஃபோல்டர்ல தேடும்
         if not os.path.exists(logo_path):
-            logo_path = os.path.join(settings.BASE_DIR, 'shop', 'static', 'images', 'logo.jpg.jpeg')
+            logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logojpg.jpeg')
 
         with open(logo_path, "rb") as image_file:
             logo_base64 = base64.b64encode(image_file.read()).decode('utf-8')
     except Exception as e:
-        pass
+        print(f"லோகோ கிடைக்கல பாஸ்: {e}")
 
     # 4. 🎯 காண்டெக்ஸ்ட் மேப்பிங்
     context = {
