@@ -32,31 +32,45 @@ from .models import (
 
 # === 1. OTP & WHATSAPP VERIFICATION ===
 
+# 🎯 [views.py உள்ளே இருக்குற இன்வாய்ஸ் ஃபங்க்ஷன் முழு பிக்ஸ் பாஸ்]
 @login_required(login_url="login")
 def download_invoice_pdf(request, order_no):
-    # 🎯 கஸ்டமரோட குறிப்பிட்ட ஆர்டர் மற்றும் அவங்க வாங்கின பொருட்களை டேட்டாபேஸ்ல இருந்து எடுக்கிறோம் பாஸ்!
     try:
-        order = Order.objects.get(order_number=order_no, user=request.user)
+        # அட்மின் மூலமா பார்க்கும்போது சூப்பர் யூசரா இருந்தா எல்லா பில்லும் தெரியணும் பாஸ்
+        if request.user.is_superuser:
+            order = Order.objects.get(order_number=order_no)
+        else:
+            order = Order.objects.get(order_number=order_no, user=request.user)
+            
         orderitems = OrderItem.objects.filter(order=order)
     except Order.DoesNotExist:
         return HttpResponse("Order not found, boss!", status=404)
     
+    # 🔗 1. டாப்ல வர வேண்டிய டிஜிட்டல் பில் க்யூஆர் லிங்க் (Live Link)
+    live_invoice_url = f"https://buy-to-get.vercel.app/download-invoice/{order.order_number}/"
+    # xhtml2pdf-க்கு புரியுற மாதிரி 'http' புரோட்டோகால் மாத்தியாச்சு பாஸ், இப்போ கியூஆர் கண்டிப்பா தெரியும்!
+    invoice_url_qr = f"http://api.qrserver.com/v1/create-qr-code/?size=150x150&data={live_invoice_url}"
+    
+    # 🔗 2. கீழ வர வேண்டிய பேமெண்ட் UPI க்யூஆர் லிங்க்
+    upi_string = f"upi://pay?pa=kalaiarasistores@okaxis&pn=KalaiarasiMetalStore&am={order.total_amount}&cu=INR"
+    qr_code_url = f"http://api.qrserver.com/v1/create-qr-code/?size=200x200&data={upi_string}"
+
+    # ஜாங்கோ டெம்ப்ளேட்டுக்கு டேட்டாவை அனுப்புறோம் பாஸ்
     context = {
         'order': order,
         'orderitems': orderitems,
+        'invoice_url_qr': invoice_url_qr, # டாப் கியூஆர் பாஸ்
+        'qr_code_url': qr_code_url,       # பேமெண்ட் கியூஆர் பாஸ்
     }
     
-    # 🧾 நாம் அடுத்து உருவாக்கப்போற invoice_pdf.html பில் டெம்ப்ளேட்டை லோடு பண்றோம் பாஸ்
     template = get_template('shop/invoice_pdf.html')
     html = template.render(context)
     
-    # பிரவுசருக்கு இது ஒரு PDF ஃபைல்னு சொல்றோம்
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="Invoice_{order.order_number}.pdf"'
     
-    # xhtml2pdf லைப்ரரி மூலமா HTML கோடை அப்படியே மாஸான PDF-ஆ மாத்துறோம் தலைவா!
+    # பிடிஎஃப் ஆக மாத்துறோம் தலைவா
     pisa_status = pisa.CreatePDF(html, dest=response)
-    
     if pisa_status.err:
         return HttpResponse('Error generating PDF invoice, boss!', status=500)
         

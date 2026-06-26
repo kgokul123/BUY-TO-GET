@@ -2,28 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Invoice - KALAIARASI METAL STORE</title>
+    <title>Invoice - Kalaiarasi Metal Store</title>
     <style>
-        /* 📄 ஏ4 பக்க அளவை தாராளமான மார்ஜின்களுடன் லாக் பண்றோம் பாஸ் */
+        /* 📄 ஏ4 பக்க அளவை கச்சிதமான மார்ஜின்களுடன் லாக் பண்றோம் பாஸ் */
         @page {
             size: a4;
-            margin: 2.2cm 2.0cm 2.2cm 2.0cm;
+            margin: 1.2cm 1.5cm 1.2cm 1.5cm;
         }
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
             color: #222222;
-            line-height: 1.5;
-            font-size: 11pt;
+            line-height: 1.4;
+            font-size: 10.5pt;
         }
         
-        /* 🏢 கடையின் டாப் ஹெடர் டிசைன் */
+        /* 🏢 கடையின் பிராண்டட் டாப் ஹெடர் டிசைன் */
         .header-container {
             border-bottom: 2px solid #2e7d32;
-            padding-bottom: 12px;
-            margin-bottom: 30px;
+            padding-bottom: 8px;
+            margin-bottom: 20px;
         }
         .store-name {
-            font-size: 24pt;
+            font-size: 22pt;
             font-weight: bold;
             color: #2e7d32;
             text-transform: uppercase;
@@ -31,24 +31,24 @@
             padding: 0;
         }
         .store-tagline {
-            font-size: 10pt;
+            font-size: 9.5pt;
             color: #666666;
             font-style: italic;
-            margin: 3px 0 0 0;
+            margin: 2px 0 0 0;
         }
 
         /* 📑 டேக்ஸ் இன்வாய்ஸ் டைட்டில் பார் */
         .invoice-title-bar {
-            margin-bottom: 25px;
+            margin-bottom: 18px;
         }
         .invoice-title {
-            font-size: 18pt;
+            font-size: 16pt;
             font-weight: bold;
             color: #333333;
             letter-spacing: 1px;
         }
         .copy-indicator {
-            font-size: 10pt;
+            font-size: 9pt;
             font-weight: bold;
             color: #ffffff;
             background-color: #2e7d32;
@@ -60,25 +60,25 @@
         /* 👥 கஸ்டமர் மற்றும் பில் விபரங்கள் (Properly Spaced) */
         .info-table {
             width: 100%;
-            margin-bottom: 35px;
+            margin-bottom: 25px;
         }
         .info-col {
             width: 50%;
             vertical-align: top;
         }
         .section-label {
-            font-size: 10pt;
+            font-size: 9.5pt;
             color: #777777;
             text-transform: uppercase;
             font-weight: bold;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             border-bottom: 1px solid #e0e0e0;
-            padding-bottom: 3px;
+            padding-bottom: 2px;
             width: 85%;
         }
         .info-text {
-            font-size: 11pt;
-            line-height: 1.6;
+            font-size: 10.5pt;
+            line-height: 1.5;
         }
         .info-text strong {
             color: #111111;
@@ -88,22 +88,22 @@
         .items-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 35px;
+            margin-bottom: 25px;
         }
         .items-table th {
             background-color: #f5f5f5;
             color: #333333;
             font-weight: bold;
             text-align: left;
-            padding: 12px 10px;
+            padding: 10px 8px;
             border-bottom: 2px solid #dddddd;
-            font-size: 10.5pt;
+            font-size: 10pt;
             text-transform: uppercase;
         }
         .items-table td {
-            padding: 12px 10px;
+            padding: 10px 8px;
             border-bottom: 1px solid #eeeeee;
-            font-size: 11pt;
+            font-size: 10.5pt;
         }
         .text-right {
             text-align: right !important;
@@ -115,7 +115,7 @@
         /* 💰 கீழ் பகுதி கால்குலேஷன் மற்றும் பேமெண்ட் க்யூஆர் */
         .summary-container {
             width: 100%;
-            margin-bottom: 40px;
+            margin-bottom: 25px;
         }
         .qr-col {
             width: 45%;
@@ -124,19 +124,19 @@
         }
         .qr-box {
             border: 1px solid #dddddd;
-            padding: 12px;
+            padding: 10px;
             display: inline-block;
             border-radius: 5px;
             background-color: #fafafa;
             text-align: center;
         }
         .qr-image {
-            width: 130px;
-            height: 130px;
-            margin-bottom: 8px;
+            width: 110px;
+            height: 110px;
+            margin-bottom: 6px;
         }
         .qr-hint {
-            font-size: 9pt;
+            font-size: 8.5pt;
             color: #666666;
             font-weight: bold;
         }
@@ -149,46 +149,46 @@
             border-collapse: collapse;
         }
         .total-table td {
-            padding: 8px 10px;
-            font-size: 11pt;
+            padding: 6px 8px;
+            font-size: 10.5pt;
         }
         .grand-total-row td {
-            font-size: 14pt;
+            font-size: 12pt;
             font-weight: bold;
             color: #2e7d32;
             background-color: #edf7ed;
-            border-top: 2px solid #2e7d32;
-            border-bottom: 2px solid #2e7d32;
-            padding: 12px 10px;
+            border-top: 1.5px solid #2e7d32;
+            border-bottom: 1.5px solid #2e7d32;
+            padding: 8px 10px;
         }
 
-        /* ✍️ சிக்னேச்சர் ஏரியா - பக்கா கேப் விட்டு செட் செய்யப்பட்டுள்ளது */
+        /* ✍️ சிக்னேச்சர் ஏரியா */
         .auth-section {
             width: 100%;
-            margin-top: 30px;
+            margin-top: 15px;
         }
         .auth-section td {
-            font-size: 11pt;
-            padding-top: 50px;
+            font-size: 10.5pt;
+            padding-top: 35px;
         }
         .line-draw {
             border-top: 1px dashed #333333;
-            width: 180px;
+            width: 170px;
             display: inline-block;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
 
         /* 📝 ஃபூட்டர் கிரீட்டிங்ஸ் */
         .invoice-footer {
-            margin-top: 40px;
+            margin-top: 25px;
             text-align: center;
             border-top: 1px dashed #cccccc;
-            padding-top: 15px;
+            padding-top: 10px;
             color: #888888;
-            font-size: 10pt;
+            font-size: 9.5pt;
         }
 
-        /* ✂️ பக்கத்தை கச்சிதமாகப் பிரிக்கும் வெர்சல் மேஜிக் */
+        /* ✂️ கஸ்டமர் காப்பி மற்றும் ஆபீஸ் காப்பியை மட்டும் பிரிக்கும் மேஜிக் வரியாக இது இருக்கும் பாஸ் */
         .page-break {
             page-break-before: always;
         }
@@ -200,18 +200,27 @@
     <div class="header-container">
         <table style="width: 100%; border: none;">
             <tr style="border: none;">
-                <!-- 📸 இடது பக்கம்: இன்வாய்ஸ் டவுன்லோட் க்யூஆர் கோடு -->
-                <td style="width: 25%; border: none; text-align: left; vertical-align: middle;">
-                    <div style="border: 1px solid #dddddd; padding: 5px; display: inline-block; background-color: #ffffff; border-radius: 4px;">
-                        <img src="{{ invoice_url_qr }}" alt="Scan to View Bill" style="width: 80px; height: 80px;">
+                
+                <!-- 📸 இடது கார்னர்: இன்வாய்ஸ் க்யூஆர் கோடு பாஸ் -->
+                <td style="width: 20%; border: none; text-align: left; vertical-align: middle;">
+                    <div style="border: 1px solid #dddddd; padding: 4px; display: inline-block; background-color: #ffffff; border-radius: 4px;">
+                        <img src="{{ invoice_url_qr }}" alt="Scan to View Bill" style="width: 70px; height: 70px;">
                     </div>
-                    <div style="font-size: 7.5pt; color: #666666; margin-top: 3px; font-weight: bold;">Scan to View Digital Bill</div>
+                    <div style="font-size: 7pt; color: #666666; margin-top: 2px; font-weight: bold;">Digital Verification</div>
                 </td>
-                <!-- 🏢 வலது பக்கம்: கடை பெயர் மற்றும் விபரங்கள் -->
-                <td style="width: 75%; border: none; text-align: right; vertical-align: middle;">
-                    <div class="store-name">Kalaiarasi Metal Store</div>
+                
+                <!-- 🏢 நடுவுல: கடை பெயர் மற்றும் விபரங்கள் -->
+                <td style="width: 60%; border: none; text-align: center; vertical-align: middle;">
+                    <div class="store-name">KALAIARASI METAL STORE</div>
                     <div class="store-tagline">Premium Quality Steel & Modern Furniture</div>
+                    <div style="font-size: 8pt; color: #777777; margin-top: 2px;">Pincode: 631208</div>
                 </td>
+                
+                <!-- 🎯 வலது கார்னர்: உங்க புதிய BUY TO GET லோகோ பாஸ் -->
+                <td style="width: 20%; border: none; text-align: right; vertical-align: middle;">
+                    <img src="http://buy-to-get.vercel.app/static/shop/images/logo.jpg" alt="BUY TO GET Logo" style="width: 75px; height: 75px; object-fit: contain;">
+                </td>
+
             </tr>
         </table>
     </div>
@@ -266,7 +275,7 @@
                 <td><strong>{{ item.product.name }}</strong></td>
                 <td class="text-right">Rs. {{ item.price }}</td>
                 <td class="text-center">{{ item.quantity }} Nos</td>
-                <td class="text-right">Rs. {{ item.quantity }}</td>
+                <td class="text-right">Rs. {{ order.total_amount }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -330,18 +339,27 @@
     <div class="header-container">
         <table style="width: 100%; border: none;">
             <tr style="border: none;">
-                <!-- 📸 இடது பக்கம்: இன்வாய்ஸ் டவுன்லோட் க்யூஆர் கோடு -->
-                <td style="width: 25%; border: none; text-align: left; vertical-align: middle;">
-                    <div style="border: 1px solid #dddddd; padding: 5px; display: inline-block; background-color: #ffffff; border-radius: 4px;">
-                        <img src="{{ invoice_url_qr }}" alt="Scan to View Bill" style="width: 80px; height: 80px;">
+                
+                <!-- 📸 இடது கார்னர்: இன்வாய்ஸ் க்யூஆர் கோடு பாஸ் -->
+                <td style="width: 20%; border: none; text-align: left; vertical-align: middle;">
+                    <div style="border: 1px solid #dddddd; padding: 4px; display: inline-block; background-color: #ffffff; border-radius: 4px;">
+                        <img src="{{ invoice_url_qr }}" alt="Scan to View Bill" style="width: 70px; height: 70px;">
                     </div>
-                    <div style="font-size: 7.5pt; color: #666666; margin-top: 3px; font-weight: bold;">Scan to View Digital Bill</div>
+                    <div style="font-size: 7pt; color: #666666; margin-top: 2px; font-weight: bold;">Digital Verification</div>
                 </td>
-                <!-- 🏢 வலது பக்கம்: கடை பெயர் மற்றும் விபரங்கள் -->
-                <td style="width: 75%; border: none; text-align: right; vertical-align: middle;">
+                
+                <!-- 🏢 நடுவுல: கடை பெயர் மற்றும் விபரங்கள் -->
+                <td style="width: 60%; border: none; text-align: center; vertical-align: middle;">
                     <div class="store-name">Kalaiarasi Metal Store</div>
                     <div class="store-tagline">Premium Quality Steel & Modern Furniture</div>
+                    <div style="font-size: 8pt; color: #777777; margin-top: 2px;">Pincode: 631208</div>
                 </td>
+                
+                <!-- 🎯 வலது கார்னர்: உங்க புதிய BUY TO GET லோகோ பாஸ் -->
+                <td style="width: 20%; border: none; text-align: right; vertical-align: middle;">
+                    <img src="http://buy-to-get.vercel.app/static/shop/images/logo.png" alt="BUY TO GET Logo" style="width: 75px; height: 75px; object-fit: contain;">
+                </td>
+
             </tr>
         </table>
     </div>
@@ -396,7 +414,7 @@
                 <td><strong>{{ item.product.name }}</strong></td>
                 <td class="text-right">Rs. {{ item.price }}</td>
                 <td class="text-center">{{ item.quantity }} Nos</td>
-                <td class="text-right">Rs. {{ item.quantity }}</td>
+                <td class="text-right">Rs. {{ order.total_amount }}</td>
             </tr>
             {% endfor %}
         </tbody>

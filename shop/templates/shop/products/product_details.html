@@ -7,7 +7,6 @@
 
 {% block content %}
 
-<!-- International Telephone Input CSS -->
 <link class="image_b9dd60.jpg" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
 
 <section class="bg-light py-4 my-5" style="min-height:600px;">
@@ -40,19 +39,42 @@
 
             <div class="col-md-5 my-3 pic-box">
 
-                {% if products.trending %}
-                <div class="hot">Hot</div>
-                {% endif %}
+                <div style="position: relative; display: inline-block; width: 100%;">
+                    
+                    {% if products.trending %}
+                    <div class="hot" style="z-index: 5;">Hot</div>
+                    {% endif %}
 
-                <img id="main-image"
-                     src="{{ products.product_image.url }}"
-                     class="img-fluid border rounded shadow-sm"
-                     style="cursor: zoom-in; width: 100%; max-height: 450px; object-fit: contain;"
-                     alt="{{ products }}"
-                     onclick="openFullImageView()">
+                    <button onclick="shareProduct()" title="Share Product" 
+                            style="position: absolute; 
+                                   top: 15px; 
+                                   right: 15px; 
+                                   z-index: 10; 
+                                   background-color: rgba(255, 255, 255, 0.9); 
+                                   border: 1px solid #dddddd; 
+                                   border-radius: 50%; 
+                                   width: 40px; 
+                                   height: 40px; 
+                                   display: flex; 
+                                   align-items: center; 
+                                   justify-content: center; 
+                                   box-shadow: 0px 4px 8px rgba(0,0,0,0.12); 
+                                   cursor: pointer; 
+                                   transition: transform 0.2s, background-color 0.2s;"
+                            onmouseover="this.style.transform='scale(1.1)'; this.style.backgroundColor='#ffffff';"
+                            onmouseout="this.style.transform='scale(1)'; this.style.backgroundColor='rgba(255, 255, 255, 0.9)';">
+                        <i class="fas fa-share-alt" style="color: #333333; font-size: 15px;"></i>
+                    </button>
+
+                    <img id="main-image"
+                         src="{{ products.product_image.url }}"
+                         class="img-fluid border rounded shadow-sm"
+                         style="cursor: zoom-in; width: 100%; max-height: 450px; object-fit: contain;"
+                         alt="{{ products }}"
+                         onclick="openFullImageView()">
+                </div>
 
                 <div class="mt-3 d-flex flex-wrap gap-2">
-
                     <img src="{{ products.product_image.url }}"
                          width="80"
                          height="80"
@@ -68,7 +90,6 @@
                          style="cursor:pointer; object-fit: cover;"
                          onclick="changeImage(this)">
                     {% endfor %}
-
                 </div>
 
             </div>
@@ -89,24 +110,30 @@
                 </p>
                 {% endif %}
 
-                <!-- 📝 1. Product Description Box -->
                 <div class="product-description-box mb-4">
                     <h5 class="text-dark fw-bold mb-2">Product Description</h5>
                     <p class="text-secondary" style="line-height: 1.6; font-size: 15px;">
-                        <!-- 🎯 இங்க இப்போ பழையபடி வெறும் பொதுவான விளக்கம் மட்டும் பத்தியா நீட்டா காட்டும் பாஸ் -->
                         {{ products.description|linebreaksbr }}
                     </p>
                 </div>
 
-                <h6 class="text-danger">
-                    Current Price :
-                    <s>₹ {{ products.original_price }}</s>
-                </h6>
-
-                <h4 class="text-primary">
-                    Offer Price :
-                    ₹ {{ products.selling_price }}
-                </h4>
+                <div class="price-section my-3">
+                    <h6 class="text-danger mb-1" style="font-size: 15px;">
+                        M.R.P.: <s>₹ <span id="orig_price">{{ products.original_price }}</span></s>
+                    </h6>
+                    <h4 class="text-primary fw-bold mb-2">
+                        Offer Price: ₹ <span id="sell_price">{{ products.selling_price }}</span>
+                    </h4>
+                    
+                    <div id="discount_badge_container" class="mt-2" style="display: none;">
+                        <span class="badge bg-success px-2 py-1" style="font-size: 14px; font-weight: 600;">
+                            <i class="fas fa-tag me-1"></i> Save <span id="discount_percent">0</span>% OFF
+                        </span>
+                        <span class="text-success small fw-bold ms-1">
+                            (You save ₹ <span id="saved_amount">0</span>)
+                        </span>
+                    </div>
+                </div>
 
                 <hr>
 
@@ -170,10 +197,9 @@
             </div>
         </div>
 
-        <!-- 🎯 2. About this item: புது மைக்ரேஷன் ஃபீல்டான about_this_item-ஐ இங்க புல்லட் பாயிண்ட்டா பிரிக்கிறோம் பாஸ்! -->
         <div class="row mt-4">
             <div class="col-12">
-                <div class="product-about-section p-4 rounded shadow-sm mb-4" style="background-color: #ffffff; color: #ffffff;">
+                <div class="product-about-section p-4 rounded shadow-sm mb-4" style="background-color: #ffffff;">
                     <h4 class="text-dark fw-bold mb-3" style="font-size: 18px;">
                         <i class="fas fa-info-circle"></i> About this item
                      </h4>
@@ -182,21 +208,20 @@
                         {% if products.about_this_item %}
                             {% for line in products.about_this_item.splitlines %}
                                 {% if line.strip %}
-                                    <li class="d-flex align-items-start mb-2" style="font-size: 14px; color: #e0e0e0;">
-                                        <span class="text-warning me-2" style="font-size: 10px; margin-top: 5px;">●</span>
+                                    <li class="d-flex align-items-start mb-2" style="font-size: 14px; color: #222222;">
+                                        <span class="text-success me-2" style="font-size: 10px; margin-top: 5px;">●</span>
                                         <div>{{ line }}</div>
                                     </li>
                                 {% endif %}
                             {% endfor %}
                         {% else %}
-                            <li class="text-muted small">No specifications added for this product,</li>
+                            <li class="text-muted small">No specifications added for this product, boss!</li>
                         {% endif %}
                     </ul>
                 </div>
             </div>
         </div>
 
-        <!-- 💬 3. Customer Reviews Section -->
         <div class="row">
             <div class="col-12">
                 <div class="card shadow-sm p-3 mt-2">
@@ -273,7 +298,6 @@
     </div>
 </section>
 
-<!-- Flipkart Style Full-Screen Image Viewer Overlay -->
 <div id="fullImageModal" class="full-img-overlay" onclick="closeFullImageView()">
     <span class="close-full-img">&times;</span>
     <div class="full-img-container" onclick="event.stopPropagation()">
@@ -329,8 +353,44 @@
     }
 </style>
 
-<!-- International Telephone Input JS Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+
+<script>
+function shareProduct() {
+    const productTitle = "{{ products.name }}";
+    const productUrl = window.location.href;
+
+    if (navigator.share) {
+        navigator.share({
+            title: productTitle,
+            text: 'Check out this awesome product at Kalaiarasi Metal Store: ' + productTitle,
+            url: productUrl,
+        })
+        .then(() => console.log('Successful share, boss!'))
+        .catch((error) => console.log('Error sharing:', error));
+    } else {
+        navigator.clipboard.writeText(productUrl);
+        alert("Product link copied to clipboard, boss! Opening WhatsApp...");
+        window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent('Check this out: ' + productTitle + ' - ' + productUrl), '_blank');
+    }
+}
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const originalPrice = parseFloat(document.getElementById("orig_price").innerText) || 0;
+    const sellingPrice = parseFloat(document.getElementById("sell_price").innerText) || 0;
+
+    if (originalPrice > sellingPrice && originalPrice > 0) {
+        const saved = originalPrice - sellingPrice;
+        const percent = Math.round((saved / originalPrice) * 100);
+
+        document.getElementById("saved_amount").innerText = saved.toFixed(2);
+        document.getElementById("discount_percent").innerText = percent;
+        document.getElementById("discount_badge_container").style.display = "block";
+    }
+});
+</script>
 
 <script>
 function changeImage(element){
