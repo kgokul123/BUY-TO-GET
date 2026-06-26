@@ -49,3 +49,15 @@ class OrderAdmin(admin.ModelAdmin):
     readonly_fields = ['order_number', 'payment_mode', 'transaction_id', 'payment_id', 'created_at']
     
     inlines = [OrderItemInline]
+
+    def download_invoice_link(self, obj):
+        # நம்ம வியூவ்ஸ்ல இருக்குற 'download_invoice' யூஆர்எல் லிங்க்கை எடுக்கிறோம்
+        url = reverse('download_invoice', args=[obj.order_number])
+        # அட்மின் டேபிள்ல ஒரு அழகான பச்சை கலர் பட்டனை ரெடி பண்றோம் தலைவா
+        return format_html(
+            '<a class="button" href="{}" style="background-color: #198754; color: white; padding: 5px 10px; text-decoration: none; border-radius: 4px; font-weight: bold;"><i class="fas fa-file-pdf"></i> PDF Bill</a>',
+            url
+        )
+    
+    # அட்மின் டேபிளோட ஹெடிங் பெயர் என்னவாக இருக்கணும்னு சொல்றோம்
+    download_invoice_link.short_description = 'Invoice Copy'
