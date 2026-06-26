@@ -112,19 +112,19 @@
             </td>
 
             <!-- டாப்-வலது: கடையோட "BUY TO GET" லோகோ காட்டும் பகுதி பாஸ்! -->
-            <td style="width: 20%; vertical-align: top; text-align: right;">
-    <div style="width: 85px; display: inline-block; text-align: center;">
-        
-        <!-- 🚀 இதோ இதுதான் பாஸ் புரோபரான இமேஜ் டேக் மற்றும் யூஆர்எல் வடிவம் -->
+         <td style="width: 20%; vertical-align: top; text-align: right;">
+    <div style="width: 100%; display: block; text-align: center;">
         {% if logo_base64 %}
-            <img src="data:image/jpeg;base64,{{ logo_base64 }}" alt="Store Logo" style="width: 75px; height: 75px; object-fit: contain;">
-        {% else %}
-            <!-- ஒருவேளை லோகோ டேட்டா வரலைனா பாக்ஸ் மட்டும் காலியா இருக்கும், எர்ரர் வராது பாஸ் -->
-            <div style="width: 75px; height: 75px;"></div>
-        {% endif %}
-        
-    </div>
-</td>
+            <div style="text-align: center; margin-top: 10px;">
+               <img src="data:image/jpeg;base64,{{ logo_base64 }}" 
+                   style="min-width: 300px !important; max-width: 350px !important; height: auto !important; display: block; margin: 0 auto !important;" 
+                     alt="Logo">
+                       </div>
+                      {% else %}
+                          <div style="width: 75px; height: 75px;"></div>
+                   {% endif %}
+                </div>
+      </td>
         </tr>
     </table>
 

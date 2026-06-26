@@ -17,6 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.management import call_command
 from django.template.loader import get_template
 from xhtml2pdf import pisa
+from django.conf import settings
 
 from .form import CustomUserForm
 from .models import (
@@ -29,13 +30,14 @@ from .models import (
     Product,
     Review,
 )
+import os
+import base64
 import qrcode
 import io
 import base64
 
 @login_required(login_url="login")
 def download_invoice_pdf(request, order_no):
-    # 🚀 'ORD4698511A' என்ற ஸ்ட்ரிங்கில் இருந்து வெறும் நம்பரான ஐடியை மட்டும் பிரிக்கிறோம் பாஸ்.
     try:
         clean_id = order_no.replace("ORD", "").replace("A", "").strip()
         order = Order.objects.get(id=clean_id)
@@ -43,61 +45,47 @@ def download_invoice_pdf(request, order_no):
         order = Order.objects.filter(user=request.user).last()
         if not order:
             order = Order.objects.last()
-            
         if not order:
-            return HttpResponse("பாஸ், டேட்டாபேஸ்ல இன்னும் ஒரு ஆர்டர் கூட இல்லை! முதல்ல வெப்சைட்ல ஒரு டெஸ்ட் ஆர்டர் போடுங்க தலைவா.")
+            return HttpResponse("பாஸ், டேட்டாபேஸ்ல இன்னும் ஒரு ஆர்டர் கூட இல்லை!")
 
-    # 1. 🚀 [டாப்-லெஃப்ட் கியூஆர்]: டிஜிட்டல் வெரிஃபிகேஷன் லைவ் லிங்க்
+    logo_base64 = ""
+    try:
+        logo_path = os.path.join(settings.BASE_DIR, 'static', 'uploads', 'images', 'logo.jpg.jpeg')
+        if os.path.exists(logo_path):
+            with open(logo_path, "rb") as image_file:
+                logo_base64 = base64.b64encode(image_file.read()).decode('utf-8')
+    except Exception as e:
+        print(f"லோகோ கிடைக்கல: {e}")
+
     live_domain = "https://buy-to-get.vercel.app"
     verification_url = f"{live_domain}/digital-verify/{order.id}/"
-    
     top_qr = qrcode.QRCode(version=1, box_size=3, border=1)
     top_qr.add_data(verification_url)
     top_qr.make(fit=True)
-    
     top_img = top_qr.make_image(fill_color="black", back_color="white")
     top_buffer = io.BytesIO()
     top_img.save(top_buffer, format="PNG")
     invoice_url_qr = base64.b64encode(top_buffer.getvalue()).decode('utf-8')
     
-    # 2. 💰 [பாட்டம்-லெஃப்ட் கியூஆர்]: COD கியூஆர் கோடு
     qr_code_base64_data = ""
     if str(order.order_status).lower() == 'pending' or str(order.payment_mode).upper() == 'COD':
         your_upi_id = "kalaiarasi2128@oksbi"
         store_name = "KALAIARASI METAL STORE"
         upi_string = f"upi://pay?pa={your_upi_id}&pn={urllib.parse.quote(store_name)}&am={order.total_amount}&cu=INR"
-        
         bottom_qr = qrcode.QRCode(version=1, box_size=4, border=1)
         bottom_qr.add_data(upi_string)
         bottom_qr.make(fit=True)
-        
         bottom_img = bottom_qr.make_image(fill_color="black", back_color="white")
         bottom_buffer = io.BytesIO()
         bottom_img.save(bottom_buffer, format="PNG")
         qr_code_base64_data = base64.b64encode(bottom_buffer.getvalue()).decode('utf-8')
 
-    # 3. 🎯 [லோகோவை பேஸ்64 ஆக மாத்தும் மேஜிக் - பக்கா ஃபைல் நேம் பிக்ஸ் பாஸ்!]
-   logo_base64 = ""
-    try:
-        # வெர்சல் சர்வர்ல static கோப்புகளை அணுக இந்த வழிதான் கரெக்ட் பாஸ்
-        logo_path = os.path.join(settings.BASE_DIR, 'shop', 'static', 'images', 'logojpg.jpeg')
-        
-        # ஒருவேளை அங்க இல்லனா, ரூட் ஃபோல்டர்ல தேடும்
-        if not os.path.exists(logo_path):
-            logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logojpg.jpeg')
-
-        with open(logo_path, "rb") as image_file:
-            logo_base64 = base64.b64encode(image_file.read()).decode('utf-8')
-    except Exception as e:
-        print(f"லோகோ கிடைக்கல பாஸ்: {e}")
-
-    # 4. 🎯 காண்டெக்ஸ்ட் மேப்பிங்
     context = {
         'order': order,
         'order_no': order_no,
-        'invoice_url_qr': invoice_url_qr,       
+        'invoice_url_qr': invoice_url_qr,           
         'qr_code_base64_data': qr_code_base64_data, 
-        'logo_base64': logo_base64, # 👈 இப்போ லோகோ டேட்டா எச்டிஎம்எல்க்கு கச்சிதமா போயிடும்!
+        'logo_base64': logo_base64,
     }
     
     html_template = render(request, 'shop/invoice_pdf.html', context)
@@ -107,7 +95,7 @@ def download_invoice_pdf(request, order_no):
     
     pisa_status = pisa.CreatePDF(html, dest=response)
     if pisa_status.err:
-        return HttpResponse('We had some errors <pre>' + html + '</pre>')
+        return HttpResponse('We had some errors')
     return response
 
 
@@ -131,7 +119,7 @@ def your_invoice_pdf_view(request, order_id):
     # 🚀 [லைவ் வெப்சைட் வெரிஃபிகேஷன் லிங்க் பாஸ்]:
     # கஸ்டமர் ஸ்கேன் பண்ணா நேரா உங்க வெப்சைட்ல இருக்குற 'digital-verify' பக்கத்துக்கு போகும்!
     # (உங்க ஒரிஜினல் டொமைன் நேமை 'https://kalaiarasi-metal-store.vercel.app' மாதிரி இங்க மாத்திக்கோங்க பாஸ்)
-    live_domain = "https://your-website-domain.com" 
+    live_domain = "https://buy-to-get.vercel.com" 
     verification_url = f"{live_domain}/digital-verify/{order.id}/"
     
     # டாப் லெஃப்ட் கியூஆர் கோடு இமேஜ் ஜெனரேட் பண்றோம் பாஸ்
