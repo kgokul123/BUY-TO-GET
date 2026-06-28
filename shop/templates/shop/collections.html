@@ -62,7 +62,7 @@ Collections for shop
                         <!-- 🎯 மொபைலில் 2 கார்டுகள் பக்கத்துல பக்கத்துல வரும்போது இமேஜ் நசுங்காமல் இருக்க பக்கா ஸ்டைல் -->
                         <img src="{{ item.image.url }}"
                              class="card-img-top"
-                             style="width: 100% !important; height: 160px !important; object-fit: cover !important; object-position: center !important;"
+                             style="width: 100% !important; height: 300px !important; object-fit: cover !important; object-position: center !important;"
                              alt="{{ item.name }}">
                     </a>
 
@@ -72,7 +72,7 @@ Collections for shop
                         <a href="{% url 'collections_view' item.name %}"
                            class="text-decoration-none">
                             <!-- கேட்டகிரி பெயர் ரொம்ப நீளமாக இருந்தால் கார்டு உடையாமல் இருக்க 'text-truncate' -->
-                            <h5 class="card-title text-primary text-truncate" style="font-size: 14px; font-weight: 600; margin-bottom: 5px;">
+                            <h5 class="card-title text-primary text-truncate" height: 300px !important; 14px; font-weight: 600; margin-bottom: 5px;">
                                 {{ item.name }}
                             </h5>
                         </a>

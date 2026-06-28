@@ -8,6 +8,8 @@
 {% block content %}
 
 <link class="image_b9dd60.jpg" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
 
 <section class="bg-light py-4 my-5" style="min-height:600px;">
     <div class="container">
@@ -38,36 +40,82 @@
         <div class="row">
 
             <div class="col-md-5 my-3 pic-box">
+                
 
                 <div style="position: relative; display: inline-block; width: 100%;">
                     {% if products.trending %}
                     <div class="hot">Hot</div>
                     {% endif %}
+                    
+<div class="preview-box" style="position: relative; width: 100%; height: 450px; background: #ffffff; border: 1px solid #ddd; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+   <img id="main-image"
+     src="{{ products.product_image.url }}"
+     class="img-fluid border rounded shadow-sm"
+     style="cursor: zoom-in; width: 100%; max-height: 450px; object-fit: contain;"
+     alt="{{ products }}"
+     onclick="openFullImageView()">
+    
+    <div id="main-video-container" style="display: none; width: 100%; height: 100%;">
+        <video id="main-video" width="100%" height="100%" controls style="object-fit: contain;">
+            <source id="video-source" src="" type="video/mp4">
+        </video>
+    </div>
+</div>
 
-                    <img id="main-image"
-                         src="{{ products.product_image.url }}"
-                         class="img-fluid border rounded shadow-sm"
-                         style="cursor: zoom-in; width: 100%; max-height: 450px; object-fit: contain;"
-                         alt="{{ products }}"
-                         onclick="openFullImageView()">
-                </div>
+<div class="gallery-list" style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+    <img class="thumb" src="{{ products.product_image.url }}" width="80" height="80" style="object-fit:cover; border:1px solid #ddd; border-radius:4px; cursor:pointer;" onclick="changeImage(this)">
+    
+    
+    {% for img in products.gallery.all %}
+        <img class="thumb" src="{{ img.image.url }}" width="80" height="80" style="object-fit:cover; border:1px solid #ddd; border-radius:4px; cursor:pointer;"  onclick="changeImage(this)">
+    
+    {% endfor %}
 
-                <div class="mt-3 d-flex flex-wrap gap-2">
-                    <img src="{{ products.product_image.url }}"
-                         width="80"
-                         height="80"
-                         class="border rounded"
-                         style="cursor:pointer; object-fit: cover;"
-                         onclick="changeImage(this)">
+    {% for gallery_item in products.gallery.all %}
+        {% if gallery_item.video %}
+            <div class="thumb" onclick="playVideo('{{ gallery_item.video.url }}')" 
+                 style="width: 80px; height: 80px; background: #eee; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                <i class="fas fa-play" style="font-size: 20px; color: #555;"></i>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="preview-box" style="width: 100%; max-height: 450px; overflow: hidden; border: 1px solid #ddd;">
+            
+            <div id="main-video-container" style="display: none; width: 100%;">
+                <video id="main-video" width="100%" controls><source id="video-source" src="" type="video/mp4"></video>
+            </div>
+        </div>
+        </div>     
+        <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-body p-0">
+        <img id="full-image" src="" class="img-fluid w-100">
+      </div>
+    </div>
+   <button type="button" 
+            class="btn-close" 
+            data-bs-dismiss="modal" 
+            aria-label="Close" 
+            style="position: absolute; top: 20px; right: 20px; z-index: 2000; background-color: white; padding: 10px; border-radius: 50%;">
+    </button>
+  </div>
+  <!-- Carousel Indicators -->
+<div style="display: flex; justify-content: center; gap: 8px; margin-top: 15px;">
+    {% for img in products.gallery.all %}
+        <!-- இது ஒரு சின்ன புள்ளி (Circle) -->
+   <div class="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: {% if forloop.first %}#6c757d{% else %}#dee2e6{% endif %};"></div>
+    {% endfor %}
+</div>
+</div>
+                        
+                      
+                    
 
-                    {% for img in products.gallery.all %}
-                    <img src="{{ img.image.url }}"
-                         width="80"
-                         height="80"
-                         class="border rounded"
-                         style="cursor:pointer; object-fit: cover;"
-                         onclick="changeImage(this)">
-                    {% endfor %}
+</div> <!-- இங்கதான் 82-வது வரியில் உள்ள </div> முடியணும் -->
                 </div>
 
             </div>
@@ -104,7 +152,7 @@
                 </div>
 
                 <div class="price-section my-3">
-                    <h6 class="text-muted mb-1" style="font-size: 14px;">
+                    <h6 class="text-danger mb-1" style="font-size: 14px;">
                         M.R.P.: <s>₹ <span id="orig_price">{{ products.original_price }}</span></s>
                     </h6>
                     <h3 class="fw-bold mb-2 d-flex align-items-center flex-wrap" style="gap: 10px;">
@@ -290,7 +338,7 @@
                      onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.1)';" 
                      onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 5px rgba(0,0,0,0.05)';">
                     
-                    <a href="{% url 'product_details' item.category.slug item.slug %}" class="text-decoration-none">
+                    <a href="{% if item.category and item.slug %}{% url 'product_details' item.category.slug item.slug %}{% else %}#{% endif %}" class="text-decoration-none text-dark"></a>
                         <div style="height: 200px; display: flex; align-items: center; justify-content: center; background: #ffffff; padding: 15px; border-top-left-radius: 8px; border-top-right-radius: 8px;">
                             <img src="{{ item.product_image.url }}" alt="{{ item.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
                         </div>
@@ -300,7 +348,7 @@
                         <span class="text-muted small uppercase" style="font-size: 11px;">{{ item.vendor }}</span>
                         
                         <h6 class="card-title my-1 text-dark fw-bold" style="font-size: 14px; height: 40px; overflow: hidden;">
-                            <a href="{% url 'product_details' item.category.slug item.slug %}" class="text-decoration-none text-dark">
+                           <a href="{% if item.category and item.slug %}{% url 'product_details' item.category.slug item.slug %}{% else %}#{% endif %}" class="text-decoration-none text-dark"></a>
                                 {{ item.name|upper }}
                             </a>
                         </h6>
@@ -337,6 +385,31 @@
 </div>
 
 <style>
+
+  
+
+#main-video-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10; /* இதுதான் வீடியோவை இமேஜுக்கு மேல காட்டும் */
+    background-color: black;
+}
+
+
+
+#main-video-container video {
+    width: 100%;
+    max-height: 450px;
+    background: #000;
+}
+
+
+
+
+
     .full-img-overlay {
         display: none;
         position: fixed;
@@ -555,6 +628,70 @@ document.addEventListener("DOMContentLoaded", function(){
         });
     }
 });
+
+
+ function changeImage(element, fullImageUrl) {
+        var img = document.getElementById("main-image");
+        var link = document.getElementById("main-image-link");
+        var videoCont = document.getElementById("main-video-container");
+        var video = document.getElementById("main-video");
+
+        // வீடியோவை நிறுத்து
+        videoCont.style.display = "none";
+        video.pause();
+        
+        // மெயின் இமேஜைக் காட்டு
+        img.style.display = "block";
+        img.src = element.src;
+
+        // Lightbox லிங்கை புதிய பெரிய இமேஜுக்கு மாற்று (இதுதான் ஜூம் செய்யும்)
+        link.href = fullImageUrl;
+
+        // 'active' கிளாஸை மாற்றுவது (பார்டர் கலருக்கு)
+        var thumbs = document.querySelectorAll('.thumb');
+        thumbs.forEach(t => t.classList.remove('active'));
+        element.classList.add('active');
+    }
+
+    // வீடியோ ப்ளே செய்யும்
+    function playVideo(videoUrl) {
+        var img = document.getElementById("main-image");
+        var videoCont = document.getElementById("main-video-container");
+        var video = document.getElementById("main-video");
+        var source = document.getElementById("video-source");
+
+        // இமேஜை மறைத்து வீடியோவைக் காட்டு
+        img.style.display = "none";
+        videoCont.style.display = "block";
+        
+        // வீடியோவை லோட் செய்
+        source.src = videoUrl;
+        video.load();
+        video.play();
+
+        // வீடியோ பட்டன் தம்பனைல்ல 'active' கிளாஸை நீக்கு
+        var thumbs = document.querySelectorAll('.thumb');
+        thumbs.forEach(t => t.classList.remove('active'));
+    }
+
+    function openFullImageView() {
+        // மெயின் இமேஜின் src-ஐ எடுக்கிறது
+        var mainImgSrc = document.getElementById("main-image").src;
+        
+        // மோடலில் இருக்கும் இமேஜ் டேக்கிற்கு அதை அனுப்புகிறது
+        var fullImg = document.getElementById("full-image");
+        fullImg.src = mainImgSrc;
+        
+        // பூட்ஸ்டிராப் மோடலைத் திறக்கிறது
+        var myModal = new bootstrap.Modal(document.getElementById('imageModal'));
+        myModal.show();
+    }
+
+ 
+    function showVideo(url) { document.getElementById('video-wrapper').style.display='block'; document.getElementById('video-source').src=url; document.getElementById('product-video').load(); document.getElementById('product-video').play(); }
+    function shareProduct() { navigator.share({ title: '{{ products.name }}', url: window.location.href }); }
+
+
 </script>
 
 <style>

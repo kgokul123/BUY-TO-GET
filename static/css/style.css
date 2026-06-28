@@ -1,4 +1,22 @@
 /* போன் மற்றும் டேப்லெட்டில் எல்லா இமேஜ்களையும் ஒரே உயரத்திற்கு லாக் செய்யும் கோடு */
+
+
+
+#video-box {
+    width: 100% !important;
+    height: 500px !important; /* இங்கே ஹைட்டை உங்களுக்குத் தேவையான அளவுக்கு மாத்திக்கோங்க */
+    display: block !important; /* மறையாமல் இருக்க இது முக்கியம் */
+}
+
+#product-video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover; /* வீடியோ முழுமையா தெரிய */
+    border-radius: 10px;
+}
+
+
+
 @media (max-width: 1024px) {
     /* 1. ஸ்லைடரின் மெயின் கண்டெய்னர் உயரத்தை பிக்சலில் லாக் செய்கிறோம் */
     .carousel, .carousel-inner, .carousel-item {
