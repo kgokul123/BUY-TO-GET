@@ -18,6 +18,11 @@ from django.core.management import call_command
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.conf import settings
+from .models import Profile 
+from django.contrib.auth import login, authenticate
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.forms import AuthenticationForm
 
 from .form import CustomUserForm
 from .models import (
@@ -35,6 +40,31 @@ import base64
 import qrcode
 import io
 import base64
+
+
+
+
+
+@login_required
+def accept_terms(request):
+    if request.method == 'POST':
+        profile, created = Profile.objects.get_or_create(user=request.user)
+        profile.terms_accepted = True
+        profile.save() # இதுதான் டேட்டாபேஸில் சேமிக்கும்
+    return redirect('home') # இது ஹோம் பேஜுக்கு திருப்பிவிடும்
+
+def terms_view(request):
+    return render(request, 'shop/inc/terms.html')
+
+# views.py
+def home(request):
+    show_terms = False
+    if request.user.is_authenticated:
+        profile = UserProfile.objects.get(user=request.user)
+        if not profile.terms_accepted:
+            show_terms = True
+    return render(request, 'home.html', {'show_terms': show_terms})
+
 
 @login_required(login_url="login")
 def download_invoice_pdf(request, order_no):
@@ -560,10 +590,13 @@ def orderdetails(request, oid):
     order = get_object_or_404(Order, id=oid, user=request.user)
     orderitems = OrderItem.objects.filter(order=order)
     delivery_date = order.created_at + timedelta(days=5)
+    today = date.today()
+    remaining_days = (delivery_date - today).days
 
     context = {
         "order": order,
         "orderitems": orderitems,
+        'remaining_days': remaining_days,
         "delivery_date": delivery_date,
     }
     return render(request, "shop/orderdetails.html", context)
@@ -589,20 +622,22 @@ def add_review(request, product_id):
         return redirect("product_details", cname=product.category.name, pname=product.name)
 
 
-def login_page(request):
-    if request.method == "POST":
-        name = request.POST.get("username")
-        pwd = request.POST.get("password")
-        user = authenticate(request, username=name, password=pwd)
-
-        if user is not None:
+def login_view(request):
+    if request.method == 'POST':
+        # AuthenticationForm என்பது Django-விலேயே இருக்கும் லாகின் ஃபார்ம்
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            # யூசர் நேம் மற்றும் பாஸ்வேர்டு கரெக்டா இருந்தா லாகின் செய்யும்
+            user = form.get_user()
             login(request, user)
-            messages.success(request, "Logged in Successfully")
-            return redirect("/")
+            messages.success(request, "Login Successful!")
+            return redirect('home') # லாகின் ஆனதும் ஹோம் பேஜுக்கு போகும்
         else:
-            messages.error(request, "Invalid Username or Password")
-            return redirect("/login")
-    return render(request, "shop/login.html")
+            messages.error(request, "Invalid username or password.")
+    else:
+        form = AuthenticationForm()
+    
+    return render(request, 'shop/login.html', {'form': form})
 
 
 def logout_page(request):

@@ -71,6 +71,13 @@ class ProductImage(models.Model):
     image = models.ImageField(upload_to='product_gallery/')
     video = models.FileField(upload_to='product_videos/', null=True, blank=True)
 
+# models.py
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    terms_accepted = models.BooleanField(default=False)
+    
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile') # இந்த related_name ரொம்ப முக்கியம்
 
 
 class Cart(models.Model):

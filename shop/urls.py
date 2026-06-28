@@ -2,10 +2,11 @@ from django.urls import path
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth import login
 
 urlpatterns=[
-   path('', views.home, name="home"),
-    path('login/', views.login_page, name="login"),
+    path('', views.home, name="home"),
+    path('login/', views.login_view, name='login'),
     path('logout/', views.logout_page, name="logout"),
     path('cart/', views.Cart_page, name="cart"),
     path('Fav/', views.Fav_page, name="Fav"),
@@ -31,6 +32,10 @@ urlpatterns=[
     path('check-verification-status/', views.check_verification_status, name='check_verification_status'),
     path('download-invoice/<str:order_no>/', views.download_invoice_pdf, name='download_invoice'),
     path('digital-verify/<int:order_id>/', views.digital_verification_view, name='digital_verification_view'),
+    path('terms-and-conditions/', views.terms_view, name='terms'),
+    path('accept-terms/', views.accept_terms, name='accept_terms'),
+    path('accounts/login/', views.login_view, name='accounts_login'),
+    
     path('orderdetails/<int:oid>/', views.orderdetails, name='orderdetails')
     
 ]

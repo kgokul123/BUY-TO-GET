@@ -167,7 +167,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const statusBox = document.getElementById("verificationResult");
         if (statusBox) {
             statusBox.className = "alert alert-success fw-bold py-2 mb-2";
-            statusBox.innerHTML = "✓ Welcome back, boss! Your details are verified via past orders.";
+            statusBox.innerHTML = "✓ Welcome back, Your details are verified via past orders.";
             
             const statusSection = document.getElementById("verificationStatusSection");
             if (statusSection) statusSection.style.display = "block";
@@ -312,9 +312,9 @@ function sendWhatsAppLink() {
         }
     })
     .catch(error => {
-        alert("Connection Error! உங்க வீட்டு பிசி சர்வர் ஆன்ல இருக்கான்னு பாருங்க பாஸ்.");
+        alert("Connection Error!");
         confirmBtn.disabled = false;
-        confirmBtn.innerText = "Send OTP (அனுப்பு)";
+        confirmBtn.innerText = "Send OTP";
     });
 }
 
@@ -333,7 +333,7 @@ function startOneMinuteOTPTimer() {
             document.getElementById("verificationResult").innerHTML = "❌ WRONG OTP.";
             document.getElementById("verificationResult").className = "alert alert-danger fw-bold py-2 mb-2";
         } else {
-            timerDisplay.innerHTML = `⏱️ OTP TIMING: ${timeLeft} வினாடிகள்...`;
+            timerDisplay.innerHTML = `⏱️ OTP TIMING: ${timeLeft} seconds...`;
         }
         timeLeft -= 1;
     }, 1000);

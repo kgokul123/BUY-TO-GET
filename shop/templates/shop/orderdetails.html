@@ -62,7 +62,16 @@ Order Details | Kalaiarasi Metal Store
                     </div>
                 {% endif %}
             </div>
-
+              <div class="tracking-info">
+    <h5>Tracking Status</h5>
+    {% if remaining_days > 0 %}
+        <p>Your order will be delivered in <strong>{{ remaining_days }} days</strong>.</p>
+    {% elif remaining_days == 0 %}
+        <p>Your order is <strong>Out for Delivery!</strong></p>
+    {% else %}
+        <p>Order <strong>Delivered</strong>.</p>
+    {% endif %}
+</div>
         </div>
     </div>
 

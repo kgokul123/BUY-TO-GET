@@ -12,7 +12,8 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
-# --------------------------------------------------
+# settings.py
+LOGIN_URL = '/login/'
 # Base Directory
 # --------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
