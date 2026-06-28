@@ -592,7 +592,7 @@ def orderdetails(request, oid):
     orderitems = OrderItem.objects.filter(order=order)
     delivery_date = order.created_at + timedelta(days=5)
     today = date.today()
-    remaining_days = (delivery_date - today).days
+    remaining_days = (delivery_date.date() - today).days
 
     context = {
         "order": order,
