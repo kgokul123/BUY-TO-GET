@@ -11,5 +11,9 @@
       "src": "/(.*)",
       "dest": "joes_project/wsgi.py"
     }
-  ]
+  ],
+  "config": {
+    "maxDuration": 60,
+    "memory": 3008
+  }
 }

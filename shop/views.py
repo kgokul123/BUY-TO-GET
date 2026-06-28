@@ -24,7 +24,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from datetime import date
-
+from django.contrib.auth.decorators import login_required
 from .form import CustomUserForm
 from .models import (
     Cart,
@@ -442,11 +442,13 @@ def remove_cart(request, cid):
 
 @login_required(login_url="login")
 def Fav_page(request):
+    # 1. பக்கத்தை லோட் செய்யும்போது (GET)
     if request.method == "GET":
         fav = Favourite.objects.filter(user=request.user)
         return render(request, "shop/fav.html", {"fav": fav})
 
-    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+    # 2. ப்ராடக்ட்டை ஃபேவரிட்டில் ஆட் செய்யும்போது (AJAX POST)
+    if request.method == "POST" or request.headers.get("x-requested-with") == "XMLHttpRequest":
         try:
             data = json.loads(request.body)
             product_id = data.get("pid")
@@ -457,10 +459,14 @@ def Fav_page(request):
             if Favourite.objects.filter(user=request.user, product_id=product_id).exists():
                 return JsonResponse({"status": "Product Already in Favourite"}, status=200)
 
-            'Favourite'.objects.create(user=request.user, product_id=product_id)
+            # 🎯 ஸ்ட்ரிங் குறிகளைத் தூக்கியாச்சு பாஸ்! ஒரிஜினல் மாடல் இப்போ வேலை செய்யும்:
+            Favourite.objects.create(user=request.user, product_id=product_id)
             return JsonResponse({"status": "Product Added to Favourite"}, status=200)
-        except Exception:
+            
+        except Exception as e:
+            print(e)  # லோக்கல் டெர்மினல்ல என்ன எர்ரர்னு பார்க்க இது உதவும் பாஸ்
             return JsonResponse({"status": "Error Processing Request"}, status=500)
+            
     return JsonResponse({"status": "Invalid Request Type"}, status=400)
 
 

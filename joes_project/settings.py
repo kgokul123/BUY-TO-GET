@@ -176,3 +176,7 @@ cloudinary.config(
 )
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# 🎯 இமேஜ் டேட்டா வெர்சல்ல உடையாமல் இருக்க இதச் சேருங்க பாஸ்:
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB வரை அனுமதிக்கிறோம்
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760
