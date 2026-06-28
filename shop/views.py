@@ -23,6 +23,7 @@ from django.contrib.auth import login, authenticate
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
+from datetime import date
 
 from .form import CustomUserForm
 from .models import (
