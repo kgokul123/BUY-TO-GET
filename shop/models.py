@@ -62,23 +62,14 @@ class Product(models.Model):
         return self.name
         
     
-    class ProductImage(models.Model): # இதை மட்டும் வையுங்கள்
+class ProductImage(models.Model): 
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='gallery')
     image = CloudinaryField('image', folder='product_gallery/')
     video = CloudinaryField('video', folder='product_videos/', blank=True, null=True)
-    
+
     def __str__(self):
         return str(self.product.name)
 
-
-class ProductImage(models.Model):
-    product = models.ForeignKey(
-        Product,
-        on_delete=models.CASCADE,
-        related_name='gallery'
-    )
-    image = models.ImageField(upload_to='product_gallery/')
-    video = models.FileField(upload_to='product_videos/', null=True, blank=True)
 
 # models.py
 class UserProfile(models.Model):
