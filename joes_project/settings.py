@@ -12,8 +12,7 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
-# settings.py
-LOGIN_URL = '/login/'
+# --------------------------------------------------
 # Base Directory
 # --------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,20 +37,19 @@ ALLOWED_HOSTS = [
 ]
 
 # --------------------------------------------------
-# Installed Apps
+# Installed Apps (Cloudinary வரிசை மாற்றப்பட்டுள்ளது)
 # --------------------------------------------------
 INSTALLED_APPS = [
     "jazzmin",
 
+    "cloudinary_storage",  # 1. இது staticfiles-க்கு மேலே இருக்க வேண்டும்
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "django.contrib.staticfiles",  # 🎯 ஸ்டேடிக் ஃபைல்ஸ் நார்மலாக வேலை செய்ய இதுதான் முதலில் இருக்க வேண்டும் பாஸ்
-
-    "cloudinary_storage",  # 🎯 மீடியாவுக்கு மட்டும் என்பதால் இதை staticfiles-க்கு கீழே மாத்தியாச்சு!
-    "cloudinary",
+    "django.contrib.staticfiles",
+    "cloudinary",          # 2. இதுவும் இங்கே இருக்க வேண்டும்
 
     "shop",
 ]
@@ -61,7 +59,7 @@ INSTALLED_APPS = [
 # --------------------------------------------------
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # WhiteNoise கம்பிரஷன் மெத்தட்
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -93,43 +91,30 @@ TEMPLATES = [
 WSGI_APPLICATION = "joes_project.wsgi.application"
 
 # --------------------------------------------------
-# Database (PostgreSQL - செக்யூர் ஆக்கப்பட்டுள்ளது பாஸ்!)
+# Database (PostgreSQL / SQLite)
 # --------------------------------------------------
 db_url = os.getenv("DATABASE_URL", "")
 
 if db_url:
-    # 🎯 வெர்சல் அல்லது லோக்கல் .env-ல் DATABASE_URL இருந்தால் அது தானாக கனெக்ட் ஆகும் பாஸ்
     tmpPostgres = urlparse(db_url)
     db_options = dict(parse_qsl(tmpPostgres.query))
     if "sslmode" not in db_options:
         db_options["sslmode"] = "require"
-        
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': tmpPostgres.path[1:],
-            'USER': tmpPostgres.username,
-            'PASSWORD': tmpPostgres.password,
-            'HOST': tmpPostgres.hostname,
-            'PORT': tmpPostgres.port or 5432,
-            'OPTIONS': db_options,
-        }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'neondb',
+        'USER': 'neondb_owner',
+        'PASSWORD': 'npg_9CKj3IxiYTtW',
+        'HOST': 'ep-aged-smoke-ah3pvhzf.c-3.us-east-1.aws.neon.tech',
+        'PORT': '5432',
+        'OPTIONS': {
+            'sslmode': 'require',
+        },
     }
-else:
-    # 🎯 ஒருவேளை .env ஃபைல் இல்லை என்றால் பேக்-அப் லோக்கல் செட்டப் பாஸ்
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'neondb',
-            'USER': 'neondb_owner',
-            'PASSWORD': 'npg_9CKj3IxiYTtW',
-            'HOST': 'ep-aged-smoke-ah3pvhzf.c-3.us-east-1.aws.neon.tech',
-            'PORT': '5432',
-            'OPTIONS': {
-                'sslmode': 'require',
-            },
-        }
-    }
+}
+
 
 # Password Validation
 # --------------------------------------------------
@@ -149,26 +134,24 @@ USE_I18N = True
 USE_TZ = True
 
 # --------------------------------------------------
-# Static Files (WhiteNoise பக்கா செட்டப்)
+# Static Files
 # --------------------------------------------------
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # --------------------------------------------------
-# Media Files (Cloudinary பக்கா செட்டப்)
+# Media Files (Cloudinary Configuration Fixed)
 # --------------------------------------------------
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 MEDIA_URL = "/media/"
 
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME':'dguxpxppo',
-    'API_KEY':'873449649196583',
+    'API_KEY': '873449649196583',
     'API_SECRET':'IsfPyFQZPVqoS4vX8S3a1mB0KHg',
 }
-DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 cloudinary.config(
     cloud_name = CLOUDINARY_STORAGE['CLOUD_NAME'],
@@ -178,7 +161,3 @@ cloudinary.config(
 )
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-# 🎯 இமேஜ் டேட்டா வெர்சல்ல உடையாமல் இருக்க இதச் சேருங்க பாஸ்:
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB வரை அனுமதிக்கிறோம்
-FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760
