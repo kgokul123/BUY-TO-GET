@@ -164,10 +164,11 @@ DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 MEDIA_URL = "/media/"
 
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME', 'dguxpxppo'),
-    'API_KEY': os.getenv('CLOUDINARY_API_KEY', '873449649196583'),
-    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET', 'IsfPyFQZPVqoS4vX8S3a1mB0KHg'),
+    'CLOUD_NAME':'dguxpxppo',
+    'API_KEY':'873449649196583',
+    'API_SECRET':'IsfPyFQZPVqoS4vX8S3a1mB0KHg',
 }
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 cloudinary.config(
     cloud_name = CLOUDINARY_STORAGE['CLOUD_NAME'],
