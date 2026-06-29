@@ -4,6 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import login
 from django.views.generic.base import RedirectView
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 urlpatterns=[
     path('', views.home, name="home"),
@@ -36,7 +37,7 @@ urlpatterns=[
     path('terms-and-conditions/', views.terms_view, name='terms'),
     path('accept-terms/', views.accept_terms, name='accept_terms'),
     path('accounts/login/', views.login_view, name='accounts_login'),
-    path('favicon.png', RedirectView.as_view(url=staticfiles_storage.url('images/favicon.png'))),
+    path("favicon.png",RedirectView.as_view(url=staticfiles_storage.url("images/favicon.png")),),
     path('orderdetails/<int:oid>/', views.orderdetails, name='orderdetails')
     
 ]
