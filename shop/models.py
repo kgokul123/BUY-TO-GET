@@ -7,6 +7,7 @@ from cloudinary.models import CloudinaryField
 from django.contrib.auth.models import User
 from django.db import models
 from django.shortcuts import get_object_or_404, render
+from cloudinary.models import CloudinaryField
 
 
 # --- Helper Functions ---
@@ -46,7 +47,7 @@ class Product(models.Model):
     category = models.ForeignKey(Catagory, on_delete=models.CASCADE)
     name = models.CharField(max_length=150, null=False, blank=False)
     vendor = models.CharField(max_length=150, null=False, blank=False)
-    product_ image = CloudinaryField('image', upload_preset='gokulraj')
+    product_image = CloudinaryField('image', upload_preset='gokulraj')
     quantity = models.IntegerField(null=False, blank=False)
     original_price = models.FloatField(null=False, blank=False)
     selling_price = models.FloatField(null=False, blank=False)
@@ -68,7 +69,7 @@ class ProductImage(models.Model):
         on_delete=models.CASCADE,
         related_name='gallery'
     )
-    product_ image = CloudinaryField('image', upload_preset='gokulraj')
+    
     image = models.ImageField(upload_to='product_gallery/')
     video = models.FileField(upload_to='product_videos/', null=True, blank=True)
 
