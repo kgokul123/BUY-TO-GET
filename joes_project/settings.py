@@ -153,6 +153,17 @@ CLOUDINARY_STORAGE = {
     'API_SECRET':'IsfPyFQZPVqoS4vX8S3a1mB0KHg',
 }
 
+# settings.py
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
+
 cloudinary.config(
     cloud_name = CLOUDINARY_STORAGE['CLOUD_NAME'],
     api_key = CLOUDINARY_STORAGE['API_KEY'],
