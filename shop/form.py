@@ -2,6 +2,13 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import User
 from .models import User
 from django import forms
+from django import forms
+from .models import Product
+
+class ProductUploadForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['name', 'product_image', 'quantity', 'status', 'selling_price']
 
 class CustomUserForm(UserCreationForm):
   username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'enter Username'}))

@@ -154,6 +154,8 @@ CLOUDINARY_STORAGE = {
     'CLOUD_NAME':'dguxpxppo',
     'API_KEY': '873449649196583',
     'API_SECRET':'IsfPyFQZPVqoS4vX8S3a1mB0KHg',
+    'RESOURCE_TYPE': 'image',
+    'TIMEOUT': 60, 
 }
 
 # settings.py
