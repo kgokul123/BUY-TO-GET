@@ -7,7 +7,6 @@ from cloudinary.models import CloudinaryField
 from django.contrib.auth.models import User
 from django.db import models
 from django.shortcuts import get_object_or_404, render
-from cloudinary.models import CloudinaryField
 
 
 # --- Helper Functions ---
@@ -69,7 +68,6 @@ class ProductImage(models.Model):
         on_delete=models.CASCADE,
         related_name='gallery'
     )
-    
     image = models.ImageField(upload_to='product_gallery/')
     video = models.FileField(upload_to='product_videos/', null=True, blank=True)
 
