@@ -46,7 +46,7 @@ class Product(models.Model):
     category = models.ForeignKey(Catagory, on_delete=models.CASCADE)
     name = models.CharField(max_length=150, null=False, blank=False)
     vendor = models.CharField(max_length=150, null=False, blank=False)
-    product_image = CloudinaryField('image', folder='products/', blank=True, null=True)
+    product_image = models.CharField(max_length=255, help_text="Paste Cloudinary Public ID")
     quantity = models.IntegerField(null=False, blank=False)
     original_price = models.FloatField(null=False, blank=False)
     selling_price = models.FloatField(null=False, blank=False)
@@ -64,8 +64,8 @@ class Product(models.Model):
     
 class ProductImage(models.Model): 
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='gallery')
-    image = CloudinaryField('image', folder='product_gallery/')
-    video = CloudinaryField('video', folder='product_videos/', blank=True, null=True)
+    image = models.CharField(max_length=255, help_text="Paste Cloudinary Public ID for image")
+    video = models.CharField(max_length=255, blank=True, null=True, help_text="Paste Cloudinary Public ID for video")
 
     def __str__(self):
         return str(self.product.name)
