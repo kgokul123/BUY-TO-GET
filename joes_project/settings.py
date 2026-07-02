@@ -41,15 +41,14 @@ ALLOWED_HOSTS = [
 # --------------------------------------------------
 INSTALLED_APPS = [
     "jazzmin",
-
-    "cloudinary_storage",  # 1. இது staticfiles-க்கு மேலே இருக்க வேண்டும்
+ # 1. இது staticfiles-க்கு மேலே இருக்க வேண்டும்
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "django.contrib.staticfiles",
-    "cloudinary",          # 2. இதுவும் இங்கே இருக்க வேண்டும்
+    "django.contrib.staticfiles", 
+    "storages",         # 2. இதுவும் இங்கே இருக்க வேண்டும்
 
     "shop",
 ]
@@ -150,30 +149,16 @@ STATICFILES_DIRS = [
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 MEDIA_URL = "/media/"
 
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME':'dguxpxppo',
-    'API_KEY': '873449649196583',
-    'API_SECRET':'IsfPyFQZPVqoS4vX8S3a1mB0KHg',
-    'RESOURCE_TYPE': 'image',
-    'TIMEOUT': 60, 
-}
-
 # settings.py
-STORAGES = {
-    "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-    },
-}
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_ACCESS_KEY_ID = 'your-vercel-blob-access-key'
+AWS_SECRET_ACCESS_KEY = 'your-vercel-blob-secret-key'
+AWS_STORAGE_BUCKET_NAME = 'buy-to-get'
+AWS_S3_ENDPOINT_URL = 'https://blob.vercel-storage.com'
+
+# ஸ்டோரேஜ் பேக்-எண்ட்
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 
-cloudinary.config(
-    cloud_name = CLOUDINARY_STORAGE['CLOUD_NAME'],
-    api_key = CLOUDINARY_STORAGE['API_KEY'],
-    api_secret = CLOUDINARY_STORAGE['API_SECRET'],
-    secure = True
-)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
