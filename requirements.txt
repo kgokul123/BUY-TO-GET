@@ -35,7 +35,7 @@ phone==0.4.5
 pillow==12.2.0
 psycopg2-binary==2.9.12
 PyAutoGUI==0.9.54
-pyparser==3.0
+pyparsing
 PyGetWindow==0.0.9
 pyHanko==0.35.1
 pyhanko-certvalidator==0.31.1
