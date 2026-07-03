@@ -5,18 +5,23 @@
 </form>
 
 <script>
-async function handleUpload() {
+async function uploadToBlob() {
     const fileInput = document.getElementById('fileInput');
     const file = fileInput.files[0];
 
-    // Vercel Blob-க்கு நேரடி அப்லோட் (எளிய முறை)
-    const response = await fetch(`/api/upload?filename=${file.name}`, {
-        method: 'POST',
+    if (!file) { alert("ஃபைலைத் தேர்ந்தெடுக்கவும்!"); return; }
+
+    // 1. சர்வர்லிருந்து Presigned URL வாங்குகிறது
+    const response = await fetch(`/api/upload/url?filename=${file.name}`);
+    const { url } = await response.json(); 
+
+    // 2. நேரடியாக Vercel Blob-க்கு அப்லோட் செய்கிறது
+    await fetch(url, {
+        method: 'PUT',
         body: file,
+        headers: { 'x-vercel-blob-access': 'public' }
     });
-    
-    const blob = await response.json();
-    document.getElementById('image_url_input').value = blob.url;
-    alert("Upload Success! URL: " + blob.url);
+
+    alert("அப்லோட் வெற்றி! இமேஜ் அப்லோட் ஆகிவிட்டது.");
 }
 </script>

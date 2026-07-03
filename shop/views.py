@@ -21,7 +21,6 @@ from django.conf import settings
 from django.template.loader import get_template
 
 from xhtml2pdf import pisa
-from vercel_blob import put
 
 # உங்கள் மாடல்கள் மற்றும் ஃபார்ம்களை ஒருமுறை மட்டும் இம்போர்ட் செய்யவும்
 from .models import (
@@ -29,6 +28,7 @@ from .models import (
     Order, OrderItem, Product, Review, User
 )
 from .forms import ProductUploadForm, CustomUserForm
+from vercel_blob import get_upload_url
 
 @csrf_exempt # இதுதான் ரொம்ப முக்கியம், அப்போதான் அப்லோட் ஆகும்
 def upload_to_blob(request):
@@ -37,7 +37,7 @@ def upload_to_blob(request):
         # ஃபைலை Vercel Blob-க்கு அனுப்புகிறது
         blob = put(filename, request.body, access='public')
         return JsonResponse({'url': blob.url})
-    return JsonResponse({'error': 'Invalid request'}, status=400)
+  return JsonResponse({'url': "அந்த_தற்காலிக_url_இங்கே_வரும்"})
 
 
 def get_upload_url(request):
