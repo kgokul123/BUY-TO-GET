@@ -28,16 +28,18 @@ from .models import (
     Order, OrderItem, Product, Review, User
 )
 from .forms import ProductUploadForm, CustomUserForm
-from vercel_blob import get_upload_url
+from vercel_blob import put
 
-@csrf_exempt # இதுதான் ரொம்ப முக்கியம், அப்போதான் அப்லோட் ஆகும்
+@csrf_exempt
 def upload_to_blob(request):
     if request.method == 'POST':
         filename = request.GET.get('filename')
-        # ஃபைலை Vercel Blob-க்கு அனுப்புகிறது
+        # இங்கே 'put' சரியாக வேலை செய்யும்
         blob = put(filename, request.body, access='public')
         return JsonResponse({'url': blob.url})
-  return JsonResponse({'url': "அந்த_தற்காலிக_url_இங்கே_வரும்"})
+    
+    # POST ரிக்வெஸ்ட் இல்லையென்றால் எரர் காட்டவும்
+    return JsonResponse({'error': 'Only POST allowed'}, status=400)
 
 
 def get_upload_url(request):
