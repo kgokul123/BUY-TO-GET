@@ -1,51 +1,34 @@
 import json
-import random
-import uuid
+import os
+import io
+import base64
 import requests
 import urllib.parse
+import qrcode
 from abc import ABC, abstractmethod
-from datetime import timedelta
+from datetime import timedelta, date
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-from django.core.management import call_command
-from django.template.loader import get_template
-from xhtml2pdf import pisa
 from django.conf import settings
-from .models import Profile 
-from django.contrib.auth import login, authenticate
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.contrib.auth.forms import AuthenticationForm
-from datetime import date
-from django.contrib.auth.decorators import login_required
-from .form import CustomUserForm
+from django.template.loader import get_template
+
+from xhtml2pdf import pisa
+from vercel_blob import put
+
+# உங்கள் மாடல்கள் மற்றும் ஃபார்ம்களை ஒருமுறை மட்டும் இம்போர்ட் செய்யவும்
 from .models import (
-    Cart,
-    Catagory,
-    DeliveryPincode,
-    Favourite,
-    Order,
-    OrderItem,
-    Product,
-    Review,
+    Profile, Cart, Catagory, DeliveryPincode, Favourite, 
+    Order, OrderItem, Product, Review, User
 )
-import os
-import base64
-import qrcode
-import io
-import base64
-from .forms import ProductUploadForm # இதை கீழே பாருங்க
-from vercel_blob import put
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from vercel_blob import put
+from .forms import ProductUploadForm, CustomUserForm
 
 @csrf_exempt # இதுதான் ரொம்ப முக்கியம், அப்போதான் அப்லோட் ஆகும்
 def upload_to_blob(request):
