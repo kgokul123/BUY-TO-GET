@@ -692,6 +692,40 @@ document.addEventListener("DOMContentLoaded", function(){
 
 </script>
 
+
+<script>
+    import { put } from '@vercel/blob'; // குறிப்பு: இது நெட்வொர்க்கில் நேரடியாக வேலை செய்யாது, இதற்கு ஒரு 'Bundler' (உதாரணமாக Vite அல்லது Webpack) தேவை.
+
+    async function uploadFile(file) {
+        const response = await fetch('/api/upload/handle', {
+            method: 'POST',
+            body: file,
+        });
+        const { url } = await response.json();
+        
+        // அப்லோட் ஆன URL-ஐ இந்த input-ல் போடுங்க (Django ஃபார்முக்காக)
+        document.getElementById('image_url_input').value = url;
+        console.log('Upload successful:', url);
+    }
+</script>
+<script>
+async function handleUpload() {
+    const fileInput = document.getElementById('fileInput');
+    const file = fileInput.files[0];
+
+    // Vercel Blob-க்கு நேரடி அப்லோட் (எளிய முறை)
+    const response = await fetch(`/api/upload?filename=${file.name}`, {
+        method: 'POST',
+        body: file,
+    });
+    
+    const blob = await response.json();
+    document.getElementById('image_url_input').value = blob.url;
+    alert("Upload Success! URL: " + blob.url);
+}
+</script>
+
+
 <style>
   .iti { width: 100%; }
   

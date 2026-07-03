@@ -41,9 +41,36 @@ import base64
 import qrcode
 import io
 import base64
+from .forms import ProductUploadForm # இதை கீழே பாருங்க
+from vercel_blob import put
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from vercel_blob import put
+
+@csrf_exempt # இதுதான் ரொம்ப முக்கியம், அப்போதான் அப்லோட் ஆகும்
+def upload_to_blob(request):
+    if request.method == 'POST':
+        filename = request.GET.get('filename')
+        # ஃபைலை Vercel Blob-க்கு அனுப்புகிறது
+        blob = put(filename, request.body, access='public')
+        return JsonResponse({'url': blob.url})
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
+def get_upload_url(request):
+    # இங்கிருந்து நேரடியாக Vercel Blob-க்கு ஃபைல் போகும்
+    # நீங்கள் client-side-ல் `put` பயன்படுத்தினால், இந்த பகுதி தானாக நடக்கும்.
+    return JsonResponse({'message': 'Upload ready'})
 
+def upload_product(request):
+    if request.method == 'POST':
+        form = ProductUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('success_page')
+    else:
+        form = ProductUploadForm()
+    return render(request, 'shop/upload.html', {'form': form})
 
 
 @login_required

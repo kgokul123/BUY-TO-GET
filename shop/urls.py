@@ -38,6 +38,7 @@ urlpatterns=[
     path('accept-terms/', views.accept_terms, name='accept_terms'),
     path('accounts/login/', views.login_view, name='accounts_login'),
     path("favicon.png",RedirectView.as_view(url=staticfiles_storage.url("images/favicon.png")),),
+    path('api/upload', views.upload_to_blob, name='upload_to_blob'),
     path('orderdetails/<int:oid>/', views.orderdetails, name='orderdetails')
     
 ]

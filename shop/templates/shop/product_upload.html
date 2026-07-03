@@ -1,0 +1,22 @@
+<form id="uploadForm">
+    <input type="file" id="fileInput" />
+    <button type="button" onclick="handleUpload()">Upload</button>
+    <input type="hidden" name="image_url" id="image_url_input" />
+</form>
+
+<script>
+async function handleUpload() {
+    const fileInput = document.getElementById('fileInput');
+    const file = fileInput.files[0];
+
+    // Vercel Blob-க்கு நேரடி அப்லோட் (எளிய முறை)
+    const response = await fetch(`/api/upload?filename=${file.name}`, {
+        method: 'POST',
+        body: file,
+    });
+    
+    const blob = await response.json();
+    document.getElementById('image_url_input').value = blob.url;
+    alert("Upload Success! URL: " + blob.url);
+}
+</script>
