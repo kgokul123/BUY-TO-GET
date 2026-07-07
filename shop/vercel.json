@@ -17,13 +17,4 @@
     "memory": 3008
   }
 }
-        {
-            "Effect": "Allow",
-            "Principal": {
-                "AWS": ["*"]
-            },
-            "Action": ["s3:GetBucketLocation", "s3:GetObject"],
-            "Resource": ["arn:aws:s3:::buy-to-get/*"]
-        }
-    ]
-}
+

@@ -25,7 +25,7 @@ class ProductImageInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'selling_price', 'quantity', 'status')
+    list_display = ('name', 'selling_price', 'quantity', 'status')
     list_editable = ('quantity', 'status')
     inlines = [ProductImageInline]
 
@@ -33,13 +33,13 @@ class ProductAdmin(admin.ModelAdmin):
 # ⭐️ 4. Cart செக்ஷன்
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'product', 'product_qty')
+    list_display = ('user', 'product', 'product_qty')
 
 
 # ⭐️ 5. Favourite செக்ஷன்
 @admin.register(Favourite)
 class FavouriteAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'product')
+    list_display = ('user', 'product')
 
 
 # ⭐️ 6. Order செக்ஷன் (வாங்கிய பொருட்கள் இன்லைன்)
