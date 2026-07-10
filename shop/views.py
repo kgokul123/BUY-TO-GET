@@ -1,12 +1,15 @@
 import json
 import os
 import io
+import uuid
 import base64
 import requests
 import urllib.parse
 import qrcode
 from abc import ABC, abstractmethod
 from datetime import timedelta, date
+from .models import Order
+import random
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -29,6 +32,53 @@ from .models import (
 )
 from .forms import ProductUploadForm, CustomUserForm
 from vercel_blob import put
+
+
+from django.http import JsonResponse
+import json
+
+from django.db.models import Q
+import json
+from django.http import JsonResponse
+from .models import Order 
+
+def check_otp(request):
+    if request.method == "POST":
+        try:
+            if request.body:
+                data = json.loads(request.body)
+                entered_phone = data.get("phone", "").strip()
+            else:
+                entered_phone = request.POST.get("phone", "").strip()
+            
+            # எண்களை மட்டும் தனியாகப் பிரிக்கிறோம் பாஸ்
+            entered_phone = ''.join(filter(str.isdigit, entered_phone))
+
+            # கடைசி 10 இலக்கங்களை மட்டும் எடுக்கிறோம் பாஸ்
+            if len(entered_phone) >= 10:
+                entered_phone = entered_phone[-10:]
+            else:
+                return JsonResponse({"status": "new_number"})
+
+            print(f"\n⚡ [FAST CHECK] Customer typed: {entered_phone}")
+
+            # 🎯 [அல்டிமேட் மின்னல் வேக பிக்ஸ் பாஸ்]:
+            # உங்க அசல் ஃபீல்டான 'phone' மட்டுமே வச்சு டேட்டாபேஸ் லெவல்லயே இன்ஸ்டன்ட்டா பில்டர் பண்றோம்!
+            already_ordered = Order.objects.filter(phone__contains=entered_phone).exists()
+
+            if already_ordered:
+                print("🟢 Fast Result Sent: already_registered")
+                return JsonResponse({"status": "already_registered"})
+            else:
+                print("🔵 Fast Result Sent: new_number")
+                return JsonResponse({"status": "new_number"})
+                
+        except Exception as e:
+            print(f"💥 [FAST CHECK ERROR]: {str(e)}")
+            return JsonResponse({"status": "error", "message": str(e)}, status=200)
+            
+    return JsonResponse({"status": "invalid_request"}, status=400)
+
 
 @csrf_exempt
 def upload_to_blob(request):

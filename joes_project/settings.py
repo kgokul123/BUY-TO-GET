@@ -51,6 +51,11 @@ INSTALLED_APPS = [
     "storages",         # 2. இதுவும் இங்கே இருக்க வேண்டும்
 
     "shop",
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 ]
 
 # --------------------------------------------------
@@ -65,6 +70,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'allauth.account.middleware.AccountMiddleware',
+
 ]
 
 ROOT_URLCONF = "joes_project.urls"
@@ -162,3 +169,22 @@ DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+
+
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+# 🎯 கூகுள் மூலமா ரெஜிஸ்டர்/லாக்-இன் ஆனதும் நேரா செக்கவுட் பக்கத்துக்கு கூட்டிட்டு போகும் பாஸ்!
+LOGIN_REDIRECT_URL = '/checkout/'
+LOGOUT_REDIRECT_URL = '/'
+
+
+# 🎯 [மரண மாஸ் இன்ஸ்டன்ட் கூகுள் லாக்-இன் பிக்ஸ்]
+# கூகுள் பட்டனை அமுக்குன உடனே நடுவுல எந்த பக்கமும் வராம நேரா கூகுள் விண்டோவுக்குப் போகும் பாஸ்!
+SOCIALACCOUNT_LOGIN_ON_GET = True

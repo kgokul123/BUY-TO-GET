@@ -1,8 +1,9 @@
 {% extends 'shop/layouts/main.html' %}
+{% load socialaccount %}
 {% load static %}
 
 {% block title %}
-    login for shopping
+    Login for Shopping
 {% endblock title %}
 
 {% block content %}
@@ -11,11 +12,13 @@
     .login-container-box {
         position: relative;
         overflow: hidden; /* இமேஜ் ஜூம் ஆகும்போது பாக்ஸை விட்டு வெளிய போகாமல் தடுக்க */
-        min-height: 85vh;
+        min-height: 90vh; /* உயரத்தை கொஞ்சம் கூட்டியிருக்கேன் பாஸ் */
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 60px 0;
+        
+        /* 🎯 [ரிஜிஸ்டர் பேஜ் மாதிரியே கார்டை கச்சிதமா கீழே இறக்கும் மேஜிக் வரி பாஸ்] */
+        padding: 120px 0 60px 0; 
     }
 
     /* அனிமேஷன் ஆகப்போகும் பேக்ரவுண்ட் லேயர் */
@@ -25,11 +28,11 @@
         left: 0;
         width: 100%;
         height: 100%;
-        /* இமேஜ் மேலே ஒரு லைட்டான கறுப்பு நிழல் படலம் விழ வைக்கிறோம், மேலும் புது இமேஜ் 'login.jpg' ஐ இணைத்துள்ளோம் பாஸ் */
+        /* இமேஜ் மேலே ஒரு லைட்டான கறுப்பு நிழல் படலம் விழ வைக்கிறோம் */
         background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url("{% static 'uploads/images/logina.png' %}") no-repeat center center;
         background-size: cover;
         z-index: 1;
-        /* ஜூம் அனிமேஷனை இங்கே இணைக்கிறோம் (7 செகண்ட் மெதுவாக ஜூம் ஆகும்) */
+        /* ஜூம் அனிமேஷன் (7 செகண்ட் மெதுவாக ஜூம் ஆகும்) */
         animation: smoothZoom 7s ease-out forwards;
     }
 
@@ -40,7 +43,7 @@
         width: 100%;
     }
 
-    /* ஜூம் அனிமேஷன் லாஜிக் (100% லிருந்து 112% வரை மெதுவாக ஜூம் ஆகும்) */
+    /* ஜூம் அனிமேஷன் லாஜிக் */
     @keyframes smoothZoom {
         0% {
             transform: scale(1);
@@ -60,6 +63,7 @@
             <div class="row">
                 <div class="col-md-5 mx-auto">
                     
+                    <!-- 💡 உங்க ஃபார்மை ஒரு அழகான ஒயிட் கார்டுக்குள் லாக் பண்றோம் பாஸ் -->
                     <div class="card p-4 shadow-lg bg-white border-0 rounded-3">
                         <h4 class="mb-2 fw-bold text-dark text-center">User Login</h4>
                         <hr style="border-color:#b8bfc2;" class="mb-4">
@@ -69,26 +73,58 @@
                         <form method="post" action="">
                             {% csrf_token %}
                             
+                            <!-- Username ஃபீல்டு -->
                             <div class="mb-4">
-                                <label for="Username" class="form-label fw-bold small">User name</label>
-                                <input type="text" name="username" id="Username" class="form-control" style="padding: 10px;" placeholder="Enter User Name" required>
+                                <label for="Username" class="form-label fw-bold small text-uppercase" style="font-size: 12px;">User name</label>
+                                <input type="text" name="username" id="Username" class="form-control" style="padding: 10px; border-radius: 6px;" placeholder="Enter User Name" required>
                             </div>
                             
+                            <!-- Password ஃபீல்டு -->
                             <div class="mb-4">
-                                <label for="password" class="form-label fw-bold small">Password</label>
-                                <input type="password" name="password" id="password" class="form-control" style="padding: 10px;" placeholder="Password" required>
+                                <label for="password" class="form-label fw-bold small text-uppercase" style="font-size: 12px;">Password</label>
+                                <input type="password" name="password" id="password" class="form-control" style="padding: 10px; border-radius: 6px;" placeholder="Password" required>
                             </div>
-                            <div class="text-center mt-3">
-                            <p class="small mb-0 text-muted">DO NOT HAVE ACCOUNT? <a href="{% url 'register' %}" class="text-primary fw-bold text-decoration-none">REGISTER NOW</a></p>
-                            
-                            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold text-uppercase">LOGIN</button>
-                        </form>
-                    </div>
 
-                </div>
-            </div>
-        </div>
-    </div>
+                            <!-- ரெஜிஸ்டர் லிங்க் செக்ஷன் பாஸ் -->
+                            <div class="text-center mb-3">
+                                <p class="small mb-0 text-muted fw-bold" style="font-size: 12px;">
+                                    DO NOT HAVE ACCOUNT? <a href="{% url 'register' %}" class="text-primary fw-bold text-decoration-none">REGISTER NOW</a>
+                                </p>
+                            </div>
+                            
+                            <!-- அசல் லாகின் பட்டன் பாஸ் -->
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold text-uppercase" style="border-radius: 6px; font-size: 15px;">
+                                LOGIN
+                            </button>
+                        </form>
+
+                        <!-- 🎯 [முறையான பிரீமியம் கூகுள் பட்டன் செட்டப் பாஸ் - கார்டுக்குள் கொண்டு வரப்பட்டது] -->
+                        <div class="text-center mt-3">
+                            <!-- OR பிரிப்பான் லேஅவுட் -->
+                            <div class="position-relative d-flex align-items-center justify-content-center my-3">
+                                <hr class="w-100 text-muted" style="opacity: 0.15;">
+                                <span class="position-absolute bg-white px-3 text-muted small fw-bold" style="font-size: 11px; letter-spacing: 1px;">OR</span>
+                            </div>
+                            
+                            <!-- 100% கச்சிதமான மேட்சிங் டிசைன் பட்டன் பாஸ் (லைவ் வெப்சைட்டிலும் ஆல்-ஆத் மூலமா பக்காவா ஒர்க் ஆகும்) -->
+                            <a href="{% provider_login_url 'google' %}" class="btn btn-light w-100 py-2.5 d-flex align-items-center justify-content-center gap-2 shadow-sm" 
+                               style="background-color: #ffffff; color: #495057; border-radius: 6px; border: 1px solid #ced4da !important; font-size: 15px; font-weight: 600; padding-top: 10px; padding-bottom: 10px; transition: all 0.2s ease;">
+                                
+                                <!-- கூகுள் அசல் லோகோ -->
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" 
+                                     alt="Google Logo" 
+                                     style="width: 18px; height: 18px; display: inline-block;">
+                                
+                                <span>Continue with Google</span>
+                            </a>
+                        </div>
+
+                    </div> <!-- கார்டு கச்சிதமா இங்க முடியுது பாஸ் -->
+                    
+                </div> <!-- காலம் முடிந்தது -->
+            </div> <!-- ரோ முடிந்தது -->
+        </div> <!-- கன்டைனர் முடிந்தது -->
+    </div> <!-- கன்டென்ட் லேயர் முடிந்தது -->
 
 </div>
 

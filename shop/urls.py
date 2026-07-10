@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path,include
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -39,6 +39,8 @@ urlpatterns=[
     path('accounts/login/', views.login_view, name='accounts_login'),
     path("favicon.png",RedirectView.as_view(url=staticfiles_storage.url("images/favicon.png")),),
     path('api/upload', views.upload_to_blob, name='upload_to_blob'),
+    path('check-otp/', views.check_otp, name='check_otp'),
+    path('accounts/', include('allauth.urls')),
     path('orderdetails/<int:oid>/', views.orderdetails, name='orderdetails')
     
 ]

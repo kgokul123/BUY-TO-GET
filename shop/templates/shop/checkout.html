@@ -23,11 +23,19 @@
 
                         <div class="mb-4">
                             <label class="fw-bold mb-2">Phone Number</label>
-                            <div class="input-group">
-                                <input type="tel" id="phoneNumber" name="phone" class="form-control" style="padding: 10px;" required>
-                                <button type="button" id="btnVerifyDetails" class="btn btn-primary px-4" onclick="showConfirmPopup()">Verify Details</button>
+                            <div class="d-flex align-items-center gap-2">
+                                <div style="flex-grow: 1;">
+                                    <input type="tel" id="phoneNumber" name="phone" class="form-control w-100" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);" placeholder="1234567890" style="padding: 10px;" required>
+                                </div>
+                                <button type="button" id="btnVerifyDetails" class="btn btn-primary px-4 fw-bold" style="height: 46px;" onclick="showConfirmPopup()">Verify Details</button>
                             </div>
                             <small class="text-muted mt-1 d-block">💡please enter whatsapp mobile number Press the VERIFY button to send the verification only OTP via WhatsApp</small>
+                        </div>
+
+                        <div class="mb-4" id="welcomeMessageBox" style="display: none;">
+                            <div class="alert alert-success fw-bold py-2 mb-2">
+                                ✓ Welcome back, Your details are verified via past orders.
+                            </div>
                         </div>
 
                         <div class="mb-4" id="otpSection" style="display: none; background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #dee2e6;">
@@ -48,31 +56,30 @@
                             <label class="fw-bold mb-2">Address</label>
                             <textarea id="address" name="address" rows="4" class="form-control" style="padding: 10px;" required></textarea>
                         </div>
-
-                        <button type="button" class="btn btn-info mt-2 text-white w-100 py-2 fw-bold" onclick="goToStep2()">Next: Payment & Availability</button>
-                    </div>
-
-                    <div class="disclaimer" style="margin: 15px 0; padding: 10px; background-color: #f9f9f9; border-left: 4px solid #f7941d; font-size: 0.9em; color: #555;">
+                        <div class="disclaimer" style="margin: 15px 0; padding: 10px; background-color: #f9f9f9; border-left: 4px solid #f7941d; font-size: 0.9em; color: #555;">
                                 <p style="margin: 0;">
                                     <strong><i class="fas fa-lock"></i> SECURITY AND CONFIDENTIALITY :</strong> 
                                     IF YOU DID NOT RECEIVE OTP PLEASE CONTACT OTP PLEASE CONTACT PH:9786542128
                                 </p>
                         </div>
 
+                        <button type="button" class="btn btn-info mt-2 text-white w-100 py-2 fw-bold" onclick="goToStep2()">Next: Payment & Availability</button>
+                    </div>
+
                     <div id="step-2" style="display: none;">
                         <div class="mb-4">
                             <label class="fw-bold mb-2">Payment Method</label><br>
                             <input type="radio" id="cod" name="payment_mode" value="COD" checked> Cash On Delivery &nbsp;&nbsp;
                             <input type="radio" id="upi" name="payment_mode" value="UPI"> UPI Payment
-                            <!-- 🎯 [டிஸ்கிளைமர் மேஜிக் பாஸ்]: OTP முடிஞ்சதும் ஆட்டோமேட்டிக்கா ஷோ ஆகும்! -->
+                            
                             <div id="upi_disclaimer_box" class="alert alert-warning mt-4 p-3 shadow-sm" style="display: none; border-left: 5px solid #ffc107; background-color: #2c2f33; color: #fff;">
                               <h5 class="text-warning fw-bold mb-2"><i class="fas fa-exclamation-triangle"></i>DISCLIMER!</h5>
-                    <p class="mb-2" style="font-size: 14px; line-height: 1.6;">
-                   you <strong>UPI Payment</strong>Once you've made your choice, just scan the QR code above and make the payment, boss. 
-                 </p>
-                     <p class="mb-0 text-info fw-bold" style="font-size: 14px;">
-                        ⚠️ YOU FINISHED PAYMENT GPay/PhonePe PLEASE ENTER <span class="text-danger bg-light px-1 rounded fw-bold">12-digit UPI Transaction ID (Ref No)</span> BELOW THE BOX NEXT ENTER "Place Order"! Only then will your order be registered in our system.!
-                           </p>
+                              <p class="mb-2" style="font-size: 14px; line-height: 1.6;">
+                               you <strong>UPI Payment</strong>Once you've made your choice, just scan the QR code above and make the payment, boss. 
+                             </p>
+                             <p class="mb-0 text-info fw-bold" style="font-size: 14px;">
+                                ⚠️ YOU FINISHED PAYMENT GPay/PhonePe PLEASE ENTER <span class="text-danger bg-light px-1 rounded fw-bold">12-digit UPI Transaction ID (Ref No)</span> BELOW THE BOX NEXT ENTER "Place Order"! Only then will your order be registered in our system.!
+                             </p>
                         </div>
                             <div id="upi-fields" class="mt-3" style="display: none;">
                                 <label class="fw-bold text-secondary mb-1">UPI Transaction ID</label>
@@ -137,8 +144,7 @@
 <script>
 let isPincodeAvailable = false;
 let isDetailsConfirmed = false; 
-let countdownInterval; // ⏳ டைமர் இன்டெர்வல் வேரியபிள்
-
+let countdownInterval; 
 
 let phoneInput;
 document.addEventListener("DOMContentLoaded", function() {
@@ -153,59 +159,79 @@ document.addEventListener("DOMContentLoaded", function() {
     const upiRadio = document.getElementById("upi");
     const upiFields = document.getElementById("upi-fields");
     const disclaimerBox = document.getElementById("upi_disclaimer_box");
+    const btnVerifyDetails = document.getElementById("btnVerifyDetails");
+    const welcomeMessageBox = document.getElementById("welcomeMessageBox");
 
-    // 🎯 [மரண மாஸ் எர்ரர் ஃப்ரீ பிக்ஸ் பாஸ்]: சிங்கிள் கோட்ஸ் ஸ்ட்ரிங் ஃபார்மட்ல மாத்தியாச்சு!
-    // இப்போ உங்க விஎஸ் கோடு எடிட்டர்ல எந்த ஒரு சிகப்பு கோடும் காட்டாது, கிரிஸ்டல் க்ளியரா இருக்கும் பாஸ்!
+    // 🎯 பக்கம் லோட் ஆகும்போது ஆரம்ப நிலை பாஸ்
+    if (welcomeMessageBox) welcomeMessageBox.style.display = "none";
+    if (btnVerifyDetails) btnVerifyDetails.style.setProperty('display', 'block', 'important');
+
+    // 🎯 [மரண மாஸ் ஜாவாஸ்கிரிப்ட் பிக்ஸ் பாஸ்]
+    if (phoneInputField) {
+        phoneInputField.addEventListener("keyup", function() {
+            let currentNumber = phoneInputField.value.replace(/[^0-9]/g, '').trim();
+
+            if (currentNumber.length === 10) {
+                fetch("/check-otp/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({ phone: currentNumber })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Django Response Status:", data.status);
+
+                    if (data.status === "already_registered" || data.status === "already_verified") {
+                        // 🟢 கேஸ் 1: பழைய கஸ்டமர்னா பட்டன் மறைஞ்சு பச்சை வெல்கம் பாக்ஸ் வரும்!
+                        isDetailsConfirmed = true;
+                        if (welcomeMessageBox) welcomeMessageBox.style.display = "block";
+                        if (btnVerifyDetails) btnVerifyDetails.style.setProperty('display', 'none', 'important');
+                        document.getElementById("otpSection").style.display = "none";
+                        checkFormValidity();
+                    } else {
+                        // 🔵 கேஸ் 2: புது நம்பர்னா பச்சை பெட்டி மறைஞ்சு வெரிஃபை பட்டன் கன்பார்ம் ஷோ ஆகும்!
+                        isDetailsConfirmed = false;
+                        if (welcomeMessageBox) welcomeMessageBox.style.display = "none";
+                        if (btnVerifyDetails) btnVerifyDetails.style.setProperty('display', 'block', 'important');
+                        checkFormValidity();
+                    }
+                })
+                .catch(error => {
+                    console.error("Error Checking Number:", error);
+                    if (btnVerifyDetails) btnVerifyDetails.style.setProperty('display', 'block', 'important');
+                });
+            } else {
+                // 10 நம்பருக்கு குறைவாகவோ அல்லது அதிகமாகவோ இருந்தால் ரீசெட்
+                if (welcomeMessageBox) welcomeMessageBox.style.display = "none";
+                if (btnVerifyDetails) btnVerifyDetails.style.setProperty('display', 'block', 'important');
+            }
+        });
+    }
+
     const djangoVerifiedStatus = "{{ already_verified|yesno:'true,false' }}";
     const alreadyVerified = (djangoVerifiedStatus === "true");
 
-    // 🎯 [பழைய கஸ்டமர் பைபாஸ் லாஜிக்]: கஸ்டமர் ஏற்கனவே வெரிஃபைடுனா ஓடிபியை ஸ்கிப் பண்றோம்!
     if (alreadyVerified) {
-        isDetailsConfirmed = true; // ஓடிபி ஏற்கனவே வெரிஃபைடுனு செட் பண்றோம் பாஸ்!
-        
-        // 💬 ஸ்கிரீன்ல நேரடியா வெரிஃபைடு மெசேஜ் பாக்ஸை ஆன் பண்ணி டெக்ஸ்ட் காட்டுறோம்!
-        const statusBox = document.getElementById("verificationResult");
-        if (statusBox) {
-            statusBox.className = "alert alert-success fw-bold py-2 mb-2";
-            statusBox.innerHTML = "✓ Welcome back, Your details are verified via past orders.";
-            
-            const statusSection = document.getElementById("verificationStatusSection");
-            if (statusSection) statusSection.style.display = "block";
-        }
-        
-        // 🔓 அட்ரஸ், போன் நம்பரை எடிட் பண்ணிக்க ஏதுவாக ஃபீல்டுகளை எனேபிள் பண்றோம்!
-        if (document.getElementById("name")) document.getElementById("name").disabled = false;
-        if (document.getElementById("phoneNumber")) document.getElementById("phoneNumber").disabled = false;
-        if (document.getElementById("address")) document.getElementById("address").disabled = false;
-        
-        // இவங்களுக்கு 'Verify Details' பட்டன் தேவையில்லை என்பதால் டிஸேபிள் பண்றோம்!
-        if (document.getElementById("btnVerifyDetails")) {
-            document.getElementById("btnVerifyDetails").disabled = true;
-        }
-        
-        // 🚀 பிளேஸ் ஆர்டர் பட்டன் வேலிடிட்டியை செக் பண்ணி எனேபிள் பண்றோம் பாஸ்
+        isDetailsConfirmed = true; 
+        if (btnVerifyDetails) btnVerifyDetails.style.setProperty('display', 'none', 'important');
         checkFormValidity();
     }
 
-    // 🎯 [பக்கா ரேடியோ பட்டன் லாஜிக் பாஸ்]: UPI-க்கு மட்டும் டிஸ்கிளைமர் காட்டும், COD-க்கு காட்டாது!
     function togglePaymentFields() {
         if (upiRadio && upiRadio.checked) {
             if (upiFields) upiFields.style.display = "block";
-            
-            // ஓடிபி வெரிஃபிகேஷன் ஏற்கனவே முடிந்திருந்தால் மட்டும் UPI கிளிக் செய்யும்போது டிஸ்கிளைமரை காட்டு பாஸ்!
             if (disclaimerBox && isDetailsConfirmed) {
                 disclaimerBox.style.display = "block";
             }
-            
             const txInput = document.querySelector("input[name='transaction_id']");
             if (txInput) txInput.required = true;
         } 
         else {
             if (upiFields) upiFields.style.display = "none";
-            
-            // COD கிளிக் பண்ணினா டிஸ்கிளைமரை முழுசா மறைச்சிடு பாஸ்!
             if (disclaimerBox) disclaimerBox.style.display = "none";
-            
             const txInput = document.querySelector("input[name='transaction_id']");
             if (txInput) txInput.required = false;
         }
@@ -214,36 +240,30 @@ document.addEventListener("DOMContentLoaded", function() {
     if (codRadio) codRadio.addEventListener("change", togglePaymentFields);
     if (upiRadio) upiRadio.addEventListener("change", togglePaymentFields);
 
-    // பக்கம் லோடு ஆகும்போதே ஒருமுறை ரன் செய்கிறோம் பாஸ்
     togglePaymentFields();
 
-    // 🎯 [மரண மாஸ் செக் பாயிண்ட் பாஸ்]: UPI தேர்ந்தெடுத்துட்டு 12 டிஜிட் ஐடி போடலைனா சப்மிட் ஆகாது!
-    const formElement = document.querySelector("form");
+    const formElement = document.getElementById("checkout-form");
     if (formElement) {
         formElement.addEventListener("submit", function(e) {
             if (upiRadio && upiRadio.checked) {
                 const txInput = document.querySelector("input[name='transaction_id']");
-                
                 if (!txInput || txInput.value.trim() === "") {
-                    e.preventDefault(); // ❌ சப்மிட் ஆகவிடாமல் தடுத்தாச்சு பாஸ்!
+                    e.preventDefault();
                     alert("Please enter your 12-digit UPI Transaction ID first, boss!");
                     txInput.focus();
                     return false;
                 }
-                
                 if (txInput.value.trim().length < 12) {
-                    e.preventDefault(); // ❌ 12 டிஜிட்க்குக் கம்மியா இருந்தாலும் லாக் பாஸ்!
+                    e.preventDefault();
                     alert("Wrong Transaction ID! UPI Ref No must be at least 12 digits long.");
                     txInput.focus();
                     return false;
                 }
             }
-            // சப்மிட் ஆகும்போது டிஸேபிள் ஃபீல்டுகளை எனேபிள் செய்ய மறக்கக்கூடாது பாஸ்
             enableFieldsBeforeSubmit();
         });
     }
 });
-
 
 function showConfirmPopup() {
     const name = document.getElementById("name").value.trim();
@@ -293,13 +313,14 @@ function sendWhatsAppLink() {
         modal.hide(); 
         
         confirmBtn.disabled = false;
-        confirmBtn.innerText = "Send OTP (அனுப்பு)";
+        confirmBtn.innerText = "Send OTP";
 
         if(data.success) {
             document.getElementById("otpSection").style.display = "block";
             document.getElementById("otpInput").disabled = false;
             document.getElementById("btnSubmitOtp").disabled = false;
             document.getElementById("otpErrorAlert").style.display = "none";
+            document.getElementById("welcomeMessageBox").style.display = "none";
             
             document.getElementById("verificationStatusSection").style.display = "block";
             const statusBox = document.getElementById("verificationResult");
@@ -383,9 +404,8 @@ function verifyOTPFromWhatsApp() {
             document.getElementById("name").disabled = true;
             document.getElementById("phoneNumber").disabled = true;
             document.getElementById("address").disabled = true;
-            document.getElementById("btnVerifyDetails").disabled = true;
+            if (btnVerifyDetails) btnVerifyDetails.style.setProperty('display', 'none', 'important');
 
-            // 🎯 [பக்கா கண்டிஷன் பாஸ்]: OTP வெரிஃபை ஆகும்போது கஸ்டமர் 'upi' ரேடியோ பட்டனை கிளிக் செய்திருந்தால் மட்டுமே டிஸ்கிளைமர் காட்டும்!
             const upiRadio = document.getElementById("upi");
             const disclaimerBox = document.getElementById("upi_disclaimer_box");
             if(upiRadio && upiRadio.checked && disclaimerBox) {
