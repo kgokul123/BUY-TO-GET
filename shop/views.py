@@ -42,6 +42,85 @@ import json
 from django.http import JsonResponse
 from .models import Order 
 
+from django.shortcuts import redirect
+from django.contrib import messages
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.db.models import Q
+from .models import Product  # உங்க ப்ராடக்ட் மாடல் பெயர்
+
+
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.db.models import Q
+from django.db.models.functions import Replace
+from django.db.models import Value
+from .models import Product
+
+
+# 🎯 உங்க views.py-ன் அடியில் இதை அப்படியே ஆட் பண்ணுங்க பாஸ்
+def live_search(request):
+    query = request.GET.get('search', '').strip()
+    clean_query = query.replace(" ", "")
+    
+    if query:
+        products = Product.objects.annotate(
+            name_no_spaces=Replace('name', Value(' '), Value(''))
+        ).filter(
+            Q(name__icontains=query) | Q(name_no_spaces__icontains=clean_query)
+        )[:8]
+        
+        products_data = []
+        for p in products:
+            products_data.append({
+                'id': p.id,
+                'name': p.name,
+                'price': p.selling_price,
+                'image_url': p.product_image.url if p.product_image else '/static/images/default.png',
+                'category_name': p.category.name 
+            })
+        return JsonResponse({'products': products_data})
+    return JsonResponse({'products': []})
+
+def home(request):
+    query = request.GET.get('search', '').strip()
+    clean_query = query.replace(" ", "")
+    
+    # 🎯 1. கஸ்டமர் சர்ச் பார்ல டைப் பண்ணும்போது லைவா சஜஷன் பாக்ஸ் கேக்குற AJAX ரெக்வஸ்ட்
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        if query:
+            products = Product.objects.annotate(
+                name_no_spaces=Replace('name', Value(' '), Value(''))
+            ).filter(
+                Q(name__icontains=query) | Q(name_no_spaces__icontains=clean_query)
+            )[:8]
+            
+            # 🚨 [இண்டென்டேஷன் பக்கா பாஸ்!] ஃபங்ஷனுக்கு உள்ளேயே கச்சிதமா இருக்கு
+            products_data = []
+            for p in products:
+                products_data.append({
+                    'id': p.id,
+                    'name': p.name,
+                    'price': p.selling_price, # உங்க அசல் மாடல் ஃபீல்டு பெயர்
+                    'image_url': p.product_image.url if p.product_image else '/static/images/default.png',
+                    'category_name': p.category.name # 👈 ஜாவாஸ்கிரிப்ட் லிங்க்கிற்காக கேட்டகிரி பெயர்!
+                })
+            return JsonResponse({'products': products_data})
+        return JsonResponse({'products': []})
+        
+    # 🎯 2. கஸ்டமர் சர்ச் பாக்ஸ்ல அடிச்சு என்டர் தட்டி பேஜ் ரீலோட் ஆகி வரும்போது
+    if query:
+        products = Product.objects.annotate(
+            name_no_spaces=Replace('name', Value(' '), Value(''))
+        ).filter(
+            Q(name__icontains=query) | Q(name_no_spaces__icontains=clean_query)
+        )
+    else:
+        products = Product.objects.all()
+        
+    return render(request, 'shop/index.html', {'products': products, 'query': query})
+
+
 def check_otp(request):
     if request.method == "POST":
         try:

@@ -4,6 +4,7 @@
         <a class="navbar-brand" href="{% url 'home' %}">
             <i class="fa fa-shopping-cart"></i> KALAIARASI METAL STORE
         </a>
+
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav ms-auto">
                 <a class="nav-link" href="{% url 'home' %}"><i class="fa fa-home"></i> Home</a>
@@ -73,6 +74,7 @@
         {% endif %}
     </div>
 </div>
+
 
 <!-- 🎯 5. சிஎஸ்எஸ் (CSS) - டச் லாஜிக்கிற்காக அனிமேஷன் செட் செய்யப்பட்டுள்ளது பாஸ் -->
 <style>
@@ -245,6 +247,54 @@
                     sidebar.classList.remove('open');
                 }
             }, {passive: true});
+        }
+    });
+</script>
+<script>
+    const searchInput = document.getElementById('search-input');
+    const suggestionsBox = document.getElementById('search-suggestions');
+
+    searchInput.addEventListener('input', function(e) {
+        const value = e.target.value.trim();
+
+        if (value.length > 0) {
+            // 🚀 ஜாங்கோவுக்கு ரெக்வஸ்ட் அனுப்பி டேட்டாவை வாங்குறோம்
+            fetch(`/?search=${value}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                suggestionsBox.innerHTML = '';
+                
+                if (data.products.length > 0) {
+                    suggestionsBox.classList.remove('d-none'); // டிராப்டவுனை காட்டுறோம்
+                    
+                    data.products.forEach(product => {
+                        // 🎯 பிக்பாஸ்கெட் மாதிரி இமேஜ், பெயர், விலையுடன் கூடிய லேஅவுட் பாஸ்!
+                        suggestionsBox.innerHTML += `
+                            <a href="/product/${product.id}/" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between p-2" style="border-bottom: 1px solid #eee; color: #333;">
+                                <div class="d-flex align-items-center">
+                                    <img src="${product.image_url}" alt="${product.name}" style="width: 40px; height: 40px; object-fit: contain; margin-right: 12px;">
+                                    <span style="font-size: 0.9rem; font-weight: 500;">${product.name}</span>
+                                </div>
+                                <span class="badge bg-success" style="font-size: 0.85rem;">₹${product.price}</span>
+                            </a>
+                        `;
+                    });
+                } else {
+                    suggestionsBox.innerHTML = '<div class="p-3 text-center text-muted" style="font-size: 0.85rem;">❌ பொருட்கள் எதுவும் இல்லை!</div>';
+                    suggestionsBox.classList.remove('d-none');
+                }
+            });
+        } else {
+            suggestionsBox.classList.add('d-none'); // சர்ச் பாக்ஸ் காலியா இருந்தா டிராப்டவுனை மறைச்சிடுவோம்
+        }
+    });
+
+    // 💡 கஸ்டமர் சர்ச் பாக்ஸை விட்டு வெளிய கிளிக் பண்ணா டிராப்டவுன் தானா மூடிக்கிடும் பாஸ்
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+            suggestionsBox.classList.add('d-none');
         }
     });
 </script>

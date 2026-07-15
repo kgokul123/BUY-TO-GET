@@ -41,6 +41,7 @@ urlpatterns=[
     path('api/upload', views.upload_to_blob, name='upload_to_blob'),
     path('check-otp/', views.check_otp, name='check_otp'),
     path('accounts/', include('allauth.urls')),
+    path('live-search/', views.live_search, name='live_search'),
     path('orderdetails/<int:oid>/', views.orderdetails, name='orderdetails')
     
 ]

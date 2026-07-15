@@ -71,6 +71,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     'allauth.account.middleware.AccountMiddleware',
+    'shop.middleware.RestrictSocialSignupMiddleware',
 
 ]
 
@@ -188,3 +189,26 @@ LOGOUT_REDIRECT_URL = '/'
 # 🎯 [மரண மாஸ் இன்ஸ்டன்ட் கூகுள் லாக்-இன் பிக்ஸ்]
 # கூகுள் பட்டனை அமுக்குன உடனே நடுவுல எந்த பக்கமும் வராம நேரா கூகுள் விண்டோவுக்குப் போகும் பாஸ்!
 SOCIALACCOUNT_LOGIN_ON_GET = True
+
+
+SOCIALACCOUNT_ADAPTER = 'shop.adapter.RestrictNewSocialUsersAdapter'
+
+LOGIN_URL = '/login/'
+
+
+SITE_ID = 1
+
+# கூகுள் அக்கவுண்ட் லாக்-இன் செக்யூரிட்டி அடாப்டர்
+SOCIALACCOUNT_ADAPTER = 'shop.adapter.RestrictNewSocialUsersAdapter'
+
+# லாக்-இன் சக்சஸ் ஆனா எங்க போகணும்? (உங்க செக்கவுட் அல்லது ஹோம் யூஆர்எல்)
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/login/'
+
+# 🎯 [ஆட்டோமேட்டிக் ரெஜிஸ்ட்ரேஷனை பிளாக் செய்யும் வரிகள் பாஸ்]
+
+# 1. புது யூசர் கூகுள் மூலமா வரும்போது தானாக அக்கவுண்ட் கிரியேட் ஆவதை தடுக்கும்
+SOCIALACCOUNT_AUTO_SIGNUP = False  
+
+
+SOCIALACCOUNT_ADAPTER = 'shop.adapter.RestrictNewSocialUsersAdapter'

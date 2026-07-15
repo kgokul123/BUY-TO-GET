@@ -20,45 +20,51 @@ Kalaiarasi Metal Store
 
         <div class="row">
 
-            {% for item in products %}
+{% for item in products %}
 
-            <div class="col-6 col-md-4 col-lg-3 mb-4 px-2">
+<div class="col-6 col-md-4 col-lg-3 mb-4 px-2">
+    <div class="card h-100 shadow-sm" style="border-radius: 8px; overflow: hidden;">
+        
+        <!-- 🔗 ப்ராடக்ட் லிங்க் -->
+        <a href="{% url 'product_details' item.category.name item.name %}">
+            
+            <!-- 🎯 [இங்கதான் மேஜிக் பாஸ்] இமேஜ் இருந்தா மட்டும் காட்டும், இல்லைனா எர்ரர் வராது -->
+            {% if item.product_image %}
+                <img src="{{ item.product_image.url }}"
+                     class="card-img-top"
+                     style="width: 100% !important; height: 300px !important; object-fit: cover !important; object-position: center !important;"
+                     alt="{{ item.name }}">
+            {% else %}
+                <!-- ஒருவேளை அட்மின்ல இமேஜ் அப்லோடு பண்ணலைனா இந்த டம்மி இமேஜ் காட்டும் பாஸ் -->
+                <img src="/static/images/default.png"
+                     class="card-img-top"
+                     style="width: 100% !important; height: 300px !important; object-fit: cover !important; object-position: center !important;"
+                     alt="{{ item.name }}">
+            {% endif %}
+            
+        </a>
 
-                <div class="card h-100 shadow-sm" style="border-radius: 8px; overflow: hidden;">
+        <!-- ப்ராடக்ட் கார்டு பாடி (பெயர், விலை) -->
+        <div class="card-body p-2 d-flex flex-column justify-content-between">
+            <a href="{% url 'product_details' item.category.name item.name %}" style="text-decoration: none;">
+                <h5 class="card-title text-truncate" style="font-size: 15px; font-weight: 600; margin-bottom: 8px; color: #0d6efd !important;">
+                    {{ item.name }}
+                </h5>
+            </a>
+            <p class="card-text d-flex justify-content-between align-items-center m-0" style="font-size: 13px;">
+                <span class="old_price" style="color: #dc3545; text-decoration: line-through;">
+                    Rs.{{ item.original_price|stringformat:'d' }}
+                </span>
+                <span class="new_price text-white" style="font-weight: bold; background-color: #198754 !important; padding: 4px 8px; border-radius: 6px; font-size: 14px;">
+                    Rs.{{ item.selling_price|stringformat:'d' }}
+                </span>
+            </p>
+        </div>
 
-                    <a href="{% url 'product_details' item.category.name item.name %}">
-                        <img src="{{ item.product_image.url }}"
-                             class="card-img-top"
-                             style="width: 100% !important; height: 300px !important; object-fit: cover !important; object-position: center !important;"
-                             alt="{{ item.name }}">
-                    </a>
+    </div>
+</div>
 
-                    <div class="card-body p-2 d-flex flex-column justify-content-between">
-
-                        <a href="{% url 'product_details' item.category.name item.name %}"
-                           class="text-decoration-none">
-                            <h5 class="card-title text-primary text-truncate" style="font-size: 15px; font-weight: 600; margin-bottom: 8px;">
-                                {{ item.name }}
-                            </h5>
-                        </a>
-
-                        <p class="card-text d-flex justify-content-between align-items-center m-0" style="font-size: 13px;">
-                            <span class="old_price" style="color: #dc3545;">
-                                <s>Rs.{{ item.original_price|stringformat:'d' }}</s>
-                            </span>
-
-                            <span class="new_price text-white" style="font-weight: bold;">
-                                Rs.{{ item.selling_price|stringformat:'d' }}
-                            </span>
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            {% endfor %}
+{% endfor %}
 
         </div>
 

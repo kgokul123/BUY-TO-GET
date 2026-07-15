@@ -61,3 +61,118 @@ kalaiarasi metal store.com
 </div>
 
 {% endblock content %}
+<!-- 🎯 1. கஸ்டமர் சர்ச் பண்ணாத போது மட்டும்தான் இந்த பெரிய பேனர் காட்டணும் பாஸ் -->
+{% if not query %}
+    <div class="carousel-item active">
+        <!-- உங்க விளக்கு பேனர் இமேஜ் மற்றும் டெக்ஸ்ட் கன்டென்ட் கோடு இங்க இருக்கும் -->
+        <div class="responsive-banner">
+            <!-- ... பழைய பேனர் கோடு ... -->
+        </div>
+    </div>
+{% endif %}
+
+{% if not query %}
+    {% endif %}
+
+<div class="container mt-4">
+    <div class="row" id="product-container">
+        {% for product in products %}
+            <div class="col-md-3 mb-4">
+                <div class="card bg-dark text-white">
+                    <h5>{{ product.name }}</h5>
+                </div>
+            </div>
+        {% empty %}
+            <div class="text-center w-100 my-5 text-muted">
+                <h4>❌ மன்னிக்கவும்! "{{ query }}" என்ற பெயரில் எந்தப் பொருட்களும் கிடைக்கவில்லை.</h4>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+<!-- 🎯 2. இதுக்கு கீழே உங்க ப்ராடக்ட்ஸ் டிஸ்ப்ளே ஆகுற கிரிட் (Grid) செக்ஷன் பாஸ் -->
+<div class="container mt-5">
+    
+    <!-- கஸ்டமர் ஏதாச்சும் சர்ச் பண்ணியிருந்தா, என்ன தேடுனாங்கன்ற டைட்டிலைக் காட்டும் -->
+    {% if query %}
+        <h3 class="mb-4 text-white">Showing results for: "{{ query }}"</h3>
+    {% endif %}
+
+    <div class="row" id="product-container">
+        {% for product in products %}
+            <!-- 🛒 உங்க அசல் ப்ராடக்ட் கார்டு டிசைன் (உதாரணத்துக்கு கீழே உள்ளது போல) -->
+            <div class="col-md-3 mb-4">
+                <div class="card bg-dark text-white border-secondary h-100">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: contain; padding: 10px;">
+                    {% endif %}
+                    <div class="card-body text-center d-flex flex-column justify-content-between">
+                        <h5 class="card-title text-uppercase">{{ product.name }}</h5>
+                        <p class="card-text text-warning font-weight-bold">₹{{ product.price }}</p>
+                        <a href="#" class="btn btn-sm btn-outline-light mt-auto">View Details</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <!-- ❌ தேடுன பொருள் இல்லைனா இந்த மெசேஜ் விழும் பாஸ் -->
+            <div class="text-center w-100 my-5 text-muted">
+                <h4>❌ மன்னிக்கவும்! "{{ query }}" என்ற பெயரில் எந்தப் பொருட்களும் கிடைக்கவில்லை.</h4>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchInput = document.getElementById('search-input');
+        const suggestionsBox = document.getElementById('search-suggestions');
+
+        if (searchInput && suggestionsBox) {
+            // ⌨️ கஸ்டமர் ஒவ்வொரு லெட்டரா டைப் பண்ணும் போது இந்த ஈவென்ட் ரன் ஆகும்
+            searchInput.addEventListener('input', function(e) {
+                const value = e.target.value.trim();
+
+                if (value.length > 0) {
+                    // 🚀 நாம புதுசா கிரியேட் பண்ண குளோபல் 'live-search' URL-க்கு ரெக்வஸ்ட் அனுப்புறோம் பாஸ்
+                    fetch(`/live-search/?search=${value}`, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        suggestionsBox.innerHTML = ''; // பழைய சஜஷன்களை காலி பண்றோம் பாஸ்
+                        
+                        if (data.products.length > 0) {
+                            suggestionsBox.classList.remove('d-none'); // டிராப்டவுன் பாக்ஸை ஓபன் பண்றோம்
+                            
+                            data.products.forEach(product => {
+                                // 🎯 [நீங்க கேட்ட ட்விஸ்ட்]: 
+                                // 1. கிளிக் பண்ணா ஸ்ட்ரெயிட்டா அந்த ப்ராடக்ட் டீடைல்ஸ் பேஜுக்குப் போகும் (href-ல் கேட்டகிரி & ப்ராடக்ட் பெயர் லாக் செய்யப்பட்டுள்ளது)
+                                // 2. ப்ராடக்ட் பெயர் கச்சிதமா நீல நிறத்தில் (color: #0d6efd) மாஸ் காட்டும் பாஸ்!
+                                suggestionsBox.innerHTML += `
+                                    <a href="/collections/${product.category_name}/${product.name}/" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between p-2" style="border-bottom: 1px solid #eee; color: #333; text-decoration: none;">
+                                        <div class="d-flex align-items-center">
+                                            <img src="${product.image_url}" alt="${product.name}" style="width: 40px; height: 40px; object-fit: contain; margin-right: 12px;">
+                                            <span style="font-size: 0.9rem; font-weight: 500; text-transform: uppercase; color: #0d6efd;">${product.name}</span>
+                                        </div>
+                                        <span class="badge bg-success" style="font-size: 0.85rem;">Rs.${parseInt(product.price)}</span>
+                                    </a>
+                                `;
+                            });
+                        } else {
+                            // ❌ டைப் பண்ண வார்த்தைக்கு பொருட்கள் இல்லைனா இந்த மெசேஜ் காட்டும் பாஸ்
+                            suggestionsBox.innerHTML = '<div class="p-3 text-center text-muted" style="font-size: 0.85rem;">❌ பொருட்கள் எதுவும் இல்லை!</div>';
+                            suggestionsBox.classList.remove('d-none');
+                        }
+                    });
+                } else {
+                    suggestionsBox.classList.add('d-none'); // இன்புட் பாக்ஸ் காலியா இருந்தா டிராப்டவுனை மூடிடுவோம்
+                }
+            });
+
+            // 💡 கஸ்டமர் சர்ச் பாக்ஸை விட்டு வெளில எங்க கிளிக் பண்ணினாலும் டிராப்டவுன் தானா மூடிக்கிடும் பாஸ்
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+                    suggestionsBox.classList.add('d-none');
+                }
+            });
+        }
+    });
+</script>

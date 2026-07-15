@@ -25,8 +25,8 @@ class ProductImageInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'selling_price', 'quantity', 'status')
-    list_editable = ('quantity', 'status')
+    list_display = ('name', 'original_price', 'selling_price', 'quantity', 'status', 'trending',)
+    list_editable = ('quantity','original_price','selling_price', 'status', 'trending',)
     inlines = [ProductImageInline]
 
 
