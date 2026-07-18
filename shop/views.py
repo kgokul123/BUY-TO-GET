@@ -679,6 +679,7 @@ def checkout(request):
         # 💾 புது ஆர்டரை உருவாக்குதல்
         order = Order.objects.create(
             user=request.user,
+            full_name = request.POST.get('name'),
             order_number="ORD" + str(uuid.uuid4().hex[:8]).upper(),
             email=request.user.email,
             phone=form_phone,

@@ -13,8 +13,8 @@ admin.site.register(Review)
 # ⭐️ 2. Category செக்ஷன்
 @admin.register(Catagory)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'status')
-    list_editable = ('status',)
+    list_display = ('name', 'status', 'trending',)
+    list_editable = ('status', 'trending',)
 
 
 # ⭐️ 3. Product செக்ஷன் (வித் இமேஜ் இன்லைன்)

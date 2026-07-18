@@ -147,15 +147,15 @@
                 <table style="width: 100%;">
                     <tr>
                         <td style="width: 25%; font-weight: bold;">Name:</td>
-                        <td>{{ order.user.username }}</td>
+                        <td>{{ order.full_name }}</td>
                     </tr>
                     <tr>
                         <td style="font-weight: bold; vertical-align: top;">Address:</td>
-                        <td>370 MEL NEDUNGAL METTU STREET - 631208</td>
+                        <td>{{ order.address }}</td>
                     </tr>
                     <tr>
                         <td style="font-weight: bold;">Ph:</td>
-                        <td>06380963615</td>
+                        <td>{{ order.phone }}</td>
                     </tr>
                 </table>
             </td>
@@ -170,7 +170,7 @@
                     </tr>
                     <tr>
                         <td style="font-weight: bold;">Date:</td>
-                        <td>26-Jun-2026</td>
+                        <td>{{ order.created_at|date:"d-M-Y" }}</td>
                     </tr>
                     <tr>
                         <td style="font-weight: bold;">Payment Status:</td>

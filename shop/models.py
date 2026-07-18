@@ -112,7 +112,8 @@ class Order(models.Model):
         ('Cancelled', 'Cancelled'),
     )
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)  # Removed duplicate line
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  
+    full_name = models.CharField(max_length=150, null=True, blank=True)
     order_number = models.CharField(max_length=20, unique=True, null=True, blank=True, editable=False)
     email = models.CharField(max_length=150)
     phone = models.CharField(max_length=150)
