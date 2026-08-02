@@ -17,9 +17,8 @@ admin.site.register(Cart)
 admin.site.register(Favourite)
 
 import json
-
-import json
 import io
+import traceback
 
 def upload_file_to_drive(file_obj):
     try:
@@ -32,7 +31,6 @@ def upload_file_to_drive(file_obj):
 
         SCOPES = ['https://www.googleapis.com/auth/drive']
         
-        # Vercel Environment Variable-லிருந்து கிரெடென்ஷியல்ஸை எடுப்பது
         google_creds_json = os.environ.get('GOOGLE_CREDENTIALS')
         
         if google_creds_json:
@@ -45,7 +43,6 @@ def upload_file_to_drive(file_obj):
 
         service = build('drive', 'v3', credentials=creds)
 
-        # உங்களது கூகுள் டிரைவ் ஃபோல்டர் ஐடி
         FOLDER_ID = '15vb2MCi3J9XP0brNbGWf2d36lNM2t5ng'
 
         file_metadata = {
@@ -53,7 +50,6 @@ def upload_file_to_drive(file_obj):
             'parents': [FOLDER_ID]
         }
         
-        # டிஸ்க் எரரைத் தவிர்க்க நேரடியாக மெமரி பஃபரை பயன்படுத்துகிறோம்
         media = MediaIoBaseUpload(fh, mimetype='application/octet-stream', resumable=True)
         file = service.files().create(
             body=file_metadata,
@@ -69,7 +65,9 @@ def upload_file_to_drive(file_obj):
 
         return file.get('webContentLink')
     except Exception as e:
-        print(f"Google Drive Upload Error: {e}")
+        # 🚨 எரர் என்னவென்று தெளிவாக Vercel Logs-ல் காட்ட இதைச் சேர்க்கவும்
+        print("🔥 DRIVE UPLOAD CRITICAL ERROR:")
+        traceback.print_exc()
         return None
 
 
