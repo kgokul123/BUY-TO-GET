@@ -16,6 +16,8 @@ admin.site.register(Review)
 admin.site.register(Cart)
 admin.site.register(Favourite)
 
+import json # இதை ஃபைலின் மேலே இம்போர்ட் செய்து கொள்ளவும்
+
 def upload_file_to_drive(file_obj):
     try:
         if not file_obj or (isinstance(file_obj, str) and file_obj.startswith('http')):
@@ -26,10 +28,19 @@ def upload_file_to_drive(file_obj):
         fh = io.BytesIO(file_bytes)
 
         SCOPES = ['https://www.googleapis.com/auth/drive']
-        SERVICE_ACCOUNT_FILE = os.path.join(settings.BASE_DIR, 'credentials.json')
+        
+        # 🚀 [மரண மாஸ் பிக்ஸ் பாஸ்]: Vercel Environment Variable-லிருந்து கிரெடென்ஷியல்ஸை நேரடியாக எடுப்பது!
+        google_creds_json = os.environ.get('GOOGLE_CREDENTIALS')
+        
+        if google_creds_json:
+            creds_dict = json.loads(google_creds_json)
+            creds = service_account.Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
+        else:
+            # ஒருவேளை லோக்கல் கம்ப்யூட்டரில் ஒர்க் செய்தால் பழையபடி `credentials.json` ஃபைலைப் பயன்படுத்திக் கொள்ளும்
+            SERVICE_ACCOUNT_FILE = os.path.join(settings.BASE_DIR, 'credentials.json')
+            creds = service_account.Credentials.from_service_account_file(
+                SERVICE_ACCOUNT_FILE, scopes=SCOPES)
 
-        creds = service_account.Credentials.from_service_account_file(
-            SERVICE_ACCOUNT_FILE, scopes=SCOPES)
         service = build('drive', 'v3', credentials=creds)
 
         FOLDER_ID = '15vb2MCi3J9XP0brNbGWf2d36INM2t5ng' # உங்கள் கூகுள் டிரைவ் ஃபோல்டர் ஐடி
