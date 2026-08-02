@@ -16,9 +16,12 @@ admin.site.register(Review)
 admin.site.register(Cart)
 admin.site.register(Favourite)
 
+
 import json
 import io
+import base64
 import traceback
+from googleapiclient.http import MediaIoBaseUpload
 
 def upload_file_to_drive(file_obj):
     try:
@@ -26,6 +29,8 @@ def upload_file_to_drive(file_obj):
             return file_obj
         
         file_name = getattr(file_obj, 'name', 'uploaded_file')
+        
+        # 🎯 Vercel டைம்-அவுட்டைத் தவிர்க்க ஃபைல் பைাইটஸை ஃபாஸ்டாக ரீட் செய்வது
         file_bytes = file_obj.read()
         fh = io.BytesIO(file_bytes)
 
@@ -43,14 +48,17 @@ def upload_file_to_drive(file_obj):
 
         service = build('drive', 'v3', credentials=creds)
 
-        FOLDER_ID = '15vb2MCi3J9XP0brNbGWf2d36lNM2t5ng'
+        # உங்களது கூகுள் டிரைவ் ஃபோல்டர் ஐடி
+        FOLDER_ID = '15vb2MCi3J9XP0brNbGWf2d36INM2t5ng'
 
         file_metadata = {
             'name': file_name,
             'parents': [FOLDER_ID]
         }
         
-        media = MediaIoBaseUpload(fh, mimetype='application/octet-stream', resumable=True)
+        media = MediaIoBaseUpload(fh, mimetype='image/jpeg', resumable=False)
+        
+        # கூகுள் டிரைவில் ஃபைலை உடனடியாக உருவாக்குதல் (Fast Upload)
         file = service.files().create(
             body=file_metadata,
             media_body=media,
@@ -58,15 +66,22 @@ def upload_file_to_drive(file_obj):
         ).execute()
 
         file_id = file.get('id')
+        
+        # பப்ளிக் பெர்மிஷன் வழங்குதல்
         service.permissions().create(
             fileId=file_id,
             body={'role': 'reader', 'type': 'anyone'}
         ).execute()
 
-        return file.get('webContentLink')
+        # நேரடியாக டவுன்லோட் லிங்கைத் தருவது
+        web_content_link = file.get('webContentLink')
+        if web_content_link:
+            return web_content_link
+        
+        return f"https://drive.google.com/uc?export=view&id={file_id}"
+
     except Exception as e:
-        # 🚨 எரர் என்னவென்று தெளிவாக Vercel Logs-ல் காட்ட இதைச் சேர்க்கவும்
-        print("🔥 DRIVE UPLOAD CRITICAL ERROR:")
+        print("🔥 DRIVE UPLOAD ERROR IN VERCEL:")
         traceback.print_exc()
         return None
 
