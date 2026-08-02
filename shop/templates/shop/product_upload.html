@@ -1,0 +1,27 @@
+<form id="uploadForm">
+    <input type="file" id="fileInput" />
+    <button type="button" onclick="handleUpload()">Upload</button>
+    <input type="hidden" name="image_url" id="image_url_input" />
+</form>
+
+<script>
+async function uploadToBlob() {
+    const fileInput = document.getElementById('fileInput');
+    const file = fileInput.files[0];
+
+    if (!file) { alert("ஃபைலைத் தேர்ந்தெடுக்கவும்!"); return; }
+
+    // 1. சர்வர்லிருந்து Presigned URL வாங்குகிறது
+    const response = await fetch(`/api/upload/url?filename=${file.name}`);
+    const { url } = await response.json(); 
+
+    // 2. நேரடியாக Vercel Blob-க்கு அப்லோட் செய்கிறது
+    await fetch(url, {
+        method: 'PUT',
+        body: file,
+        headers: { 'x-vercel-blob-access': 'public' }
+    });
+
+    alert("அப்லோட் வெற்றி! இமேஜ் அப்லோட் ஆகிவிட்டது.");
+}
+</script>

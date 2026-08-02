@@ -1,0 +1,41 @@
+{% extends 'shop/layouts/main.html' %}
+
+{% block title %}
+Order Success
+{% endblock title %}
+
+{% block content %}
+
+<div class="container text-center" style="margin-top:120px; min-height:500px;">
+
+    <div class="card shadow p-5">
+
+        <div style="font-size:100px; color:green;">
+            ✓
+        </div>
+
+        <h1 class="text-success">
+            Order Placed Successfully!
+        </h1>
+
+        <p class="lead">
+            Thanks for your order.
+        </p>
+
+        <p>
+            Your order has been received and is being processed.
+        </p>
+
+        <a href="{% url 'myorders' %}" class="btn btn-primary">
+            View My Orders
+        </a>
+
+        <a href="{% url 'home' %}" class="btn btn-success">
+            Continue Shopping
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock content %}

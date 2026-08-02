@@ -1,0 +1,713 @@
+{% extends 'shop/layouts/main.html' %}
+{% load static %}
+
+{% block title %}
+{{ products }} | KALAIARASI METAL STORE
+{% endblock title %}
+
+{% block content %}
+
+<link class="image_b9dd60.jpg" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
+
+<section class="bg-light py-4 my-5" style="min-height:600px;">
+    <div class="container">
+
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">{{ products }} Details</h4>
+                <hr style="border-color:#b8bfc2;">
+
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'home' %}">Home</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'collections_list' %}">Collections</a>
+                        </li>
+                        <li class="breadcrumb-item active">
+                            {{ products }}
+                        </li>
+                    </ol>
+                </nav>
+
+                {% include 'shop/inc/message.html' %}
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-5 my-3 pic-box">
+                
+
+                <div style="position: relative; display: inline-block; width: 100%;">
+                    {% if products.trending %}
+                    <div class="hot">Hot</div>
+                    {% endif %}
+                    
+<div class="preview-box" style="position: relative; width: 100%; height: 450px; background: #ffffff; border: 1px solid #ddd; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+    <img id="main-image" 
+        src="{{ products.product_image.url }}"
+         class="img-fluid border rounded shadow-sm" 
+         style="cursor: zoom-in; width: 100%; max-height: 450px; object-fit: contain;" 
+         alt="{{ products.name }}" 
+         onclick="openFullImageView()">
+
+    <div id="main-video-container" style="display: none; width: 100%; height: 100%;">
+        <video id="main-video" width="100%" height="100%" controls style="object-fit: contain;">
+            <source id="video-source" src="" type="video/mp4">
+        </video>
+    </div>
+</div>
+
+<div class="gallery-list" style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+    <img class="thumb" src="{{ products.product_image.url }}"  width="80" height="80" style="object-fit:cover; border:1px solid #ddd; border-radius:4px; cursor:pointer;" onclick="changeImage('{{ products.product_image.url }}')">
+    {% for img in products.gallery.all %}
+    {% if img.image %}
+   <img class="thumb" src="{{ img.image.url }}"  width="80" height="80" style="object-fit:cover; border:1px solid #ddd; border-radius:4px; cursor:pointer;" onclick="changeImage('{{ img.image.url }}')">
+    {% endif %}
+    {% endfor %}
+
+    {% for gallery_item in products.gallery.all %}
+    {% if gallery_item.video %}
+    <div class="thumb" onclick="playVideo('{{ gallery_item.video.url }}')"
+         style="width: 80px; height: 80px; background: #eee; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+        <i class="fas fa-play" style="font-size: 20px; color: #555;"></i>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="preview-box" style="width: 100%; max-height: 450px; overflow: hidden; border: 1px solid #ddd;">
+            
+            <div id="main-video-container" style="display: none; width: 100%;">
+                <video id="main-video" width="100%" controls><source id="video-source" src="" type="video/mp4"></video>
+            </div>
+        </div>
+        </div>     
+        <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-body p-0">
+        <img id="full-image" src="" class="img-fluid w-100">
+      </div>
+    </div>
+   <button type="button" 
+            class="btn-close" 
+            data-bs-dismiss="modal" 
+            aria-label="Close" 
+            style="position: absolute; top: 20px; right: 20px; z-index: 2000; background-color: white; padding: 10px; border-radius: 50%;">
+    </button>
+  </div>
+  <!-- Carousel Indicators -->
+<div style="display: flex; justify-content: center; gap: 8px; margin-top: 15px;">
+    {% for img in products.gallery.all %}
+        <!-- இது ஒரு சின்ன புள்ளி (Circle) -->
+   <div class="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: {% if forloop.first %}#6c757d{% else %}#dee2e6{% endif %};"></div>
+    {% endfor %}
+</div>
+</div>
+                        
+                      
+                    
+
+</div> <!-- இங்கதான் 82-வது வரியில் உள்ள </div> முடியணும் -->
+                </div>
+
+            </div>
+
+            <div class="col-md-7 my-3">
+
+                <div class="d-flex justify-content-between align-items-center flex-wrap mb-2">
+                    <h3 class="text-success m-0" style="font-weight: 700; letter-spacing: 0.5px;">
+                        {{ products|upper }}
+                    </h3>
+                    
+                    <button onclick="shareProduct()" class="btn btn-light shadow-sm d-flex align-items-center justify-content-center" 
+                            title="Share Product" 
+                            style="border: 1px solid #ced4da; border-radius: 50%; width: 42px; height: 42px; transition: all 0.2s;">
+                        <i class="fas fa-share-nodes" style="color: #495057; font-size: 16px;"></i>
+                    </button>
+                </div>
+
+                <p class="text-muted">
+                    {{ products.vendor }}
+                </p>
+
+                {% if products.weight %}
+                <p>
+                 <strong>Weight :</strong> {{ products.weight }}
+                </p>
+                {% endif %}
+
+                <div class="product-description-box mb-4">
+                    <h5 class="text-dark fw-bold mb-2">Product Description</h5>
+                    <p class="text-secondary" style="line-height: 1.6; font-size: 15px;">
+                        {{ products.description|linebreaksbr }}
+                    </p>
+                </div>
+
+                <div class="price-section my-3">
+                    <h6 class="text-danger mb-1" style="font-size: 14px;">
+                        M.R.P.: <s>₹ <span id="orig_price">{{ products.original_price }}</span></s>
+                    </h6>
+                    <h3 class="fw-bold mb-2 d-flex align-items-center flex-wrap" style="gap: 10px;">
+                        <span class="text-primary">₹ <span id="sell_price">{{ products.selling_price }}</span></span>
+                        
+                        <span id="discount_percent_badge" class="text-danger fw-bold" style="font-size: 22px; display: none;">
+                            -<span id="discount_percent">0</span>%
+                        </span>
+                    </h3>
+                </div>
+
+                <hr>
+
+                {% if products.quantity > 0 %}
+
+                <input type="hidden"
+                       id="pid"
+                       value="{{ products.id }}">
+
+                <div class="input-group mb-3" style="width:170px;">
+
+                    <button class="input-group-text bg-success text-white"
+                            id="btnMinus">
+                        <i class="fa fa-minus"></i>
+                    </button>
+
+                    <input type="text"
+                           id="txtQty"
+                           value="1"
+                           class="form-control text-center">
+
+                    <button class="input-group-text bg-success text-white"
+                            id="btnPlus">
+                        <i class="fa fa-plus"></i>
+                    </button>
+
+                </div>
+
+                <div class="mt-3 mb-3 p-0" style="border: none !important; background: none !important;">
+                    {% if products.delivery_charge == 0 or not products.delivery_charge %}
+                    <p class="mb-0" style="font-size: 16px; color: #000000; font-weight: 500;">
+                        Delivery Charges: <span class="badge bg-success text-white ms-1 px-2 py-1" style="font-size: 13px; font-weight: 600; vertical-align: middle;">FREE DELIVERY</span>
+                    </p>
+                    {% else %}
+                    <p class="mb-0" style="font-size: 16px; color: #000000; font-weight: 500;">
+                        Delivery Charges: <span class="badge bg-warning text-dark ms-1 px-2 py-1" style="font-size: 13px; font-weight: 600; vertical-align: middle;">Rs. {{ products.delivery_charge }}</span>
+                    </p>
+                    {% endif %}
+                </div>
+
+                <button class="btn btn-primary"
+                        id="btncart">
+                    <i class="fa fa-shopping-cart"></i>
+                    Add To Cart
+                </button>
+
+                {% else %}
+
+                <button class="btn btn-secondary">
+                    Out Of Stock
+                </button>
+
+                {% endif %}
+
+                <button class="btn btn-danger"
+                        id="btnFav"
+                        data-product-id="{{ products.id }}">
+                    <i class="fa fa-heart"></i>
+                </button>
+
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="product-about-section p-4 rounded shadow-sm mb-4" style="background-color: #ffffff;">
+                    <h4 class="text-dark fw-bold mb-3" style="font-size: 18px;">
+                        <i class="fas fa-info-circle"></i> About this item
+                     </h4>
+                    
+                    <ul class="list-unstyled mb-0" style="padding-left: 0; line-height: 1.8;">
+                        {% if products.about_this_item %}
+                            {% for line in products.about_this_item.splitlines %}
+                                {% if line.strip %}
+                                    <li class="d-flex align-items-start mb-2" style="font-size: 14px; color: #222222;">
+                                        <span class="text-success me-2" style="font-size: 10px; margin-top: 5px;">●</span>
+                                        <div>{{ line }}</div>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <li class="text-muted small">No specifications added for this product, boss!</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm p-3 mt-2">
+                    <h4>Customer Reviews</h4>
+
+                    {% if user.is_authenticated %}
+                 <form method="POST" action="{% url 'add_review' products.id %}" enctype="multipart/form-data"></form>
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label>Review Image</label>
+                            <input type="file"
+                                   name="review_image"
+                                   class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Rating</label>
+                            <select name="rating" class="form-control">
+                                <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+                                <option value="4">⭐⭐⭐⭐ (4)</option>
+                                <option value="3">⭐⭐⭐ (3)</option>
+                                <option value="2">⭐⭐ (2)</option>
+                                <option value="1">⭐ (1)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Your Review</label>
+                            <textarea name="comment"
+                                      class="form-control"
+                                      rows="4"
+                                      placeholder="Write your review here..."
+                                      required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-success">
+                            Submit Review
+                        </button>
+                    </form>
+
+                    {% else %}
+                    <p class="text-danger">
+                        Please login to write a review.
+                    </p>
+                    {% endif %}
+
+                    <hr>
+
+                    {% for review in reviews %}
+                    <div class="border rounded p-3 mb-3">
+                        <small class="text-muted">
+                            {{ review.created_at }}
+                        </small>
+
+                        <div class="p-2 mt-1">
+                            <strong>{{ review.user.username }}</strong>
+                            <br>
+                            {% if review.review_image %}
+                            <img src="{{ review.review_image.url }}"
+                                 width="200"
+                                 class="img-thumbnail my-2 d-block">
+                            {% endif %}
+                            Rating: {{ review.rating }}/5 ⭐
+                            <p class="mt-2 mb-0">{{ review.comment }}</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p>No reviews yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5 mb-4">
+            <div class="col-12">
+                <h4 class="text-dark fw-bold mb-3">Explore More Trending Items</h4>
+                <hr style="border-color:#b8bfc2;">
+            </div>
+        </div>
+
+        <div class="row">
+            {% for item in trending_products %}
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="card h-100 shadow-sm border-0" style="border-radius: 8px; transition: transform 0.2s, box-shadow 0.2s;" 
+                     onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.1)';" 
+                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 5px rgba(0,0,0,0.05)';">
+                    
+                    <a href="{% if item.category and item.slug %}{% url 'product_details' item.category.slug item.slug %}{% else %}#{% endif %}" class="text-decoration-none text-dark"></a>
+                        <div style="height: 200px; display: flex; align-items: center; justify-content: center; background: #ffffff; padding: 15px; border-top-left-radius: 8px; border-top-right-radius: 8px;">
+                            <img src="{{ item.product_image.url }}" alt="{{ item.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                        </div>
+                    </a>
+
+                    <div class="card-body d-flex flex-column bg-white" style="border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
+                        <span class="text-muted small uppercase" style="font-size: 11px;">{{ item.vendor }}</span>
+                        
+                        <h6 class="card-title my-1 text-dark fw-bold" style="font-size: 14px; height: 40px; overflow: hidden;">
+                           <a href="{% if item.category and item.slug %}{% url 'product_details' item.category.slug item.slug %}{% else %}#{% endif %}" class="text-decoration-none text-dark"></a>
+                                {{ item.name|upper }}
+                            </a>
+                        </h6>
+
+                        <div class="mt-auto">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="text-primary fw-bold" style="font-size: 16px;">₹ {{ item.selling_price }}</span>
+                                <span class="text-muted small"><s>₹ {{ item.original_price }}</s></span>
+                            </div>
+                            
+                            <div class="mt-1">
+                                <span class="badge bg-success" style="font-size: 11px;">Trending Deal</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center text-muted">
+                <p>No other trending products found, boss!</p>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</section>
+
+<div id="fullImageModal" class="full-img-overlay" onclick="closeFullImageView()">
+    <span class="close-full-img">&times;</span>
+    <div class="full-img-container" onclick="event.stopPropagation()">
+        <img id="imgViewer" src="{{ products.product_image.url }}" alt="Full View">
+    </div>
+</div>
+
+<style>
+
+  
+
+#main-video-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10; /* இதுதான் வீடியோவை இமேஜுக்கு மேல காட்டும் */
+    background-color: black;
+}
+
+
+
+#main-video-container video {
+    width: 100%;
+    max-height: 450px;
+    background: #000;
+}
+
+
+
+
+
+    .full-img-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.98); 
+        z-index: 99999;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .close-full-img {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        font-size: 35px;
+        font-weight: 300;
+        color: #333;
+        cursor: pointer;
+        z-index: 100000;
+    }
+
+    .full-img-container {
+        max-width: 95%;
+        max-height: 90%;
+        overflow: auto; 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .full-img-container img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        transition: transform 0.3s ease;
+        cursor: zoom-in;
+    }
+    
+    .img-zoomed {
+        transform: scale(2);
+        cursor: zoom-out !important;
+    }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+
+<script>
+function shareProduct() {
+    const productTitle = "{{ products.name }}";
+    const productUrl = window.location.href;
+
+    if (navigator.share) {
+        navigator.share({
+            title: productTitle,
+            text: 'Check out this awesome product at Kalaiarasi Metal Store: ' + productTitle,
+            url: productUrl,
+        })
+        .then(() => console.log('Successful share, boss!'))
+        .catch((error) => console.log('Error sharing:', error));
+    } else {
+        navigator.clipboard.writeText(productUrl);
+        alert("Product link copied to clipboard, boss! Opening WhatsApp...");
+        window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent('Check this out: ' + productTitle + ' - ' + productUrl), '_blank');
+    }
+}
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const originalPrice = parseFloat(document.getElementById("orig_price").innerText) || 0;
+    const sellingPrice = parseFloat(document.getElementById("sell_price").innerText) || 0;
+
+    if (originalPrice > sellingPrice && originalPrice > 0) {
+        const saved = originalPrice - sellingPrice;
+        const percent = Math.round((saved / originalPrice) * 100);
+
+        document.getElementById("discount_percent").innerText = percent;
+        document.getElementById("discount_percent_badge").style.display = "inline-block";
+    }
+});
+</script>
+
+<script>
+function changeImage(element){
+    document.getElementById("main-image").src = element.src;
+    document.getElementById("imgViewer").src = element.src; 
+}
+
+function openFullImageView() {
+    const bottomNav = document.querySelector('.bottom-nav');
+    if (bottomNav) bottomNav.style.display = 'none';
+    
+    document.getElementById("fullImageModal").style.display = "flex";
+}
+
+function closeFullImageView() {
+    const bottomNav = document.querySelector('.bottom-nav');
+    if (bottomNav) bottomNav.style.display = 'flex';
+    
+    const img = document.getElementById("imgViewer");
+    img.classList.remove("img-zoomed"); 
+    document.getElementById("fullImageModal").style.display = "none";
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+
+    const imgViewer = document.getElementById("imgViewer");
+    if(imgViewer) {
+        imgViewer.addEventListener("click", function() {
+            this.classList.toggle("img-zoomed");
+        });
+    }
+
+    const phoneInputField = document.querySelector("#phone");
+    if (phoneInputField) {
+        window.phoneInput = window.intlTelInput(phoneInputField, {
+            initialCountry: "in",
+            separateDialCode: true,
+            utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+        });
+    }
+
+    const btnPlus = document.getElementById("btnPlus");
+    const btnMinus = document.getElementById("btnMinus");
+    const txtQty = document.getElementById("txtQty");
+    const pid = document.getElementById("pid");
+    const btncart = document.getElementById("btncart");
+    const btnFav = document.getElementById("btnFav");
+
+    if(btnPlus){
+        btnPlus.addEventListener("click", function(){
+            let qty = parseInt(txtQty.value) || 1;
+            if(qty < 10){
+                txtQty.value = qty + 1;
+            }
+        });
+    }
+
+    if(btnMinus){
+        btnMinus.addEventListener("click", function(){
+            let qty = parseInt(txtQty.value) || 1;
+            if(qty > 10) qty = 10;
+            if(qty > 1){
+                txtQty.value = qty - 1;
+            }
+        });
+    }
+
+    if(btncart){
+        btncart.addEventListener("click", function(){
+            let qty = parseInt(txtQty.value) || 0;
+            if(qty > 0){
+                let postObj = {
+                    product_qty: qty,
+                    pid: pid.value
+                };
+
+                fetch("/add-to-cart/",{
+                    method:"POST",
+                    credentials:"same-origin",
+                    headers:{
+                        "Content-Type":"application/json",
+                        "X-Requested-With":"XMLHttpRequest",
+                        "X-CSRFToken":"{{ csrf_token }}"
+                    },
+                    body:JSON.stringify(postObj)
+                })
+                .then(response => {
+                    if (response.status === 401) {
+                        alert("Login to Add Cart! (கார்ட்டில் சேர்க்க முதலில் லாக்-இன் செய்யவும்)");
+                        window.location.href = "/login";
+                        return null;
+                    }
+                    return response.json();
+                })
+                .then(data =>{
+                    if(data) {
+                        alert(data.status);
+                    }
+                });
+            }else{
+                alert("Please Enter Quantity");
+            }
+        });
+    }
+
+    if(btnFav){
+        btnFav.addEventListener("click", function(){
+            fetch("/Fav/",{
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json",
+                    "X-CSRFToken":"{{ csrf_token }}",
+                    "X-Requested-With":"XMLHttpRequest"
+                },
+                body:JSON.stringify({
+                    pid:this.dataset.productId
+                })
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    alert("Login to Add Favourite!");
+                    window.location.href = "/login";
+                    return null;
+                }
+                return response.json();
+            })
+            .then(data =>{
+                if(data) {
+                    alert(data.status);
+                }
+            });
+        });
+    }
+});
+
+
+    function changeImage(newSrc) {
+        // மெயின் இமேஜ் டேக்கை எடுக்கவும்
+        var mainImage = document.getElementById("main-image");
+        // மெயின் வீடியோ கன்டெய்னரை மறைக்கவும் (படம் வரும்போது வீடியோ தெரியக்கூடாது)
+        document.getElementById("main-video-container").style.display = "none";
+        // மெயின் இமேஜ் கன்டெய்னரை காட்டவும்
+        mainImage.style.display = "block";
+        // புது சோர்ஸை செட் செய்யவும்
+        mainImage.src = newSrc;
+    }
+
+    // வீடியோ ப்ளே செய்யும்
+    function playVideo(videoUrl) {
+        var img = document.getElementById("main-image");
+        var videoCont = document.getElementById("main-video-container");
+        var video = document.getElementById("main-video");
+        var source = document.getElementById("video-source");
+
+        // இமேஜை மறைத்து வீடியோவைக் காட்டு
+        img.style.display = "none";
+        videoCont.style.display = "block";
+        
+        // வீடியோவை லோட் செய்
+        source.src = videoUrl;
+        video.load();
+        video.play();
+
+        // வீடியோ பட்டன் தம்பனைல்ல 'active' கிளாஸை நீக்கு
+        var thumbs = document.querySelectorAll('.thumb');
+        thumbs.forEach(t => t.classList.remove('active'));
+    }
+
+    function openFullImageView() {
+        // மெயின் இமேஜின் src-ஐ எடுக்கிறது
+        var mainImgSrc = document.getElementById("main-image").src;
+        
+        // மோடலில் இருக்கும் இமேஜ் டேக்கிற்கு அதை அனுப்புகிறது
+        var fullImg = document.getElementById("full-image");
+        fullImg.src = mainImgSrc;
+        
+        // பூட்ஸ்டிராப் மோடலைத் திறக்கிறது
+        var myModal = new bootstrap.Modal(document.getElementById('imageModal'));
+        myModal.show();
+    }
+
+ 
+    function showVideo(url) { document.getElementById('video-wrapper').style.display='block'; document.getElementById('video-source').src=url; document.getElementById('product-video').load(); document.getElementById('product-video').play(); }
+    function shareProduct() { navigator.share({ title: '{{ products.name }}', url: window.location.href }); }
+
+
+</script>
+
+
+<script>
+    import { put } from '@vercel/blob'; // குறிப்பு: இது நெட்வொர்க்கில் நேரடியாக வேலை செய்யாது, இதற்கு ஒரு 'Bundler' (உதாரணமாக Vite அல்லது Webpack) தேவை.
+
+    async function uploadFile(file) {
+        const response = await fetch('/api/upload/handle', {
+            method: 'POST',
+            body: file,
+        });
+        const { url } = await response.json();
+        
+        // அப்லோட் ஆன URL-ஐ இந்த input-ல் போடுங்க (Django ஃபார்முக்காக)
+        document.getElementById('image_url_input').value = url;
+        console.log('Upload successful:', url);
+    }
+</script>
+
+
+<style>
+  .iti { width: 100%; }
+  
+  /* 🎯 ஷேர் பட்டன் ஹோவர் எஃபெக்ட் பாஸ் */
+  button[onclick="shareProduct()"]:hover {
+      background-color: #f8f9fa !important;
+      transform: scale(1.08);
+      border-color: #6c757d !important;
+  }
+</style>
+
+{% endblock content %}

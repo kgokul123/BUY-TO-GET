@@ -1,0 +1,80 @@
+{% load static %}
+
+<div id="carouselExampleIndicators"
+     class="carousel slide"
+     data-bs-ride="carousel"
+     data-bs-interval="2000">
+
+    <div class="carousel-inner">
+
+        <!-- Slide 1 -->
+        <div class="carousel-item active">
+            <img src="{% static 'uploads/images/1.jpeg' %}" class="d-block w-100 flawless-banner">
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="carousel-item">
+            <img src="{% static 'uploads/images/2.jpeg' %}" class="d-block w-100 flawless-banner">
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="carousel-item">
+            <img src="{% static 'uploads/images/3.jpeg' %}" class="d-block w-100 flawless-banner">
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="carousel-item">
+            <img src="{% static 'uploads/images/4.jpeg' %}" class="d-block w-100 flawless-banner">
+        </div>
+
+    </div>
+
+    <button class="carousel-control-prev" type="button"
+            data-bs-target="#carouselExampleIndicators"
+            data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+    </button>
+
+    <button class="carousel-control-next" type="button"
+            data-bs-target="#carouselExampleIndicators"
+            data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+    </button>
+
+</div>
+
+<!-- 🎯 PC, Laptop, Tablet, Mobile, TV என அனைத்துக்கும் கச்சிதமான பிக்சல் ரேஷியோ செட்டப் -->
+<style>
+   
+@media (max-width: 991.98px) {
+
+    .carousel-item {
+        height: 250px !important;  /* 👈 600-க்கு பதிலா இங்க இருக்குற நம்பரை அதிகமாக்கிக்கோங்க பாஸ் */
+        overflow: fit;
+    }
+
+    .carousel-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top center !important;
+        display: block;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+
+    .carousel,
+    .carousel-inner,
+    .carousel-item {
+        height: 500px !important;
+    }
+
+    .carousel-item img {
+        width: 100% !important;
+        height: 500px !important;
+        object-fit: contain !important;
+    }
+}
+
+</style>

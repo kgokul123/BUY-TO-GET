@@ -1,0 +1,48 @@
+<div class="terms-content" style="padding: 15px; text-align: justify;">
+    <!-- மொபைல் ஸ்க்ரீனுக்கு ஏத்த மாதிரி ஹைட் செட் பண்றோம் -->
+    <div style="max-height: 350px; overflow-y: auto; padding-right: 10px;">
+        <h5 style="font-size: 1.1rem;">1. Acceptance of Terms</h5>
+        <p style="font-size: 0.9rem;">By placing an order with Kalaiarasi Metal Store, the customer agrees to be bound by these terms and conditions.</p>
+
+        <h5 style="font-size: 1.1rem;">2. Product Descriptions</h5>
+        <p style="font-size: 0.9rem;">We strive to ensure all product images and descriptions are accurate. Slight variations may occur due to the nature of metal manufacturing.</p>
+
+        <h5 style="font-size: 1.1rem;">3. Pricing and Payments</h5>
+        <p style="font-size: 0.9rem;">All prices are in Indian Rupees (INR). Payments must be completed through our secure checkout process.</p>
+
+        <h5 style="font-size: 1.1rem;">4. Order Cancellation</h5>
+        <p style="font-size: 0.9rem;">Customers may cancel an order within 24 hours of placing it.</p>
+
+        <h5 style="font-size: 1.1rem;">5. Shipping and Delivery</h5>
+        <p style="font-size: 0.9rem;">Estimated delivery times are provided at checkout and are subject to location.</p>
+
+        <h5 style="font-size: 1.1rem;">6. Returns and Exchanges</h5>
+        <p style="font-size: 0.9rem;">Please report damaged products within 48 hours with photographic evidence.</p>
+
+        <h5 style="font-size: 1.1rem;">7. Warranty</h5>
+        <p style="font-size: 0.9rem;">Limited manufacturing warranty available; does not cover misuse or accidents.</p>
+
+        <h5 style="font-size: 1.1rem;">8. Privacy Policy</h5>
+        <p style="font-size: 0.9rem;">Personal data is strictly used for order fulfillment and will not be shared.</p>
+
+        <h5 style="font-size: 1.1rem;">9. Limitation of Liability</h5>
+        <p style="font-size: 0.9rem;">We are not liable for indirect damages arising from the use of our products.</p>
+
+        <h5 style="font-size: 1.1rem;">10. Governing Law</h5>
+        <p style="font-size: 0.9rem;">Governed by the laws of India and the jurisdiction of Chennai courts.</p>
+    </div>
+</div>
+
+
+<script>
+window.onload = function() {
+    if (!localStorage.getItem('termsAccepted')) {
+        var myModal = new bootstrap.Modal(document.getElementById('termsModal'));
+        myModal.show();
+    }
+};
+
+function acceptTerms() {
+    localStorage.setItem('termsAccepted', 'true');
+}
+</script>
