@@ -1,0 +1,129 @@
+
+/* போன் மற்றும் டேப்லெட்டில் பேனர் டெக்ஸ்ட் கட் ஆகாமல் முழுமையாகக் காட்டும் கோடு */
+@media (max-width: 1024px) {
+    /* 1. ஸ்லைடரின் மெயின் கண்டெய்னர் உயரத்தை ஆட்டோமேட்டிக்காக சுருங்க வைக்கிறோம் */
+    .carousel, .carousel-inner, .carousel-item {
+        height: auto !important;
+        min-height: auto !important;
+        background-color: #0b2265; 
+    }
+
+    /* 2. இமேஜ் மற்றும் டெக்ஸ்ட் எதுவும் கட் ஆகாமல் தெரிய வைக்கும் மேஜிக் */
+    .carousel-item img {
+        width: 100% !important;
+        height: auto !important;        
+        max-height: 500px !important;    
+        object-fit: contain !important; 
+        object-position: center !important;
+    }
+}
+
+.carousel-item img {
+    object-fit: cover;
+    object-position: top;
+    height: 1000px;
+
+}
+.row{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.card{
+    width: 100%;
+}
+
+.card img{
+    height: 250px;
+    object-fit: cover;
+    width: 100%;
+}
+
+.old_price {
+    font-weight: bold;
+    color: #ff0000;
+}
+
+.new_price {
+    font-weight: bold;
+    background-color: #28a745;
+    color: white;
+    padding: 1px;
+    border-radius: 5px;
+}
+
+.pic-box{
+    position: relative;
+}
+
+.hot{
+    background-color: #fa5102;
+    color: white;
+    width: 50px;
+    text-align: center;
+    font-weight: bold;
+    display: inline;
+    border-radius: 5px;
+    padding: 5px;
+    position: absolute;
+    top: 0;
+    right: 20px;
+    z-index: 10;
+}
+
+.track{
+    display:flex;
+    justify-content:space-between;
+    margin-top:20px;
+    position:relative;
+}
+
+.track::before{
+    content:'';
+    position:absolute;
+    top:25px;
+    left:10%;
+    width:80%;
+    height:4px;
+    background:#ddd;
+    z-index:0;
+}
+
+.step{
+    text-align:center;
+    position:relative;
+    z-index:1;
+    flex:1;
+}
+
+.step .icon{
+    width:50px;
+    height:50px;
+    line-height:50px;
+    border-radius:50%;
+    background:#ddd;
+    display:inline-block;
+    font-size:22px;
+}
+
+.step.active .icon{
+    background:#28a745;
+    color:white;
+}
+
+.step .text{
+    display:block;
+    margin-top:8px;
+    font-size:14px;
+    font-weight:600;
+}
+
+
+.navbar-nav{
+    flex-wrap: nowrap !important;
+}
+
+.navbar-nav .nav-item{
+    white-space: nowrap;
+}
+

@@ -1,0 +1,183 @@
+{% load static %}
+
+<div id="carouselExampleIndicators"
+     class="carousel slide"
+     data-bs-ride="carousel"
+     data-bs-interval="2000">
+
+    <div class="carousel-inner">
+
+        <!-- Slide 1 -->
+        <div class="carousel-item active">
+            <img src="{% static 'uploads/images/1.jpeg' %}" class="d-block w-100 flawless-banner">
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="carousel-item">
+            <img src="{% static 'uploads/images/2.jpeg' %}" class="d-block w-100 flawless-banner">
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="carousel-item">
+            <img src="{% static 'uploads/images/3.jpeg' %}" class="d-block w-100 flawless-banner">
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="carousel-item">
+            <img src="{% static 'uploads/images/4.jpeg' %}" class="d-block w-100 flawless-banner">
+        </div>
+
+    </div>
+
+    <button class="carousel-control-prev" type="button"
+            data-bs-target="#carouselExampleIndicators"
+            data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+    </button>
+
+    <button class="carousel-control-next" type="button"
+            data-bs-target="#carouselExampleIndicators"
+            data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+    </button>
+
+</div>
+
+<!-- 🎯 PC, Laptop, Tablet, Mobile, TV என அனைத்துக்கும் கச்சிதமான பிக்சல் ரேஷியோ செட்டப் -->
+<style>
+
+    /* 💻 PC & Laptop View - பார்டர் மற்றும் பிளாக் பேக்ரவுண்ட் முற்றிலும் இருக்காது (Original Look) */
+    @media (min-width: 992px) {
+        .carousel {
+            background-color: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            max-width: 100% !important;
+            margin: 15px auto !important;
+            height: 420px !important;
+        }
+        .carousel-inner,
+        .carousel-item {
+            height: 420px !important;
+        }
+        .carousel-item img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important; /* லேப்டாப்பில் ஃபுல் ஸ்கிரீன் அழகாகத் தெரிய */
+            background-color: transparent !important;
+        }
+    }
+
+    /* 📱 Mobile & Tablet View - இங்கே மட்டும் பார்டர், பிளாக் பேக்ரவுண்ட் மற்றும் கச்சிதமான உயரம் இருக்கும் */
+    @media (max-width: 991.98px) {
+        .carousel {
+            background-color: #111111 !important;
+            border: 3px solid #000000 !important;
+            border-radius: 10px !important;
+            overflow: hidden !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+            max-width: 100% !important;
+            margin: 10px auto !important;
+            height: 180px !important;
+        }
+        .carousel-inner,
+        .carousel-item {
+            height: 180px !important;
+        }
+        .carousel-item img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: contain !important;
+            background-color: #111111 !important;
+        }
+    }
+   
+@media (max-width: 991.98px) {
+
+    .carousel-item {
+        height: 250px !important;  /* 👈 600-க்கு பதிலா இங்க இருக்குற நம்பரை அதிகமாக்கிக்கோங்க பாஸ் */
+        overflow: fit;
+    }
+
+    .carousel-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top center !important;
+        display: block;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+
+    .carousel,
+    .carousel-inner,
+    .carousel-item {
+        height: 500px !important;
+    }
+
+    .carousel-item img {
+        width: 100% !important;
+        height: 500px !important;
+        object-fit: contain !important;
+    }
+}
+
+</style>
+<style>
+    @media (max-width: 991.98px) {
+        .carousel {
+            background-color: #111111 !important;
+            border: 3px solid #0f2c45 !important;
+            border-radius: 10px !important;
+            overflow: hidden !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+            max-width: 100% !important;
+            margin: 10px auto !important;
+            height: 190px !important;
+        }
+        .carousel-inner,
+        .carousel-item {
+            height: 100% !important;
+        }
+        .carousel-item img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important; /* Melbhaga space varamal image-ai muzhuvathum nirappa */
+            object-position: center center !important;
+            background-color: #111111 !important;
+        }
+    }
+</style>
+<style>
+    /* 💻 டெஸ்க்டாப் மற்றும் லேப்டாப் வியூவிற்கான பெர்பெக்ட் ஃபிட் கோடு */
+    @media (min-width: 992px) {
+        .carousel {
+            background-color: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 auto !important;
+            height: 900px !important; /* 👈 Sariyana height alavu */
+            overflow: hidden !important;
+        }
+        
+        .carousel-inner,
+        .carousel-item {
+            width: 100% !important;
+            height: 100% !important;
+            overflow: hidden !important;
+        }
+
+        .carousel-item img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important; /* 👈 Image cut aagamal screen-ai muzhuvathum nirappa */
+            object-position: center center !important;
+            background-color: transparent !important;
+        }
+    }
+</style>

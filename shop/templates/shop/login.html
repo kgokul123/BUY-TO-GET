@@ -1,0 +1,212 @@
+{% extends 'shop/layouts/main.html' %}
+{% load socialaccount %}
+{% load static %}
+
+{% block title %}
+    Login for Shopping
+{% endblock title %}
+
+{% block content %}
+
+<style>
+    .login-container-box {
+        position: relative;
+        overflow: hidden;
+        min-height: 90vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 120px 0 60px 0; 
+    }
+
+    /* அனிமேஷன் ஆகப்போகும் லாகின் பேக்ரவுண்ட் லேயர் */
+    .login-animated-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url("{% static 'uploads/images/logina.png' %}") no-repeat center center;
+        background-size: cover;
+        z-index: 1;
+        animation: smoothZoom 7s ease-out forwards;
+    }
+
+    /* லாகின் கார்டு கன்டென்ட் லேயர் */
+    .login-content-layer {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+    }
+
+    /* ஜூம் அனிமேஷன் லாஜிக் */
+    @keyframes smoothZoom {
+        0% { transform: scale(1); }
+        100% { transform: scale(1.12); }
+    }
+
+    /* 📱 மொபைல் வியூவிற்கான பிரத்யேக அட்ஜெஸ்ட்மென்ட் */
+    @media (max-width: 991.98px) {
+        .login-container-box {
+            min-height: 100vh;
+            padding: 80px 15px 40px 15px;
+            align-items: center;
+        }
+
+        .card {
+            width: 100% !important;
+            max-width: 380px !important;
+            margin: auto !important;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2) !important;
+        }
+    }
+</style>
+
+<div class="login-container-box">
+    
+    <div class="login-animated-bg"></div>
+    
+    <div class="login-content-layer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-5 mx-auto">
+                    
+                    <!-- லாகின் கார்டு பாக்ஸ் -->
+                    <div class="card p-4 shadow-lg bg-white border-0 rounded-3">
+                        <h4 class="mb-2 fw-bold text-dark text-center">User Login</h4>
+                        <hr style="border-color:#fdffff;" class="mb-4">
+                        
+                        {% include 'shop/inc/message.html' %}
+
+                        <form method="post" action="">
+                            {% csrf_token %}
+                            
+                            <!-- Username ஃபீல்டு -->
+                            <div class="mb-4">
+                                <label for="Username" class="form-label fw-bold small text-uppercase" style="font-size: 12px;">User name</label>
+                                <input type="text" name="username" id="Username" class="form-control" style="padding: 10px; border-radius: 6px;" placeholder="Enter User Name" required>
+                            </div>
+                            
+                            <!-- Password ஃபீல்டு -->
+                           <div class="mb-4">
+                                <label for="password" class="form-label fw-bold small text-uppercase" style="font-size: 12px;">Password</label>
+                                <div class="input-group">
+                                    <input type="password" name="password" id="password" class="form-control" style="padding: 10px; border-radius: 6px 0 0 6px;" placeholder="Password" required>
+                                    <span class="input-group-text bg-white" id="togglePassword" onclick="togglePasswordVisibility()" style="cursor: pointer; border-radius: 0 6px 6px 0; border-left: none;">
+                                          <i class="fa fa-eye" id="eyeIcon" style="color: #6c757d;"></i>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- ரெஜிஸ்டர் லிங்க் செக்ஷன் -->
+                            <div class="text-center mb-3">
+                                <p class="small mb-0 text-muted fw-bold" style="font-size: 12px;">
+                                    DO NOT HAVE ACCOUNT? <a href="{% url 'register' %}" class="text-primary fw-bold text-decoration-none">REGISTER NOW</a>
+                                </p>
+                            </div>
+                            
+                            <!-- லாகின் பட்டன் -->
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold text-uppercase" style="border-radius: 6px; font-size: 15px;">
+                                LOGIN
+                            </button>
+                        </form>
+
+                        <!-- கூகுள் பட்டன் செட்டப் -->
+                        <div class="text-center mt-3">
+                           <div style="display: flex; align-items: center; text-align: center; margin: 20px 0;">
+                                 <hr style="flex: 1; border: none; border-top: 1px solid #ccc;">
+                                    <span style="padding: 0 10px; color: #6c757d; font-weight: 500;">OR</span>
+                                 <hr style="flex: 1; border: none; border-top: 1px solid #ccc;">
+                           </div>
+                            
+                            <a href="{% provider_login_url 'google' %}" class="btn btn-light w-100 py-2.5 d-flex align-items-center justify-content-center gap-2 shadow-sm" 
+                               style="background-color: #ffffff; color: #495057; border-radius: 6px; border: 1px solid #ced4da !important; font-size: 15px; font-weight: 600; padding-top: 10px; padding-bottom: 10px; transition: all 0.2s ease;">
+                                
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" 
+                                     alt="Google Logo" 
+                                     style="width: 18px; height: 18px; display: inline-block;">
+                                
+                                <span>Continue with Google</span>
+                            </a>
+                        </div>
+
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
+        }
+    }
+</script>
+<style>
+    .login-container-box {
+        position: relative;
+        overflow: hidden;
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 0; 
+    }
+
+    /* அனிமேஷன் மற்றும் இமேஜ் பக்கா ஃபிட் லேயர் */
+    .login-animated-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url("{% static 'uploads/images/logina.png' %}") no-repeat center center;
+        background-size: cover; /* 👈 இமேஜ் கட் ஆகாமல் பக்கா ஃபிட் ஆக */
+        z-index: 1;
+        animation: smoothZoom 7s ease-out forwards;
+    }
+
+    .login-content-layer {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+    }
+
+    /* 🎯 ஜூம் அனிமேஷன் - இமேஜ் அழகா ஜூம் ஆகும் */
+    @keyframes smoothZoom {
+        0% { transform: scale(1); }
+        100% { transform: scale(1.12); }
+    }
+
+    /* 📱 மொபைல் வியூவிற்கான அட்ஜெஸ்ட்மென்ட் */
+    @media (max-width: 991.98px) {
+        .login-container-box {
+            min-height: 82vh;
+            padding: 20px 10px;
+        }
+
+        .card {
+            width: 100% !important;
+            max-width: 380px !important;
+            margin: auto !important;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2) !important;
+        }
+    }
+</style>
+
+{% endblock content %}

@@ -1,0 +1,111 @@
+{% extends 'shop/layouts/main.html' %}
+{% block content %}
+
+<div class="container text-center my-5 p-4 bg-white rounded shadow-sm" style="max-width: 800px;">
+    
+    <!-- தலைப்பு பகுதி -->
+    <div class="verification-header mb-4">
+        <h2 class="text-success fw-bold">
+            <i class="fas fa-check-circle"></i> DIGITAL INVOICE VERIFIED
+        </h2>
+        <p class="text-muted">KALAIARASI METAL STORE • Premium Quality Steel & Modern Furniture</p>
+    </div>
+    
+    <!-- இன்வாய்ஸ் விபரங்கள் -->
+    <div class="row text-start my-3">
+        <div class="col-md-6">
+            <strong>Order ID:</strong> #ORD{{ order.id }}A <br>
+            <strong>Customer Name:</strong> {{ order.user.username }}
+        </div>
+        <div class="col-md-6 text-md-end">
+            <strong>Status:</strong> <span class="badge bg-success">AUTHENTIC INVOICE</span>
+        </div>
+    </div>
+    
+    <hr style="border-color: #b8bfc2;">
+    
+    <!-- அசல் பில் போட்டோ காட்சி -->
+    <h4 class="text-dark fw-bold my-3 text-start">Signed Invoice Proof</h4>
+    <div class="row justify-content-center mb-4">
+        <div class="col-12 text-center">
+            {% if order.is_digitally_verified and order.signed_invoice_image %}
+                <div class="p-2 border rounded bg-light inline-block">
+                    <img src="{{ order.signed_invoice_image.url }}" class="img-fluid border rounded shadow-sm" style="max-height: 600px;" alt="Signed Invoice Copy">
+                </div>
+            {% else %}
+                <div class="py-5 border rounded bg-light">
+                    <p class="text-warning fw-bold mb-0">⚠️ Signed physical invoice photo is pending verification!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- அட்மின் பேனல் - அப்லோடு மற்றும் கிராப்பிங் பகுதி -->
+    {% if request.user.is_authenticated and request.user.is_staff %}
+    <div class="card p-4 text-start mt-4" style="background-color: #fff3cd; border: 1px solid #ffeba2;">
+        <h5 class="text-warning-dark fw-bold mb-2">
+            <i class="fas fa-lock"></i> Admin Panel
+        </h5>
+        <p class="small text-muted">பாஸ், பில்லை போட்டோ எடுத்து இங்க கிராப் பண்ணி அப்லோடு பண்ணுங்க:</p>
+        
+        <form method="POST" action="{% url 'digital_verification_view' order.id %}" enctype="multipart/form-data" id="upload-form">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label class="form-label small fw-bold">Upload Signed Invoice Photo</label>
+                <!-- 🚀 கேமரா வசதியுடன் கூடிய இன்புட் -->
+                <input type="file" name="signed_invoice" id="invoice-input" class="form-control" accept="image/*" capture="environment" required>
+            </div>
+            
+            <!-- கிராப்பிங் ஏரியா -->
+            <div id="preview-container" class="mt-3" style="max-width: 100%;">
+                <img id="preview-image" style="display: none; max-width: 100%;">
+            </div>
+
+            <!-- கிராப் செய்த இமேஜை அனுப்ப ஹிடன் ஃபீல்டு -->
+            <input type="hidden" name="cropped_image" id="cropped-image-data">
+
+            <button type="submit" id="save-btn" class="btn btn-warning btn-sm fw-bold text-dark mt-3">
+                Save & Update Invoice Photo
+            </button>
+        </form> 
+    </div>
+    {% endif %}
+</div>
+
+<!-- 🚀 கிராப்பிங் லைப்ரரி CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+<script>
+    const imageInput = document.getElementById('invoice-input');
+    const imagePreview = document.getElementById('preview-image');
+    const form = document.getElementById('upload-form');
+    let cropper;
+
+    imageInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            imagePreview.src = event.target.result;
+            imagePreview.style.display = 'block';
+            
+            if (cropper) cropper.destroy();
+            cropper = new Cropper(imagePreview, {
+                aspectRatio: NaN,
+                viewMode: 1,
+            });
+        };
+        reader.readAsDataURL(file);
+    });
+
+    form.addEventListener('submit', (e) => {
+        if (cropper) {
+            const canvas = cropper.getCroppedCanvas();
+            document.getElementById('cropped-image-data').value = canvas.toDataURL('image/jpeg');
+        }
+    });
+</script>
+
+{% endblock content %}

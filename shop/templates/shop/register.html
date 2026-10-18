@@ -1,0 +1,190 @@
+{% extends 'shop/layouts/main.html' %}
+{% load static %}
+{% load socialaccount %}
+
+{% block title %}
+    New User Registration for Shopping
+{% endblock title %}
+
+{% block content %}
+
+<!-- சிஎஸ்எஸ் அனிமேஷன் மற்றும் லேஅவுட் மேஜிக் ஸ்டைல் பாஸ் -->
+<style>
+    .register-container-box {
+        position: relative;
+        overflow: hidden; /* இமேஜ் ஜூம் ஆகும்போது பாக்ஸை விட்டு வெளிய போகாமல் தடுக்க */
+        min-height: 90vh; /* உயரத்தை கொஞ்சம் கூட்டியிருக்கேன் பாஸ், அப்போதான் பேடிங் வைக்க இடம் கிடைக்கும் */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        /* 🎯 [கார்டை கீழே இறக்கும் மேஜிக் வரி பாஸ்] */
+        /* டாப் பேடிங்கை 120px ஆக்கியாச்சு, இப்போ கார்டு கச்சிதமா கீழே இறங்கி வரும்! */
+        padding: 120px 0 60px 0; 
+    }
+
+    /* அனிமேஷன் ஆகப்போகும் பேக்ரவுண்ட் லேயர் */
+    .register-animated-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url("{% static 'uploads/images/registra.png' %}") no-repeat center center;
+        background-size: cover;
+        z-index: 1;
+        animation: smoothZoom 7s ease-out forwards;
+    }
+
+    /* ரிஜிஸ்டர் கார்டு கன்டென்ட் லேயர் */
+    .register-content-layer {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+    }
+
+    @keyframes smoothZoom {
+        0% { transform: scale(1); }
+        100% { transform: scale(1.12); }
+    }
+</style>
+
+<div class="register-container-box">
+    
+    <div class="login-animated-bg register-animated-bg"></div>
+    
+    <div class="register-content-layer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-5 mx-auto">
+                    
+                    <div class="card p-4 shadow-lg bg-white border-0 rounded-3">
+                        <h4 class="mb-2 fw-bold text-dark text-center">Register Page</h4>
+                        <hr style="border-color:#b8bfc2;" class="mb-4">
+                        
+                        {% include 'shop/inc/message.html' %}
+
+                        <form method="post" action="">
+                            {% csrf_token %}
+
+                            <!-- USERNAME field -->
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-uppercase">Username</label>
+                                {{ form.username }}
+                                {% if form.errors.username %}
+                                <div class="text-danger small mt-1 fw-bold">
+                                    {{ form.errors.username }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- USER EMAIL field -->
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-uppercase">User Email</label>
+                                {{ form.email }}
+                                {% if form.errors.email %}
+                                <div class="text-danger small mt-1 fw-bold">
+                                    {{ form.errors.email }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- PASSWORD field with Eye Icon -->
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-uppercase">Password</label>
+                                <div class="input-group">
+                                    {{ form.password1 }}
+                                    <span class="input-group-text bg-white" onclick="togglePassword1()" style="cursor: pointer; border-left: none;">
+                                        <i class="fa fa-eye" id="eyeIcon1" style="color: #6c757d;"></i>
+                                    </span>
+                                </div>
+                                {% if form.errors.password1 %}
+                                <div class="text-danger small mt-1 fw-bold">
+                                    {{ form.errors.password1 }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- CONFIRM PASSWORD field with Eye Icon -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold small text-uppercase">Confirm Password</label>
+                                <div class="input-group">
+                                    {{ form.password2 }}
+                                    <span class="input-group-text bg-white" onclick="togglePassword2()" style="cursor: pointer; border-left: none;">
+                                        <i class="fa fa-eye" id="eyeIcon2" style="color: #6c757d;"></i>
+                                    </span>
+                                </div>
+                                {% if form.errors.password2 %}
+                                <div class="text-danger small mt-1 fw-bold">
+                                    {{ form.errors.password2 }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <button type="submit" class="btn btn-success w-100 py-2 fw-bold text-uppercase" style="border-radius: 6px;">
+                                Register
+                            </button>
+                        </form>
+                        
+                        <div class="text-center mt-3">
+                            <p class="small mb-0 text-muted">Already user? <a href="{% url 'login' %}" class="text-primary fw-bold text-decoration-none">LOGIN NOW</a></p>
+                        </div>
+
+                        <div class="text-center mt-3">
+                            <div class="position-relative d-flex align-items-center justify-content-center my-3">
+                                <hr class="w-100 text-muted" style="opacity: 0.15;">
+                                <span class="position-absolute bg-white px-3 text-muted small fw-bold" style="font-size: 11px; letter-spacing: 1px;">OR</span>
+                            </div>
+
+                            <a href="{% provider_login_url 'google' %}" class="btn btn-light w-100 py-2.5 d-flex align-items-center justify-content-center gap-2 shadow-sm" 
+                               style="background-color: #ffffff; color: #495057; border-radius: 6px; border: 1px solid #ced4da !important; font-size: 15px; font-weight: 600; padding-top: 10px; padding-bottom: 10px; transition: all 0.2s ease;">
+                                
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" 
+                                     alt="Google Logo" 
+                                     style="width: 18px; height: 18px; display: inline-block;">
+                                
+                                <span>Continue with Google Account</span>
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function togglePassword1() {
+        const passwordInput = document.querySelector('input[name="password1"]');
+        const eyeIcon = document.getElementById('eyeIcon1');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
+        }
+    }
+
+    function togglePassword2() {
+        const passwordInput = document.querySelector('input[name="password2"]');
+        const eyeIcon = document.getElementById('eyeIcon2');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
+        }
+    }
+</script>
+
+{% endblock content %}

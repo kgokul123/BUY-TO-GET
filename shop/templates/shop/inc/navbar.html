@@ -1,0 +1,285 @@
+{% load static %}
+<!-- 💻 1. PC / லேப்டாப் வியூவிற்கான டாப் நேவ்பார் (ஆட்டோ-ஹைட் மற்றும் மவுஸ் ஹூவர் வசதியுடன்) -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top d-none d-lg-block pc-auto-navbar" id="pcAutoNavbar">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">
+            <img src="{% static 'uploads/images/logo.jpg.jpeg' %}" alt="Logo" style="height: 40px; width: auto;" class="me-2">
+            <span class="fw-bold text-white">KALAIARASI METAL STORE</span>
+        </a>
+
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{% url 'home' %}"><i class="fa fa-home"></i> Home</a>
+                {% if request.user.is_authenticated %}
+                    <a class="nav-link" href="{% url 'profile' %}"><i class="fa fa-user"></i> {{ request.user.username }}</a>
+                    <a class="nav-link" href="{% url 'logout' %}"><i class="fa fa-sign-out"></i> Logout</a>
+                {% else %}
+                    <a class="nav-link" href="{% url 'login' %}"><i class="fa fa-sign-in"></i> Login</a>
+                    <a class="nav-link" href="{% url 'register' %}"><i class="fa fa-users"></i> Register</a>
+                {% endif %}
+                <a class="nav-link" href="{% url 'collections_list' %}"><i class="fa fa-cubes"></i> Collections</a>
+                <a class="nav-link" href="{% url 'cart' %}"><i class="fa fa-shopping-cart"></i> Cart</a>
+                <a class="nav-link" href="{% url 'Fav' %}"><i class="fa fa-heart"></i> Favourite</a>
+                <a class="nav-link" href="{% url 'myorders' %}"><i class="fa fa-box"></i> My Orders</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- 📱 2. மொபைல் & டேப்லெட் வியூவிற்கான டாப் ஹெட்டர் -->
+<nav class="navbar navbar-dark bg-dark fixed-top mobile-top-nav d-block d-lg-none p-0" id="autoMobileNavbar">
+    <div class="w-100 d-flex justify-content-center align-items-center" style="height: 55px; background-color: #212529 !important;">
+        <span class="text-white style-brand m-0">
+           <img src="{% static 'uploads/images/logo.jpg.jpeg' %}" alt="Buy To Get Logo" style="height: 32px; width: auto;" class="me-2"> KALAIARASI METAL STORE
+        </span>
+    </div>
+</nav>
+
+<!-- 📱 3. மொபைல் & டேப்லெட் வியூவிற்கான பாட்டம் நேவிகேஷன் பார் -->
+<div class="bottom-nav d-flex d-lg-none">
+    <a href="{% url 'home' %}" class="nav-item">
+        <i class="fa fa-home"></i>
+        <span>Home</span>
+    </a>
+    <a href="{% url 'collections_list' %}" class="nav-item">
+        <i class="fa fa-th-large"></i>
+        <span>Collections</span>
+    </a>
+    <a href="{% url 'cart' %}" class="nav-item">
+        <i class="fa fa-shopping-cart"></i>
+        <span>Cart</span>
+    </a>
+    <a href="{% url 'Fav' %}" class="nav-item">
+        <i class="fa fa-heart"></i>
+        <span>Fav</span>
+    </a>
+    <a href="#" class="nav-item" id="mobileMenuBtn">
+        <i class="fa fa-bars"></i>
+        <span>Menu</span>
+    </a>
+</div>
+
+<!-- 📱 4. மொபைல் & டேப்லெட் மெனு பாப்-அப் (Bottom Sheet) -->
+<div class="mobile-sidebar" id="mobileSidebar">
+    <div class="sidebar-header">
+        <h5 style="color: #333; font-weight: bold; margin: 0;">KALAIARASI METAL STORE</h5>
+        <button id="closeSidebarBtn" style="background:none; border:none; font-size:24px; color:#999;">&times;</button>
+    </div>
+    <div class="sidebar-body">
+        {% if request.user.is_authenticated %}
+            <div class="user-greet" style="padding: 12px 5px; font-weight: bold; color: #007bff;"><i class="fa fa-user"></i> Hi, {{ request.user }}</div>
+            <a href="{% url 'myorders' %}"><i class="fa fa-shopping-bag"></i> My Orders</a>
+            <a href="{% url 'logout' %}" class="text-danger"><i class="fa fa-sign-out"></i> Logout</a>
+        {% else %}
+            <a href="{% url 'login' %}"><i class="fa fa-sign-in"></i> Login / Sign In</a>
+            <a href="{% url 'register' %}"><i class="fa fa-user-plus"></i> Register / Create Account</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 🎯 5. சிஎஸ்எஸ் (CSS) ஸ்டைல் - பிசி மற்றும் மொபைல் ஆட்டோ-ஹைட் லாஜிக் -->
+<style>
+    /* PC / லேப்டாப் டாப் நேவ்பார் ஆட்டோ-ஹைட் ஸ்டைல் */
+    .pc-auto-navbar {
+        transform: translateY(-100%) !important; /* ஆரம்பத்தில் மேலே மறைந்திருக்கும் */
+        transition: transform 0.3s ease-in-out !important;
+    }
+
+    /* மவுஸ் மேலே செல்லும் போது அல்லது ஸ்கிரீன் டாப் பகுதியில் இருக்கும் போது கீழே வரும் */
+    .pc-auto-navbar.show-navbar {
+        transform: translateY(0) !important;
+    }
+
+    /* மொபைல் டாப் நேவ்பார் ஸ்டைல் */
+    .mobile-top-nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 55px;
+        z-index: 9999;
+        transform: translateY(-100%) !important;
+        transition: transform 0.3s ease-in-out !important;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        border: none !important;
+    }
+
+    .mobile-top-nav.show-on-touch {
+        transform: translateY(0) !important;
+    }
+
+    .style-brand {
+        font-size: 15px !important;
+        font-weight: 500;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background-color: #ffffff !important;
+        border-top: 1px solid #e0e0e0;
+        display: flex !important;
+        justify-content: space-around;
+        align-items: center;
+        z-index: 9999;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+    }
+
+    @media (min-width: 992px) {
+        .bottom-nav {
+            display: none !important;
+        }
+    }
+
+    .nav-item {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: #333333 !important;
+        text-decoration: none !important;
+        font-size: 11px;
+        width: 20%;
+        height: 100%;
+    }
+
+    .nav-item i {
+        font-size: 18px !important;
+        margin-bottom: 2px;
+        display: inline-block !important;
+    }
+
+    .nav-item:hover, .nav-item:focus {
+        color: #007bff !important;
+    }
+
+    .mobile-sidebar {
+        position: fixed;
+        bottom: -100%;
+        left: 0;
+        right: 0;
+        background-color: #ffffff;
+        border-top-left-radius: 15px;
+        border-top-right-radius: 15px;
+        z-index: 10000;
+        transition: bottom 0.3s ease-in-out;
+        box-shadow: 0 -5px 25px rgba(0,0,0,0.15);
+        padding: 20px;
+    }
+
+    .mobile-sidebar.open {
+        bottom: 0;
+    }
+
+    .sidebar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #eeeeee;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+
+    .sidebar-body a {
+        display: block;
+        padding: 14px 5px;
+        color: #333 !important;
+        text-decoration: none !important;
+        font-size: 15px;
+        border-bottom: 1px solid #fafafa;
+    }
+
+    .sidebar-body a i {
+        margin-right: 10px;
+        width: 20px;
+    }
+</style>
+
+<!-- 🎯 6. ஜாவாஸ்கிரிப்ட் லாஜிக் (PC மற்றும் Mobile இரண்டிற்கும் வேலை செய்யும்) -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const pcNavbar = document.getElementById('pcAutoNavbar');
+        const mobileTopNav = document.getElementById('autoMobileNavbar');
+        let hideTimer;
+
+        // PC வியூவிற்கான மவுஸ் மூவ் மற்றும் ஸ்க்ரோல் செட்டப்
+        window.addEventListener('mousemove', function(e) {
+            if (window.innerWidth >= 992 && pcNavbar) {
+                // மவுஸ் ஸ்கிரீனின் டாப் பகுதியில் (0 முதல் 60px குள்ள) வந்தால் நேவ்பார் தெரியும்
+                if (e.clientY <= 60) {
+                    pcNavbar.classList.add('show-navbar');
+                    clearTimeout(hideTimer);
+                } else {
+                    // மவுஸ் கீழே சென்றுவிட்டால் 2 விநாடிகளில் மறைந்துவிடும்
+                    hideTimer = setTimeout(function() {
+                        if (e.clientY > 60) {
+                            pcNavbar.classList.remove('show-navbar');
+                        }
+                    }, 2000);
+                }
+            }
+        });
+
+        // PC-ல் ஸ்க்ரோல் செய்யும் போது மேலே சென்றால் காட்டுவது
+        let lastScrollTop = 0;
+        window.addEventListener('scroll', function() {
+            if (window.innerWidth >= 992 && pcNavbar) {
+                let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                if (scrollTop < lastScrollTop || scrollTop < 50) {
+                    pcNavbar.classList.add('show-navbar');
+                } else {
+                    pcNavbar.classList.remove('show-navbar');
+                }
+                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+            }
+        });
+
+        // மொபைல் & டேப்லெட் வியூவிற்கான டச் லாஜிக்
+        const isMobileOrTab = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 992;
+
+        function showAndHideHeader() {
+            if (isMobileOrTab && mobileTopNav) {
+                mobileTopNav.classList.add('show-on-touch');
+                clearTimeout(hideTimer);
+                hideTimer = setTimeout(function() {
+                    mobileTopNav.classList.remove('show-on-touch');
+                }, 2500);
+            }
+        }
+
+        window.addEventListener('touchstart', showAndHideHeader, {passive: true});
+        window.addEventListener('touchmove', showAndHideHeader, {passive: true});
+        window.addEventListener('scroll', function() {
+            if (isMobileOrTab) showAndHideHeader();
+        }, {passive: true});
+
+        // பாட்டம் மெனு ஓப்பன்/குளோஸ் லாஜிக்
+        const menuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('mobileSidebar');
+        const closeBtn = document.getElementById('closeSidebarBtn');
+
+        if(menuBtn && sidebar && closeBtn) {
+            menuBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                sidebar.classList.add('open');
+            });
+
+            closeBtn.addEventListener('click', function() {
+                sidebar.classList.remove('open');
+            });
+
+            document.addEventListener('touchstart', function(e) {
+                if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }, {passive: true});
+        }
+    });
+</script>

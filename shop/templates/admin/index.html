@@ -1,0 +1,67 @@
+{% extends "admin/index.html" %}
+{% load static %}
+
+{% block content %}
+<!-- 📊 Admin Sales Analytics Dashboard (Bar & Pie Charts) -->
+{% if request.user.is_superuser %}
+<div class="container-fluid mb-4" style="padding: 0 20px;">
+    <div class="row" style="display: flex; gap: 20px; margin-bottom: 20px;">
+        <!-- 📈 Bar Graph -->
+        <div style="flex: 2; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 15px; color: #333;">📈 Top Selling Products (Bar Graph)</h3>
+            <canvas id="adminBarChart" width="400" height="180"></canvas>
+        </div>
+
+        <!-- 🥧 Pie Chart -->
+        <div style="flex: 1; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 15px; color: #333;">🛍️ Sales Share (Pie Chart)</h3>
+            <canvas id="adminPieChart" width="400" height="180"></canvas>
+        </div>
+    </div>
+</div>
+
+{{ chart_labels|json_script:"admin-chart-labels" }}
+{{ chart_data|json_script:"admin-chart-data" }}
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const chartLabels = JSON.parse(document.getElementById('admin-chart-labels').textContent);
+    const chartData = JSON.parse(document.getElementById('admin-chart-data').textContent);
+
+    // Bar Graph
+    const barCtx = document.getElementById('adminBarChart').getContext('2d');
+    new Chart(barCtx, {
+        type: 'bar',
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                label: 'Units Sold',
+                data: chartData,
+                backgroundColor: '#0d6efd',
+                borderRadius: 5
+            }]
+        },
+        options: {
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    // Pie Chart
+    const pieCtx = document.getElementById('adminPieChart').getContext('2d');
+    new Chart(pieCtx, {
+        type: 'pie',
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                data: chartData,
+                backgroundColor: ['#0d6efd', '#198754', '#ffc107', '#dc3545', '#6f42c1']
+            }]
+        }
+    });
+</script>
+{% endif %}
+
+<!-- Django Default Admin Dashboard Content -->
+{{ block.super }}
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends 'shop/layouts/main.html' %}
+{% block content %}
+<div class="container py-5">
+    
+    <!-- 1. Welcome Hero Banner -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="p-4 bg-white shadow-sm rounded-4 border-0 d-flex align-items-center justify-content-between flex-wrap">
+                <div class="d-flex align-items-center mb-2 mb-md-0">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 shadow" style="width: 65px; height: 65px; font-size: 28px;">
+                        <i class="fa fa-user"></i>
+                    </div>
+                    <div>
+                        <h3 class="fw-bold text-dark mb-1">Hello, {{ request.user.username }}!</h3>
+                        <p class="text-muted mb-0 small"><i class="fa fa-envelope me-1 text-primary"></i> {{ request.user.email|default:"No email provided" }}</p>
+                    </div>
+                </div>
+                <div>
+                    <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm px-4 py-2 rounded-pill fw-semibold">
+                        <i class="fa fa-sign-out-alt me-1"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Main Content Grid -->
+    <div class="row g-4">
+        
+        <!-- Left Column: Personal Information & Settings -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-white py-3 border-0">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="fa fa-id-card text-primary me-2"></i> Account Details</h5>
+                </div>
+                <div class="card-body border-top pt-3">
+                    <ul class="list-unstyled mb-0">
+                        <li class="py-2 border-bottom d-flex justify-content-between">
+                            <span class="text-muted">Username:</span>
+                            <span class="fw-bold text-dark">{{ request.user.username }}</span>
+                        </li>
+                        <li class="py-2 border-bottom d-flex justify-content-between">
+                            <span class="text-muted">Email:</span>
+                            <span class="text-dark">{{ request.user.email|default:"N/A" }}</span>
+                        </li>
+                        <li class="py-2 border-bottom d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Terms Status:</span>
+                            <span>
+                                {% if profile.terms_accepted %}
+                                    <span class="badge bg-success px-2 py-1">Accepted</span>
+                                {% else %}
+                                    <span class="badge bg-danger px-2 py-1">Pending</span>
+                                {% endif %}
+                            </span>
+                        </li>
+                        <li class="py-2 d-flex flex-column pt-3">
+                            <span class="text-muted mb-1 font-monospace small">Shipping Address:</span>
+                            <span class="text-dark bg-light p-2 rounded small">{{ profile.address|default:"No address added yet. It will be updated when you place an order." }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Quick Navigation Card -->
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body">
+                    <a href="{% url 'home' %}" class="btn btn-primary w-100 py-2 rounded-pill fw-semibold shadow-sm">
+                        <i class="fa fa-shopping-bag me-2"></i> Continue Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Order History -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="fa fa-box-open text-primary me-2"></i> My Order History</h5>
+                    <span class="badge bg-light text-primary border px-3 py-2 rounded-pill">{{ orders|length|default:"0" }} Orders</span>
+                </div>
+                <div class="card-body border-top p-0">
+                    {% if orders %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light text-muted small uppercase">
+                                    <tr>
+                                        <th class="py-3 ps-4">Order ID</th>
+                                        <th class="py-3">Date</th>
+                                        <th class="py-3">Status</th>
+                                        <th class="py-3 pe-4 text-end">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in orders %}
+                                    <tr>
+                                        <td class="ps-4 fw-bold text-primary">#{{ order.id }}</td>
+                                        <td class="text-muted small">{{ order.created_at|date:"M d, Y" }}</td>
+                                        <td>
+                                            <span class="badge bg-warning text-dark px-2 py-1">{{ order.status|default:"Processing" }}</span>
+                                        </td>
+                                        <td class="pe-4 text-end">
+                                            <a href="#" class="btn btn-sm btn-outline-primary px-3 rounded-pill">View</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="mb-3 text-muted opacity-50">
+                                <i class="fa fa-shopping-cart fa-3x"></i>
+                            </div>
+                            <h5 class="text-dark fw-bold">No orders placed yet</h5>
+                            <p class="text-muted small mb-3">Explore our store and start shopping for amazing metal products!</p>
+                            <a href="{% url 'home' %}" class="btn btn-dark btn-sm px-4 py-2 rounded-pill">Start Shopping</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

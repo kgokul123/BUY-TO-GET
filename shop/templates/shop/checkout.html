@@ -1,0 +1,492 @@
+{% extends 'shop/layouts/main.html' %}
+
+{% block content %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
+
+<div class="container mb-5" style="margin-top:100px; min-height: 80vh;">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+
+            <div class="card p-4 shadow-sm bg-white border-0 rounded-3">
+                <h3 class="fw-bold text-dark">Secure Checkout</h3>
+                <hr class="mb-4">
+
+                <form method="POST" id="checkout-form" onsubmit="enableFieldsBeforeSubmit()">
+                    {% csrf_token %}
+
+                    <div id="step-1">
+                        <div class="mb-4">
+                            <label class="fw-bold mb-2">Name</label>
+                            <input type="text" id="name" name="name" class="form-control" style="padding: 10px;" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="fw-bold mb-2">Phone Number</label>
+                            <div class="d-flex align-items-center gap-2">
+                                <div style="flex-grow: 1;">
+                                    <input type="tel" id="phoneNumber" name="phone" class="form-control w-100" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);" placeholder="1234567890" style="padding: 10px;" required>
+                                </div>
+                                <button type="button" id="btnVerifyDetails" class="btn btn-primary px-4 fw-bold" style="height: 46px;" onclick="showConfirmPopup()">Verify Details</button>
+                            </div>
+                            <small class="text-muted mt-1 d-block">💡please enter whatsapp mobile number Press the VERIFY button to send the verification only OTP via WhatsApp</small>
+                        </div>
+
+                        <div class="mb-4" id="welcomeMessageBox" style="display: none;">
+                            <div class="alert alert-success fw-bold py-2 mb-2">
+                                ✓ Welcome back, Your details are verified via past orders.
+                            </div>
+                        </div>
+
+                        <div class="mb-4" id="otpSection" style="display: none; background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #dee2e6;">
+                            <label class="fw-bold text-dark mb-2"> ENTER IN YOUR WHATSAPP OTP 6 DIGIT NUMBER:</label>
+                            <div class="input-group mb-2" style="max-width: 350px;">
+                                <input type="text" id="otpInput" class="form-control text-center fw-bold fs-5" placeholder="Enter OTP" maxlength="6" style="padding: 10px; letter-spacing: 5px;">
+                                <button type="button" id="btnSubmitOtp" class="btn btn-success fw-bold px-4" onclick="verifyOTPFromWhatsApp()">Submit OTP</button>
+                            </div>
+                            <div id="timerDisplay" class="text-danger fw-bold small mb-2" style="font-size: 15px;"></div>
+                            <span id="otpErrorAlert" class="text-danger fw-bold small d-block" style="display: none;"></span>
+                        </div>
+
+                        <div class="mb-4" id="verificationStatusSection" style="display: none;">
+                            <div id="verificationResult" class="alert alert-warning fw-bold py-2 mb-2"></div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="fw-bold mb-2">Address</label>
+                            <textarea id="address" name="address" rows="4" class="form-control" style="padding: 10px;" required></textarea>
+                        </div>
+                        <div class="disclaimer" style="margin: 15px 0; padding: 10px; background-color: #f9f9f9; border-left: 4px solid #f7941d; font-size: 0.9em; color: #555;">
+                                <p style="margin: 0;">
+                                    <strong><i class="fas fa-lock"></i> SECURITY AND CONFIDENTIALITY :</strong> 
+                                    IF YOU DID NOT RECEIVE OTP PLEASE CONTACT OTP PLEASE CONTACT PH:9786542128
+                                </p>
+                        </div>
+
+                        <button type="button" class="btn btn-info mt-2 text-white w-100 py-2 fw-bold" onclick="goToStep2()">Next: Payment & Availability</button>
+                    </div>
+
+                    <div id="step-2" style="display: none;">
+                        <div class="mb-4">
+                            <label class="fw-bold mb-2">Payment Method</label><br>
+                            <input type="radio" id="cod" name="payment_mode" value="COD" checked> Cash On Delivery &nbsp;&nbsp;
+                            <input type="radio" id="upi" name="payment_mode" value="UPI"> UPI Payment
+                            
+                            <div id="upi_disclaimer_box" class="alert alert-warning mt-4 p-3 shadow-sm" style="display: none; border-left: 5px solid #ffc107; background-color: #2c2f33; color: #fff;">
+                              <h5 class="text-warning fw-bold mb-2"><i class="fas fa-exclamation-triangle"></i>DISCLIMER!</h5>
+                              <p class="mb-2" style="font-size: 14px; line-height: 1.6;">
+                               you <strong>UPI Payment</strong>Once you've made your choice, just scan the QR code above and make the payment, boss. 
+                             </p>
+                             <p class="mb-0 text-info fw-bold" style="font-size: 14px;">
+                                ⚠️ YOU FINISHED PAYMENT GPay/PhonePe PLEASE ENTER <span class="text-danger bg-light px-1 rounded fw-bold">12-digit UPI Transaction ID (Ref No)</span> BELOW THE BOX NEXT ENTER "Place Order"! Only then will your order be registered in our system.!
+                             </p>
+                        </div>
+                            <div id="upi-fields" class="mt-3" style="display: none;">
+                                <label class="fw-bold text-secondary mb-1">UPI Transaction ID</label>
+                                <div class="text-center my-3 border p-2 bg-white rounded" style="max-width: 200px; margin: 0 auto;">
+                                 <p class="small text-dark mb-1 fw-bold" style="font-size: 12px;">Scan via GPay / PhonePe</p>
+                                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ upi_url|urlencode }}" 
+                                  alt="UPI QR Code" class="img-fluid" style="width: 160px; height: 160px;">
+                                </div>
+                                <input type="text" name="transaction_id" class="form-control w-100 mb-2" style="max-width: 500px; padding: 10px;" placeholder="Enter UPI Transaction ID">
+                                <p class="small text-muted"><strong>UPI ID :</strong> kalaiarasi2128@oksbi</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-4 mt-4">
+                            <label class="fw-bold mb-2">Pincode</label>
+                            <input type="text" id="pincode" name="pincode" class="form-control" style="max-width: 500px; padding: 10px;" maxlength="6" required>
+                        </div>
+
+                        <button type="button" class="btn btn-info text-white px-4" onclick="checkPincode()">
+                            Check Availability
+                        </button>
+                        
+                        <div id="result" class="mt-2"></div>
+
+                        <hr class="mt-4">
+                        <button type="button" class="btn btn-secondary mt-3 px-4" onclick="goToStep1()">Back</button>
+                        <button type="submit" id="placeOrderBtn" class="btn btn-success mt-3 float-end px-4 fw-bold" disabled>
+                            Place Order
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true" style="margin-top: 150px;">
+  <div class="modal-dialog">
+    <div class="modal-content border-0 shadow-lg rounded-3">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title fw-bold" id="confirmModalLabel">⚠️ SEND OTP TO WHATSAPP?</h5>
+      </div>
+      <div class="modal-body p-4 fs-5">
+        <p> CONFIRM TO SENT OTP IN YOUR WHATSAPP?</p>
+        <hr>
+        <div class="mb-2"><strong>Name:</strong> <span id="popName" class="text-primary fw-bold"></span></div>
+        <div class="mb-2"><strong>WhatsApp No:</strong> <span id="popPhone" class="text-primary fw-bold"></span></div>
+      </div>
+      <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-danger px-4 fw-bold" onclick="cancelDetails()">Cancel</button>
+        <button type="button" class="btn btn-success px-4 fw-bold" id="confirmSendBtn" onclick="sendWhatsAppLink()">Send OTP</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+let isPincodeAvailable = false;
+let isDetailsConfirmed = false; 
+let countdownInterval; 
+
+let phoneInput;
+document.addEventListener("DOMContentLoaded", function() {
+    const phoneInputField = document.querySelector("#phoneNumber");
+    phoneInput = window.intlTelInput(phoneInputField, {
+        initialCountry: "in",
+        separateDialCode: true,
+        utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+    });
+
+    const codRadio = document.getElementById("cod");
+    const upiRadio = document.getElementById("upi");
+    const upiFields = document.getElementById("upi-fields");
+    const disclaimerBox = document.getElementById("upi_disclaimer_box");
+    const btnVerifyDetails = document.getElementById("btnVerifyDetails");
+    const welcomeMessageBox = document.getElementById("welcomeMessageBox");
+
+    // 🎯 பக்கம் லோட் ஆகும்போது ஆரம்ப நிலை பாஸ்
+    if (welcomeMessageBox) welcomeMessageBox.style.display = "none";
+    if (btnVerifyDetails) btnVerifyDetails.style.setProperty('display', 'block', 'important');
+
+    // 🎯 [மரண மாஸ் ஜாவாஸ்கிரிப்ட் பிக்ஸ் பாஸ்]
+    if (phoneInputField) {
+        phoneInputField.addEventListener("keyup", function() {
+            let currentNumber = phoneInputField.value.replace(/[^0-9]/g, '').trim();
+
+            if (currentNumber.length === 10) {
+                fetch("/check-otp/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({ phone: currentNumber })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Django Response Status:", data.status);
+
+                    if (data.status === "already_registered" || data.status === "already_verified") {
+                        // 🟢 கேஸ் 1: பழைய கஸ்டமர்னா பட்டன் மறைஞ்சு பச்சை வெல்கம் பாக்ஸ் வரும்!
+                        isDetailsConfirmed = true;
+                        if (welcomeMessageBox) welcomeMessageBox.style.display = "block";
+                        if (btnVerifyDetails) btnVerifyDetails.style.setProperty('display', 'none', 'important');
+                        document.getElementById("otpSection").style.display = "none";
+                        checkFormValidity();
+                    } else {
+                        // 🔵 கேஸ் 2: புது நம்பர்னா பச்சை பெட்டி மறைஞ்சு வெரிஃபை பட்டன் கன்பார்ம் ஷோ ஆகும்!
+                        isDetailsConfirmed = false;
+                        if (welcomeMessageBox) welcomeMessageBox.style.display = "none";
+                        if (btnVerifyDetails) btnVerifyDetails.style.setProperty('display', 'block', 'important');
+                        checkFormValidity();
+                    }
+                })
+                .catch(error => {
+                    console.error("Error Checking Number:", error);
+                    if (btnVerifyDetails) btnVerifyDetails.style.setProperty('display', 'block', 'important');
+                });
+            } else {
+                // 10 நம்பருக்கு குறைவாகவோ அல்லது அதிகமாகவோ இருந்தால் ரீசெட்
+                if (welcomeMessageBox) welcomeMessageBox.style.display = "none";
+                if (btnVerifyDetails) btnVerifyDetails.style.setProperty('display', 'block', 'important');
+            }
+        });
+    }
+
+    const djangoVerifiedStatus = "{{ already_verified|yesno:'true,false' }}";
+    const alreadyVerified = (djangoVerifiedStatus === "true");
+
+    if (alreadyVerified) {
+        isDetailsConfirmed = true; 
+        if (btnVerifyDetails) btnVerifyDetails.style.setProperty('display', 'none', 'important');
+        checkFormValidity();
+    }
+
+    function togglePaymentFields() {
+        if (upiRadio && upiRadio.checked) {
+            if (upiFields) upiFields.style.display = "block";
+            if (disclaimerBox && isDetailsConfirmed) {
+                disclaimerBox.style.display = "block";
+            }
+            const txInput = document.querySelector("input[name='transaction_id']");
+            if (txInput) txInput.required = true;
+        } 
+        else {
+            if (upiFields) upiFields.style.display = "none";
+            if (disclaimerBox) disclaimerBox.style.display = "none";
+            const txInput = document.querySelector("input[name='transaction_id']");
+            if (txInput) txInput.required = false;
+        }
+    }
+
+    if (codRadio) codRadio.addEventListener("change", togglePaymentFields);
+    if (upiRadio) upiRadio.addEventListener("change", togglePaymentFields);
+
+    togglePaymentFields();
+
+    const formElement = document.getElementById("checkout-form");
+    if (formElement) {
+        formElement.addEventListener("submit", function(e) {
+            if (upiRadio && upiRadio.checked) {
+                const txInput = document.querySelector("input[name='transaction_id']");
+                if (!txInput || txInput.value.trim() === "") {
+                    e.preventDefault();
+                    alert("Please enter your 12-digit UPI Transaction ID first, boss!");
+                    txInput.focus();
+                    return false;
+                }
+                if (txInput.value.trim().length < 12) {
+                    e.preventDefault();
+                    alert("Wrong Transaction ID! UPI Ref No must be at least 12 digits long.");
+                    txInput.focus();
+                    return false;
+                }
+            }
+            enableFieldsBeforeSubmit();
+        });
+    }
+});
+
+function showConfirmPopup() {
+    const name = document.getElementById("name").value.trim();
+    const phone = phoneInput.getNumber(); 
+    const address = document.getElementById("address").value.trim();
+
+    if(name === "" || document.getElementById("phoneNumber").value.trim() === "" || address === "") {
+        alert("Please fill Name, Phone Number, and Address first, boss!");
+        return;
+    }
+
+    if(!phoneInput.isValidNumber()) { 
+        alert("Wrong mobile number! Please write 10 digit mobile number with valid flag."); 
+        return; 
+    }
+
+    document.getElementById("popName").innerText = name;
+    document.getElementById("popPhone").innerText = phone;
+
+    var myModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    myModal.show();
+}
+
+function sendWhatsAppLink() {
+    const phone = phoneInput.getNumber();
+    const name = document.getElementById("name").value.trim();
+    const confirmBtn = document.getElementById("confirmSendBtn");
+    
+    confirmBtn.disabled = true;
+    confirmBtn.innerText = "Sending OTP...";
+
+    fetch("/send-verification-whatsapp/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+            "mobile_number": phone,
+            "name": name
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        var myModalEl = document.getElementById('confirmModal');
+        var modal = bootstrap.Modal.getInstance(myModalEl);
+        modal.hide(); 
+        
+        confirmBtn.disabled = false;
+        confirmBtn.innerText = "Send OTP";
+
+        if(data.success) {
+            document.getElementById("otpSection").style.display = "block";
+            document.getElementById("otpInput").disabled = false;
+            document.getElementById("btnSubmitOtp").disabled = false;
+            document.getElementById("otpErrorAlert").style.display = "none";
+            document.getElementById("welcomeMessageBox").style.display = "none";
+            
+            document.getElementById("verificationStatusSection").style.display = "block";
+            const statusBox = document.getElementById("verificationResult");
+            statusBox.className = "alert alert-warning fw-bold py-2 mb-2";
+            statusBox.innerHTML = "💬 SUCESSFULLY SEND 6 DIGIT OTP IN YOUR WHATSAPP !";
+            
+            startOneMinuteOTPTimer();
+        } else {
+            alert("Error sending WhatsApp OTP: " + data.message);
+        }
+    })
+    .catch(error => {
+        alert("Connection Error!");
+        confirmBtn.disabled = false;
+        confirmBtn.innerText = "Send OTP";
+    });
+}
+
+function startOneMinuteOTPTimer() {
+    let timeLeft = 120;
+    const timerDisplay = document.getElementById("timerDisplay");
+    
+    clearInterval(countdownInterval); 
+
+    countdownInterval = setInterval(function() {
+        if(timeLeft <= 0) {
+            clearInterval(countdownInterval);
+            timerDisplay.innerHTML = "❌ TIME OUT! . PLEASE CLICK 'Verify Details' ";
+            document.getElementById("otpInput").disabled = true; 
+            document.getElementById("btnSubmitOtp").disabled = true;
+            document.getElementById("verificationResult").innerHTML = "❌ WRONG OTP.";
+            document.getElementById("verificationResult").className = "alert alert-danger fw-bold py-2 mb-2";
+        } else {
+            timerDisplay.innerHTML = `⏱️ OTP TIMING: ${timeLeft} seconds...`;
+        }
+        timeLeft -= 1;
+    }, 1000);
+}
+
+function verifyOTPFromWhatsApp() {
+    const phone = phoneInput.getNumber();
+    const otpValue = document.getElementById("otpInput").value.trim();
+    const errorAlert = document.getElementById("otpErrorAlert");
+    const submitOtpBtn = document.getElementById("btnSubmitOtp");
+
+    if (otpValue === "" || otpValue.length < 6) {
+        alert("Please type the correct 6-digit OTP!");
+        return;
+    }
+
+    submitOtpBtn.disabled = true;
+    submitOtpBtn.innerText = "Verifying...";
+
+    fetch("/verify-otp/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+            "mobile_number": phone,
+            "otp": otpValue
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        submitOtpBtn.disabled = false;
+        submitOtpBtn.innerText = "Submit OTP";
+
+        if(data.success) {
+            clearInterval(countdownInterval); 
+            isDetailsConfirmed = true;
+            errorAlert.style.display = "none";
+            
+            document.getElementById("timerDisplay").style.display = "none";
+            document.getElementById("otpSection").style.display = "none";
+            const statusBox = document.getElementById("verificationResult");
+            statusBox.className = "alert alert-success fw-bold py-2 mb-2";
+            statusBox.innerHTML = "✓ Details successfully verified via OTP.!";
+            
+            document.getElementById("name").disabled = true;
+            document.getElementById("phoneNumber").disabled = true;
+            document.getElementById("address").disabled = true;
+            if (btnVerifyDetails) btnVerifyDetails.style.setProperty('display', 'none', 'important');
+
+            const upiRadio = document.getElementById("upi");
+            const disclaimerBox = document.getElementById("upi_disclaimer_box");
+            if(upiRadio && upiRadio.checked && disclaimerBox) {
+                disclaimerBox.style.display = "block";
+            }
+
+            checkFormValidity();
+        } else {
+            isDetailsConfirmed = false;
+            errorAlert.innerText = data.message;
+            errorAlert.style.display = "block";
+        }
+    })
+    .catch(error => {
+        alert("Example Error! PLEASE REENTER.");
+        submitOtpBtn.disabled = false;
+        submitOtpBtn.innerText = "Submit OTP";
+    });
+}
+
+function cancelDetails() {
+    isDetailsConfirmed = false;
+    var myModalEl = document.getElementById('confirmModal');
+    var modal = bootstrap.Modal.getInstance(myModalEl);
+    modal.hide();
+    alert("We can change the details,!");
+}
+
+function goToStep2() {
+    if(!isDetailsConfirmed) { 
+        alert("Please Verify with WhatsApp OTP first, boss!"); 
+        return; 
+    }
+    document.getElementById("step-1").style.display = "none";
+    document.getElementById("step-2").style.display = "block";
+}
+
+function goToStep1() {
+    document.getElementById("step-2").style.display = "none";
+    document.getElementById("step-1").style.display = "block";
+}
+
+function checkPincode() {
+    let pincode = document.getElementById("pincode").value;
+    let result = document.getElementById("result");
+
+    if(!pincode) { alert("Please Enter Pincode!"); return; }
+
+    fetch(`/check-pincode/?pincode=${pincode}`)
+    .then(response => response.json())
+    .then(data => {
+        if(data.available){
+            result.innerHTML = "<span class='text-success fw-bold'>✓ Delivery Available</span>";
+            isPincodeAvailable = true;
+        }else{
+            result.innerHTML = "<span class='text-danger fw-bold'>✗ Delivery Not Available</span>";
+            isPincodeAvailable = false;
+        }
+        checkFormValidity();
+    });
+}
+
+function checkFormValidity() {
+    let placeBtn = document.getElementById("placeOrderBtn");
+    if(isPincodeAvailable && isDetailsConfirmed) {
+        placeBtn.disabled = false;
+    } else {
+        placeBtn.disabled = true;
+    }
+}
+
+function enableFieldsBeforeSubmit() {
+    document.getElementById("name").disabled = false;
+    document.getElementById("phoneNumber").disabled = false;
+    document.getElementById("address").disabled = false;
+}
+</script>
+
+<style>
+  .iti { width: 100%; }
+  .input-group .iti { flex: 1 1 auto; width: 1%; }
+</style>
+
+{% endblock content %}
