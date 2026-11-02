@@ -3,4 +3,4 @@ compatibility_date = "2026-11-02"
 
 [pages_build_output_dir]
 # உங்கள் ஸ்டேட்டிக் கோப்புகள் இருக்கும் ஃபோல்டரின் பெயரை இங்கே கொடுக்கவும் (எ.கா: public அல்லது static)
-directory = "public"
+directory = "static"
